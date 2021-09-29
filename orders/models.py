@@ -25,9 +25,14 @@ class Order(models.Model):
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    # test comment from fuad ////s
     # def order_total(self):
-    #     order_total = self.
+    
+    @property
+    def get_order_total(self):
+        orderitems = self.orderitem_set.all()
+        total = sum([item.get_total for item in orderitems])
+        return total
         
 
 
