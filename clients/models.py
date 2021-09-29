@@ -8,7 +8,6 @@ class Client(User):
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
 
-
 class Location(models.Model):
     #relation
     client = models.ForeignKey(Client, on_delete=models.CASCADE, db_index=True, related_name='locations')
