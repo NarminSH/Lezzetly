@@ -49,7 +49,6 @@ class Category(Model):
         return title
 
 
-# Create your models here.
 
 
 
@@ -58,7 +57,7 @@ class Category(Model):
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    category = models.ManyToManyField('product.Category', related_name='categories')
+    category = models.ManyToManyField('Category', related_name='categories')
 
 
     #information
