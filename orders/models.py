@@ -30,19 +30,19 @@ class Order(models.Model):
     
     @property
     def get_order_total(self):
+        # check
         orderitems = self.orderitem_set.all()
         total = sum([item.get_total for item in orderitems])
         return total
-        
-
+    
 
 class OrderItem(models.Model):
     #relation
     meal = models.ForeignKey(Meal, db_index=True, on_delete=models.CASCADE, related_name='ordered_items' )
     order = models.ForeignKey(Order, db_index=True, on_delete=models.CASCADE, related_name='items' )
     quantity = models.PositiveSmallIntegerField(default=1)
-    price = models.PositiveSmallIntegerField()
     
+    @property
     def total_price(self):
-        total_price = self.quantity * self.price
+        total_price = self.meal.get_price * self.quantity
         return total_price
