@@ -1,3 +1,43 @@
+from clients.models import Client
 from django.db import models
-
+from cooks.models import Cook
+from meals.models import Meal
 # Create your models here.
+
+
+
+class Order(models.Model):
+    #relations
+    cook = models.ForeignKey(Cook, db_index=True, on_delete=models.CASCADE, related_name='orders')
+    client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders' )
+    #information
+    STATUS_CHOICES = [
+        ('1', 'Order is confirmed by cook'),
+        ('2', 'Preparing order'),
+        ('3', 'Order is ready'),
+        ('4', 'Courier took order'),
+        ('5', 'Courier is on the to you'),
+        ('6', 'Order is here!'),
+    ]
+    status = models.CharField(max_length=2, choices=STATUS_CHOICES)
+    complete = models.BooleanField(default=False)
+
+    # moderations
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # def order_total(self):
+    #     order_total = self.
+        
+
+
+class OrderItem(models.Model):
+    #relation
+    meal = models.ForeignKey(Meal, db_index=True, on_delete=models.CASCADE, related_name='ordered_items' )
+    order = models.ForeignKey(Order, db_index=True, on_delete=models.CASCADE, related_name='items' )
+    quantity = models.PositiveSmallIntegerField(default=1)
+    price = models.PositiveSmallIntegerField()
+    
+    def total_price(self):
+        total_price = self.quantity * self.price
+        return total_price
