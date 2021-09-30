@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'meals',
     'orders',
     'clients',
+    'delivery',
     'rest_framework',
     'rest_framework_simplejwt',
 ]

@@ -10,7 +10,9 @@ class User(AbstractUser):
         ('3', 'Client')
     ]
     patronymic = models.CharField(max_length=60)
-    phone = models.CharField(max_length=10, unique=True)
+    
+    # fuad / asagida unique=True -ni sildim
+    phone = models.CharField(max_length=10)
     user_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='3')
 
     # moderations
@@ -20,8 +22,9 @@ class User(AbstractUser):
     def __str__(self):   
         return self.first_name
 
-    USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['first_name']
+    # fuad / asagidakilari comment-e aldim
+    # USERNAME_FIELD = 'phone'
+    # REQUIRED_FIELDS = ['first_name']
 
 
 
