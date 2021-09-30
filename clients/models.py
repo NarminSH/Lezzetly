@@ -7,6 +7,8 @@ class Client(User):
     latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
+   
+
 
 class Location(models.Model):
     #relation
