@@ -24,11 +24,8 @@ class Category(Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'category'
-        verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-        ordering = ('created_at', 'title')
-        unique_together = ('slug',)
+
     
 
     @property
@@ -57,7 +54,7 @@ class Category(Model):
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    category = models.ManyToManyField('Category', related_name='categories')
+    category = models.ManyToManyField(Category, related_name='meals', db_index=True)
 
 
     #information

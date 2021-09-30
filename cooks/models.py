@@ -12,8 +12,8 @@ class Cook(User):
     work_experience = models.IntegerField()
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     is_available = models.BooleanField()
-    latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+    # latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
+    # longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
 
 
