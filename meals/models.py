@@ -3,19 +3,16 @@ from django.db import models
 from django.db.models.base import Model
 
 
-
 class Category(Model):
     # relation
-    parent = models.ManyToManyField('self', related_name='children', blank=True)
+    # parent = models.ManyToManyField('self', related_name='children', blank=True)
 
     # information
     title = models.CharField('Title', max_length=100, db_index=True)
     # image = models.ImageField('Şəkil', blank=True, upload_to='categories_images')
     description = models.CharField(max_length=255, blank=True)
-    slug = models.SlugField('Slug', max_length=110, editable=False, default='', unique = True)
-    is_main = models.BooleanField('Main', default=False)
-    is_second = models.BooleanField('Second', default=False)
-    is_third = models.BooleanField('Third', default=False)
+    # slug = models.SlugField('Slug', max_length=110, editable=False, default='', unique = True)
+    is_taste = models.BooleanField('Taste', default=False)
     is_time = models.BooleanField('TimeOfDay', default=False)
 
     # moderations
@@ -28,34 +25,22 @@ class Category(Model):
 
     
 
-    @property
-    def get_slug(self):
-        slug = ''
-        for item in self.parent.all():
-            slug += item.title
-        return slug
-
+    # @property
+    # def get_slug(self):
+    #     slug = ''
+    #     for item in self.parent.all():
+    #         slug += item.title
+    #     return slug
 
     def __str__(self):
-        if self.is_main:
-            title = f'{self.title}'
-        elif self.is_second:
-            title = f'{self.title}'
-        else:
-            title = f'{self.parent.all().last()} {self.title} '
-        return title
-
-
-
-
-
+        return self.title
 
 
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    category = models.ManyToManyField(Category, related_name='meals', db_index=True)
-
+    # category = models.ManyToManyField(Category, related_name='meals', db_index=True)
+    category = models.ForeignKey(Category, related_name='meals', db_index=True, on_delete=models.CASCADE)
 
     #information
     title = models.CharField(max_length=60)
@@ -68,16 +53,31 @@ class Meal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def get_price(self):
-        return self.price
-
     def __str__(self):
         return self.title
 
 
-class Property(models.Model):
+# class Property(models.Model):
+#     #relation
+#     meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='properties')
+
+#     #information
+#     title = models.CharField(max_length=100)
+
+#     # moderations
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return self.title
+
+#     class Meta:
+#         verbose_name_plural = 'Properties'
+
+
+class Ingredient(models.Model):
     #relation
-    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='properties')
+    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='ingredients')
 
     #information
     title = models.CharField(max_length=100)
@@ -89,14 +89,10 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
-    class Meta:
-        verbose_name_plural = 'Properties'
 
-
-
-class PropertyOption(models.Model):
+class MealOption(models.Model):
     #relation
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, db_index=True, related_name='options')
+    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='options')
 
     #information
     title = models.CharField(max_length=100)

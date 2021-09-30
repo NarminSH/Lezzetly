@@ -1,5 +1,5 @@
 from django.contrib import admin
-from meals.models import Meal, Category, Property, PropertyOption
+from meals.models import Meal, Category, Ingredient, MealOption
 # Register your models here.
 
 @admin.register(Meal)
@@ -15,14 +15,14 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('title', 'created_at')
 
 
-@admin.register(Property)
-class PropertyAdmin(admin.ModelAdmin):
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     list_display = ('title', 'created_at')
     list_filter = ( 'title', 'created_at')
     search_fields = ('title', 'created_at')
 
 
-@admin.register(PropertyOption)
+@admin.register(MealOption)
 class PropertyOptionAdmin(admin.ModelAdmin):
     list_display = ('title', 'created_at')
     list_filter = ( 'title', 'created_at')
