@@ -51,8 +51,8 @@ class Ingredient(models.Model):
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    category = models.ManyToManyField(Category, related_name='meals', db_index=True, null=True, blank=True)
-    ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, null=True, blank=True)
+    category = models.ManyToManyField(Category, related_name='meals', db_index=True, blank=True)
+    ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)
     
     #information
     title = models.CharField(max_length=60)
