@@ -27,6 +27,7 @@ class MealAPIView(generics.ListCreateAPIView):
     serializer_class = MealSerializer
 
 
+
 # @api_view(['GET'])
 # def mealList(request):
 #     meals = Meal.objects.all()
