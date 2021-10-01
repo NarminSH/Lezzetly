@@ -19,10 +19,10 @@ from django.urls.conf import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('users.api.urls', namespace='users_api')),
+    path('api/v1.0/', include('users.api.urls', namespace='users_api')),
     # path('api/', include('core.api.urls', namespace='core_api')),
     # path('api/', include('clients.api.urls', namespace='clients_api')),
     # path('api/', include('meals.api.urls', namespace='meals_api')),
     # path('api/', include('orders.api.urls', namespace='orders_api')),
-    # path('api/', include('cooks.api.urls', namespace='cooks_api')),
+    path('api/v1.0/', include('cooks.api.urls', namespace='cooks_api')),
 ]
