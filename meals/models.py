@@ -6,7 +6,7 @@ from django.db.models.base import Model
 class Category(Model):
     # relation
     # parent = models.ManyToManyField('self', related_name='children', blank=True)
-    meal = models.ForeignKey('Meal', related_name='categories', db_index=True, on_delete=models.CASCADE)
+    # meal = models.ForeignKey('Meal', related_name='categories', db_index=True, on_delete=models.CASCADE)
     # information
     title = models.CharField('Title', max_length=100, db_index=True)
     # image = models.ImageField('Şəkil', blank=True, upload_to='categories_images')
@@ -23,8 +23,20 @@ class Category(Model):
     class Meta:
         verbose_name_plural = 'Categories'
 
-    
+class Ingredient(models.Model):
+    #relation
+    # meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='ingredients')
 
+    #information
+    title = models.CharField(max_length=100)
+
+    # moderations
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+    
     # @property
     # def get_slug(self):
     #     slug = ''
@@ -39,7 +51,8 @@ class Category(Model):
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    # category = models.ManyToManyField(Category, related_name='meals', db_index=True)
+    category = models.ManyToManyField(Category, related_name='meals', db_index=True, null=True, blank=True)
+    ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, null=True, blank=True)
     
     #information
     title = models.CharField(max_length=60)
@@ -74,19 +87,6 @@ class Meal(models.Model):
 #         verbose_name_plural = 'Properties'
 
 
-class Ingredient(models.Model):
-    #relation
-    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, db_index=True, related_name='ingredients')
-
-    #information
-    title = models.CharField(max_length=100)
-
-    # moderations
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.title
 
 
 class MealOption(models.Model):

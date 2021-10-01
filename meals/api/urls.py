@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path("", views.mealsApiOverviews, name="api-overview"),
-    path("meals/", views.mealList, name="meal-list"),
+    # path("meals/", views.mealList, name="meal-list"),
+    path("meals/", views.MealAPIView.as_view(), name="meal-list"),
     path("meals/<str:pk>/", views.mealDetail, name="meal-detail"),
     path("meal-create/", views.mealCreate, name="meal-create"),
     path("meal-update/<str:pk>/", views.mealUpdate, name="meal-update"),
