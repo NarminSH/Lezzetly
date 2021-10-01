@@ -6,7 +6,7 @@ from django.db.models.base import Model
 class Category(Model):
     # relation
     # parent = models.ManyToManyField('self', related_name='children', blank=True)
-
+    meal = models.ForeignKey('Meal', related_name='categories', db_index=True, on_delete=models.CASCADE)
     # information
     title = models.CharField('Title', max_length=100, db_index=True)
     # image = models.ImageField('Şəkil', blank=True, upload_to='categories_images')
@@ -40,8 +40,7 @@ class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
     # category = models.ManyToManyField(Category, related_name='meals', db_index=True)
-    category = models.ForeignKey(Category, related_name='meals', db_index=True, on_delete=models.CASCADE)
-
+    
     #information
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 
