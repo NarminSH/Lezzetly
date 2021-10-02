@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Cook(User):
-# information
+    # information
     birth_place = models.CharField(max_length=150)
     city = models.CharField(max_length=150, blank=True, null=True)
     service_place = models.CharField(max_length=255,blank=True, null=True)
@@ -12,6 +12,13 @@ class Cook(User):
     work_experience = models.IntegerField()
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     is_available = models.BooleanField()
+    
+    @property
+    def getFirstName(self):
+        return self.first_name
+
+    def __str__(self):
+        return self.first_name
 
 
 class Resume(models.Model):

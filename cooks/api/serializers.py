@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from cooks.models import Cook, Recommendation, Resume
 
-
-class CookListSerializer(serializers.ModelSerializer):
+# evez edir Category Listi ni
+class CookListSerializer(serializers.ModelSerializer): 
 
     class Meta:
         model = Cook
@@ -25,8 +25,7 @@ class CookListSerializer(serializers.ModelSerializer):
             'resumes',
         )
         
-
-
+# evez edir Meal i
 class RecommendationSerializer(serializers.ModelSerializer):
 
     class Meta:

@@ -21,17 +21,11 @@ def mealsApiOverviews(request):
     return Response(api_urls)
 
 class MealAPIView(generics.ListCreateAPIView):
-    search_fields = ['title', 'price', 'category__title', 'ingredients__title']
+    search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title']
     filter_backends = (filters.SearchFilter,)
     queryset = Meal.objects.all()
     serializer_class = MealSerializer
 
-
-# @api_view(['GET'])
-# def mealList(request):
-#     meals = Meal.objects.all()
-#     serializer = MealSerializer(meals, many=True)
-#     return Response(serializer.data)
 
 @api_view(['GET'])
 def mealDetail(request, pk):
