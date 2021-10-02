@@ -42,6 +42,8 @@ class Recommendation(models.Model):
                 db_index=True, related_name='recommendations')
     #infromation
     recommended_by = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    
 
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)

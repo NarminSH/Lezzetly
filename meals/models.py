@@ -57,10 +57,9 @@ class MealOption(models.Model):
 class Meal(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
-    category = models.ManyToManyField(Category, related_name='meals', db_index=True, blank=True)
-    ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)
     mealoption = models.ManyToManyField(MealOption, related_name='meals', db_index=True, blank=True)
-    
+    category = models.ManyToManyField(Category, related_name='meals', db_index=True,  blank=True)
+    ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)
     #information
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 

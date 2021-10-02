@@ -1,3 +1,5 @@
+from meals.api.serializers import MealSerializer
+from meals.models import Meal
 from django.http.response import Http404, JsonResponse
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
@@ -28,7 +30,7 @@ class RecommendationsAPIView(ListCreateAPIView):
 
 
 
-class RecommendationAPIView(APIView):
+class CookRecommendationsAPIView(APIView):
     serializer_class = RecommendationSerializer
 
     def get(self, *args, **kwargs):
@@ -50,7 +52,7 @@ class ResumesAPIView(ListCreateAPIView):
         return super(ResumesAPIView, self).get_serializer_class()
 
 
-class ResumeAPIView(APIView):
+class CookResumesAPIView(APIView):
     def get(self, *args, **kwargs):
             item = Resume.objects.filter(cook=kwargs.get('pk')).first()
             if not item:
@@ -58,4 +60,15 @@ class ResumeAPIView(APIView):
             serializer = ResumeSerializer(
                 item, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
+
+
+class CookMealsAPIView(APIView):
+    def get(self, *args, **kwargs):
+            item = Meal.objects.filter(cook=kwargs.get('pk')).first()
+            if not item:
+                raise Http404
+            serializer = MealSerializer(
+                item, context={'request': self.request})
+            return JsonResponse(data=serializer.data, safe=False)
+
 
