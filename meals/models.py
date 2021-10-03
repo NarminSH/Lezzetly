@@ -13,7 +13,7 @@ class Category(Model):
     is_time = models.BooleanField('TimeOfDay', default=False)
 
     # moderations
-    status = models.BooleanField('Aktiv', default=True)
+    is_active = models.BooleanField('is_active', default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -64,7 +64,8 @@ class Meal(models.Model):
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 
     stock_quantity = models.PositiveSmallIntegerField(blank=True, null=True)
-    is_available = models.BooleanField()
+    # is_available = models.BooleanField()
+    is_active = models.BooleanField(default=True)
     preparing_time = models.CharField(max_length=20)
 
     # moderations

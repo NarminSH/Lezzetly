@@ -3,12 +3,30 @@ from rest_framework import serializers
 from ..models import Category, Ingredient, Meal, MealOption
 from cooks.models import Cook
 
+
 class CookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cook
         fields = (
             'first_name',
         )
+
+class CategoryCustomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'title',
+            'description',
+            'is_taste',
+            'is_time',
+            'is_active',
+        )
+
+class CategoryUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,7 +61,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class MealSerializer(serializers.ModelSerializer):
     cook = CookSerializer()
-    # mealoption = MealOptionSerializer(many=True)
+    mealoption = MealOptionSerializer(many=True)
     ingredients = IngredientSerializer(many=True)
     category = CategorySerializer(many=True)
     class Meta:
@@ -53,7 +71,7 @@ class MealSerializer(serializers.ModelSerializer):
             'title',
             'price',
             'stock_quantity',
-            'is_available',
+            'is_active',
             'created_at',
             'updated_at',
             'cook',
