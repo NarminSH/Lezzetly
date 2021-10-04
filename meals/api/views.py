@@ -23,7 +23,7 @@ def mealsApiOverviews(request):
     api_urls = {
         'List of meals': '/meals',
         'Meals detail': '/meals/<str:pk>',
-        'Create meal': '/meals',
+        'Create meal': '/meal-create',
         'Update meal': '/meals/<str:pk>',
         'Delete meal': '/meals/<str:pk>',
         'list of categories': '/categories',
@@ -34,68 +34,74 @@ def mealsApiOverviews(request):
     }
     return Response(api_urls)
 
-# Api for  get all meals and for search
-# for search - meals/?search=lunch 
-class MealAPIView(generics.ListCreateAPIView):
-    model = Meal
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return MealCreatSerializer
-        return MealSerializer
+class MealAPIView(generics.ListAPIView):
     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title']
     filter_backends = (filters.SearchFilter,)
-    def get_queryset(self):
-        return Meal.objects.filter(is_active=True)
+    queryset = Meal.objects.all()
+    serializer_class = MealSerializer
+
+# Api for  get all meals and for search
+# for search - meals/?search=lunch 
+# class MealAPIView(generics.ListCreateAPIView):
+#     model = Meal
+#     def get_serializer_class(self):
+#         if self.request.method == 'POST':
+#             return MealCreatSerializer
+#         return MealSerializer
+#     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title']
+#     filter_backends = (filters.SearchFilter,)
+#     def get_queryset(self):
+#         return Meal.objects.filter(is_active=True)
     
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         if not serializer.is_valid():
+#             return Response(
+#                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        item = Meal.objects.create(
-            title=serializer.data['title'],
-            price=serializer.data['price'],
-            stock_quantity=serializer.data['stock_quantity'],
-            is_active=serializer.data['is_active'],
-            cook=serializer.data['cook'],
-            category=serializer.data['category'],
-            ingredients=serializer.data['ingredients'],
-            mealoption=serializer.data['mealoption']
-            )
-        result = MealSerializer(item)
-        return Response(result.data, status=status.HTTP_201_CREATED)
+#         item = Meal.objects.create(
+#             title=serializer.data['title'],
+#             price=serializer.data['price'],
+#             stock_quantity=serializer.data['stock_quantity'],
+#             is_active=serializer.data['is_active'],
+#             cook=serializer.data['cook'],
+#             category=serializer.data['category'],
+#             ingredients=serializer.data['ingredients'],
+#             mealoption=serializer.data['mealoption']
+#             )
+#         result = MealSerializer(item)
+#         return Response(result.data, status=status.HTTP_201_CREATED)
     # queryset = Meal.objects.filter(is_active=True)
     # serializer_class = MealSerializer
 
 
 # create new meals,
 # delete all meals, now in comment
-# @api_view(['GET', 'POST', 'DELETE'])
-# def meal_list(request):
-#     if request.method == 'GET':
-#         queryset = Meal.objects.filter(is_active=True)
+@api_view(['POST', 'DELETE'])
+def meal_list(request):
+    # if request.method == 'GET':
+    #     queryset = Meal.objects.filter(is_active=True)
         
-#         # title = request.query_params.get('search', None)
-#         # if title is not None:
-#         #     meals = meals.filter(title__icontains=title, price__icontains=title)
+    #     # title = request.query_params.get('search', None)
+    #     # if title is not None:
+    #     #     meals = meals.filter(title__icontains=title, price__icontains=title)
         
-#         filterset = MealFilter(request.GET, queryset=queryset)
-#         if filterset.is_valid():
-#             queryset = filterset.qs
+    #     filterset = MealFilter(request.GET, queryset=queryset)
+    #     if filterset.is_valid():
+    #         queryset = filterset.qs
 
 
-#         meals_serializer = MealSerializer(queryset, many=True)
-#         return JsonResponse(meals_serializer.data, safe=False)
-#         # 'safe=False' for objects serialization
+    #     meals_serializer = MealSerializer(queryset, many=True)
+    #     return JsonResponse(meals_serializer.data, safe=False)
+    #     # 'safe=False' for objects serialization
  
-#     if request.method == 'POST':
-#         meal_data = JSONParser().parse(request)
-#         meal_serializer = MealCreatSerializer(data=meal_data)
-#         if meal_serializer.is_valid():
-#             meal_serializer.save()
-#             return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
-#         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        meal_data = JSONParser().parse(request)
+        meal_serializer = MealCreatSerializer(data=meal_data)
+        if meal_serializer.is_valid():
+            meal_serializer.save()
+            return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # elif request.method == 'DELETE':
     #     count = Category.objects.all().delete()
