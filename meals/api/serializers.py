@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from ..models import Category, Ingredient, Meal, MealOption
+from meals.models import Category, Ingredient, Meal, MealOption
 from cooks.models import Cook
 
 

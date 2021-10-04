@@ -25,6 +25,6 @@ urlpatterns = [
     # path('api/v1.0/', include('meals.api.urls', namespace='meals_api'))
     path('api/v1.0/', include('meals.api.urls')),
     # path('api/', include('meals.api.urls', namespace='meals_api')),
-    # path('api/', include('orders.api.urls', namespace='orders_api')),
+    path('api/v1.0/', include('orders.api.urls', namespace='orders_api')),
     path('api/v1.0/', include('cooks.api.urls', namespace='cooks_api')),
 ]
