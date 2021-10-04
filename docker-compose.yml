@@ -12,29 +12,28 @@ services:
       - ./static/:/code/static/
       - ./media/:/code/media/
 
-  db:
-    image: postgres
+  postgres:
+    image: postgres:9.6.6
     restart: always
-    ports:
-      - "5432:5432"
     volumes:
-      - ./pgdb:/var/lib/postgresql/data
+        - ./pgdb/:/var/lib/postgresql/
+    ports:
+        - "5432:5432"
     env_file: ./.env
 
   web:
+    container_name: lezzet
     build: .
-    restart: always
-    ports: 
-      - "8000:8000"
+    restart: "always"
+    ports:
+        - "8000:8000"
+    
     volumes:
-      - .:/code
-      - ./static/:/code/static/
-    depends_on: 
-      - "db"
-    environment:
-      - VIRTUAL_HOST=localhost,34.89.135.58 #add your deployment ip from google cloud
-      - VIRTUAL_PORT=8000
-      - HTTP_PORT=8000
+        - .:/code/
+    depends_on:
+        - "postgres"
+    env_file: ./.env
+
 
 
   adminer:
