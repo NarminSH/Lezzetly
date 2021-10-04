@@ -9,7 +9,7 @@ from meals.models import Meal
 class Order(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, on_delete=models.CASCADE, related_name='orders')
-    client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders' )
+    # client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders' )
     #information
     STATUS_CHOICES = [
         ('1', 'Order is confirmed by cook'),

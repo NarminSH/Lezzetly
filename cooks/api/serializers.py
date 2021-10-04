@@ -21,8 +21,6 @@ class CookListSerializer(serializers.ModelSerializer):
             'is_available',
             'created_at',
             'updated_at',
-            'recommendations',
-            'resumes',
         )
         
 
