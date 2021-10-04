@@ -8,6 +8,7 @@ class CookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cook
         fields = (
+            'id',
             'first_name',
         )
 
@@ -58,12 +59,28 @@ class IngredientSerializer(serializers.ModelSerializer):
             'title',
         )
 
+class MealCreatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meal
+        fields = (
+            'id',
+            'title',
+            'price',
+            'stock_quantity',
+            'is_active',
+            'created_at',
+            'updated_at',
+            'cook',
+            'category',
+            'ingredients',
+            'mealoption',
+        )
 
 class MealSerializer(serializers.ModelSerializer):
     cook = CookSerializer()
-    mealoption = MealOptionSerializer(many=True)
-    ingredients = IngredientSerializer(many=True)
-    category = CategorySerializer(many=True)
+    mealoption = MealOptionSerializer(read_only=True, required=False, many=True)
+    ingredients = IngredientSerializer(read_only=True, required=False, many=True)
+    category = CategorySerializer(read_only=True, required=False, many=True)
     class Meta:
         model = Meal
         fields = (
