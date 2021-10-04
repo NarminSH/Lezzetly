@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import datetime
+import os
 from pathlib import Path
 
 
@@ -24,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1m6qa72ss#$pqynrut)$s0a!m)oc$m0ya4kb(x*c2r*fm%giop'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False if os.environ.get('DEBUG') else True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -96,11 +97,11 @@ WSGI_APPLICATION = 'lezzetly.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_name',
-        'USER': 'lezzetly',
-        'PASSWORD': 'lezzetly123',
-        'HOST': 'localhost',
-        'PORT':  5432
+        'NAME': os.environ.get('POSTGRES_DB','db_name'),
+        'USER': os.environ.get('POSTGRES_USER','lezzetly'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD','lezzetly123'),
+        'HOST': os.environ.get('POSTGRES_HOST','localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', 5432)
     }
 }
 
@@ -142,6 +143,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
