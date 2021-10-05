@@ -14,8 +14,15 @@ class Courier(User):
     latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
+
+    class Meta:
+        verbose_name = ('Courier')
+
+
     def __str__(self):
         return self.first_name
+
+
 
 class DeliveryArea(models.Model):
     # relations

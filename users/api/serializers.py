@@ -15,6 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             patronymic = validated_data['patronymic'],
             phone = validated_data['phone'],
             user_type = validated_data['user_type'],
+            email = validated_data['email']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -27,7 +28,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                     "phone", 
                     "patronymic", 
                     "user_type", 
-                    "password" )
+                    "password",
+                    'email' )
 
 
 
@@ -47,20 +49,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'last_name',
             'patronymic',
             'phone',
-            'password'
+            'password',
+            'email'
         )
 
     def validate(self, attrs):
-        phone = attrs.get('phone')
+        email = attrs.get('email')
         password = attrs.get('password')
-        if phone and password:
+        if email and password:
             user = authenticate(request=self.context.get('request'),
-                                phone=phone, password=password)
+                                email=email, password=password)
             if not user:
                 msg = ('Unable to log in with provided credentials.')
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = ('Must include "phone" and "password".')
+            msg = ('Must include "email" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user
