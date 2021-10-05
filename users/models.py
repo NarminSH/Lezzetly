@@ -11,7 +11,7 @@ class User(AbstractUser):
     patronymic = models.CharField(max_length=60)
     
     # fuad / asagida unique=True -ni sildim
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=10, unique=True)
     user_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='1')
 
     # moderations
@@ -22,8 +22,8 @@ class User(AbstractUser):
         return self.first_name
 
     # fuad / asagidakilari comment-e aldim
-    # USERNAME_FIELD = 'phone'
-    # REQUIRED_FIELDS = ['first_name']
+    USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = ['first_name']
 
 
 
