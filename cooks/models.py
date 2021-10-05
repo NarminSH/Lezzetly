@@ -12,6 +12,9 @@ class Cook(User):
     work_experience = models.IntegerField()
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     is_available = models.BooleanField()
+
+    class Meta:
+        verbose_name = ('Cook')
     
     @property
     def getFirstName(self):
