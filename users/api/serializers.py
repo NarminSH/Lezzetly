@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
-from delivery.models import Courier
 from users.models import User
 from cooks.models import Cook
+from delivery.models import Courier
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             CurrentModel = Courier
         else:
             CurrentModel = User
-
+            
         user = CurrentModel.objects.create(
         first_name = validated_data['first_name'],
         last_name = validated_data['last_name'],

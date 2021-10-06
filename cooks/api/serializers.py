@@ -13,6 +13,7 @@ class CookListSerializer(serializers.ModelSerializer):
             'last_name',
             'patronymic',
             'phone',
+            'email',
             'birth_place',
             'city',
             'service_place',

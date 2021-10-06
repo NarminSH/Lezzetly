@@ -3,15 +3,20 @@ from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
 from django.http.response import Http404, JsonResponse
-from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
-from rest_framework.views import APIView
+from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from cooks.api.serializers import CookListSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
 from cooks.models import Cook, Recommendation, Resume
+from users.api.serializers import RegisterSerializer
 
 
 class CooksAPIView(ListCreateAPIView):
     queryset = Cook.objects.filter(is_active=True)
     serializer_class = CookListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return RegisterSerializer
+        return super(CooksAPIView, self).get_serializer_class()
 
 
 class CookAPIView(RetrieveUpdateDestroyAPIView):
