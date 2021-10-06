@@ -36,7 +36,7 @@ class Resume(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.cook
+        return self.description
 
 
 class Recommendation(models.Model):
