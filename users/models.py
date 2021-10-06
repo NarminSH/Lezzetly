@@ -11,12 +11,12 @@ class User(AbstractUser):
         # ('3', 'Client')
     ]
     patronymic = models.CharField(max_length=60)
-    username = None
+    # username = None
     first_name = models.CharField('first name', max_length=150)
     last_name = models.CharField('last name', max_length=150)
     email = models.EmailField(('email address'), unique=True, max_length=254)
     phone_regex = RegexValidator(regex = r"^994(?:50|51|55|70|77|99|10|60)[0-9]{7}$", message="Phone number must be entered in the format: '994709616969'. Up to 12 digits")
-    phone = models.CharField(validators=[phone_regex], max_length=12)
+    phone = models.CharField(validators=[phone_regex], max_length=12, unique=True)
     user_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='1')
 
     # moderations
@@ -26,12 +26,10 @@ class User(AbstractUser):
     def __str__(self):   
         return self.first_name
 
-    # def save(self):
-    #     if self.user_type == '1':
             
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
 
 
 
