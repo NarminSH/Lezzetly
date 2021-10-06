@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
+import os
 
 class User(AbstractUser):
 
@@ -13,7 +14,7 @@ class User(AbstractUser):
         # ('3', 'Client')
     ]
     patronymic = models.CharField(max_length=60)
-    username = None
+    # username = None
     first_name = models.CharField('first name', max_length=150)
     last_name = models.CharField('last name', max_length=150)
     email = models.EmailField(('email address'), unique=True, max_length=254)
@@ -31,8 +32,9 @@ class User(AbstractUser):
             {
                 'username': self.username,
                 'email': self.email,
-                'exp': datetime.utcnow() + timedelta(hours=24)},
-                settings.SEKRET_KEY, algorithm='HS256'
+                'exp': datetime.utcnow() + timedelta(hours=24)
+                },
+                os.getenv('SECRET_KEY'), algorithm='HS256'
         )
         return token
 

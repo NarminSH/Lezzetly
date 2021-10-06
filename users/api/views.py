@@ -1,14 +1,30 @@
-from rest_framework import permissions, serializers
+from rest_framework import authentication, permissions, serializers
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
 from rest_framework import status
+from lezzetly.settings import SECRET_KEY
 from users.models import User
 from users.api.serializers import LoginSerializer, RegisterSerializer
 from django.contrib.auth import authenticate
+import os
+
+class AuthUserAPIView(GenericAPIView):
+
+    print("Secker_key", os.getenv('SECRET_KEY'))
+    
+
+    permission_classes = (permissions.IsAuthenticated)
+
+    def get(self, request):
+        user = request.user
+        serializer = RegisterSerializer(user)
+        return Response({'user': serializer.data}) 
+
 
 class RegisterAPIView(CreateAPIView):
+    authentication_classes = []
 
     # print("RegisterView-da: ", request.data)
     # model = User
@@ -35,6 +51,7 @@ class RegisterAPIView(CreateAPIView):
 #         return Response(user_serializer.data, status=200)
 
 class LoginAPIView(GenericAPIView):
+    authentication_classes = []
 
     serializer_class = LoginSerializer
 
@@ -45,6 +62,7 @@ class LoginAPIView(GenericAPIView):
         user = authenticate(username=email, password=password)
 
         if user:
+            print("user", user.token)
             serializer = self.serializer_class(user)
 
             return Response(serializer.data, status=status.HTTP_200_OK)

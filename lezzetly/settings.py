@@ -29,6 +29,8 @@ DEBUG = False if os.environ.get('DEBUG') else True
 
 ALLOWED_HOSTS = ['*']
 
+# Set environment variables
+os.environ['SECRET_KEY'] = 'supersecretkey'
 
 # Application definition
 
@@ -53,10 +55,9 @@ INSTALLED_APPS = [
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'users.api.jwt.JWTAuthentication',
+    ]
 }
 
 MIDDLEWARE = [

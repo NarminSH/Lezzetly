@@ -33,6 +33,7 @@ def mealsApiOverviews(request):
     return Response(api_urls)
 
 class MealAPIView(generics.ListAPIView):
+    authentication_classes = []
     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title']
     filter_backends = (filters.SearchFilter,)
     queryset = Meal.objects.all()
