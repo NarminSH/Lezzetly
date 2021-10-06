@@ -5,13 +5,13 @@ from django.db import models
 
 class Cook(User):
     # information
-    birth_place = models.CharField(max_length=150)
+    birth_place = models.CharField(max_length=150, blank=True, null=True)
     city = models.CharField(max_length=150, blank=True, null=True)
     service_place = models.CharField(max_length=255,blank=True, null=True)
-    payment_address = models.CharField(max_length=255)
-    work_experience = models.IntegerField()
+    payment_address = models.CharField(max_length=255, blank=True, null=True)
+    work_experience = models.IntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    is_available = models.BooleanField()
+    is_available = models.BooleanField(default=True, blank=True, null=True)
 
     class Meta:
         verbose_name = ('Cook')
