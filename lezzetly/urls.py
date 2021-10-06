@@ -15,16 +15,32 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.urls.conf import include
+from django.urls.conf import include, re_path
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Snippets API",
+      default_version='v1',
+      description="Test description",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1.0/', include('users.api.urls', namespace='users_api')),
-    # path('api/', include('core.api.urls', namespace='core_api')),
     # path('api/', include('clients.api.urls', namespace='clients_api')),
-    # path('api/v1.0/', include('meals.api.urls', namespace='meals_api'))
     path('api/v1.0/', include('meals.api.urls')),
-    # path('api/', include('meals.api.urls', namespace='meals_api')),
     path('api/v1.0/', include('orders.api.urls', namespace='orders_api')),
     path('api/v1.0/', include('cooks.api.urls', namespace='cooks_api')),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

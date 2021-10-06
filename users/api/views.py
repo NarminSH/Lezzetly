@@ -10,7 +10,7 @@ from users.api.serializers import RegisterSerializer, UserDetailSerializer
 class RegisterAPIView(CreateAPIView):
 
     model = User
-    # permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
 
     def post(self, *args, **kwargs):

@@ -8,9 +8,9 @@ from django.db import models
 class Courier(User):
 # information
     transport = models.CharField(max_length=150, blank=True, null=True)
-    work_experience = models.IntegerField()
+    work_experience = models.IntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    is_available = models.BooleanField()
+    is_available = models.BooleanField(blank=True, null=True)
     latitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     longitude = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
 
