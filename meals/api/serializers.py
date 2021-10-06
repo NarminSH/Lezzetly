@@ -10,6 +10,7 @@ class CookSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'first_name',
+            'service_place'
         )
 
 class CategoryCustomSerializer(serializers.ModelSerializer):
