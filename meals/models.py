@@ -61,6 +61,7 @@ class Meal(models.Model):
     category = models.ManyToManyField(Category, related_name='meals', db_index=True,  blank=True)
     ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)
     #information
+    image = models.ImageField(upload_to='meal_images/')
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 
     stock_quantity = models.PositiveSmallIntegerField(blank=True, null=True)
