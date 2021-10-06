@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.response import Response
-from .serializers import CategoryCustomSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer
-from ..models import Category, Meal
+from .serializers import CategoryCustomSerializer, MealOptionSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer
+from ..models import Category, Meal, MealOption
 
 from django.shortcuts import render
 
@@ -185,4 +185,52 @@ def category_detail(request, pk):
     elif request.method == 'DELETE': 
         category.delete() 
         return JsonResponse({'message': 'Category was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
     
+# mealoption
+@api_view(['GET', 'POST', 'DELETE'])
+def mealoption_list(request):
+    if request.method == 'GET':
+        mealoptions = MealOption.objects.all()
+        
+        title = request.query_params.get('search', None)
+        if title is not None:
+            mealoptions = mealoptions.filter(title__icontains=title)
+        
+        mealoptions_serializer = MealOptionSerializer(mealoptions, many=True)
+        return JsonResponse(mealoptions_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        mealoption_data = JSONParser().parse(request)
+        mealoption_serializer = MealOptionSerializer(data=mealoption_data)
+        if mealoption_serializer.is_valid():
+            mealoption_serializer.save()
+            return JsonResponse(mealoption_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(mealoption_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# get single mealoption
+# update meal
+# delete meal 
+@api_view(['GET', 'PUT', 'DELETE'])
+def mealoption_detail(request, pk):
+    try: 
+        mealoption = MealOption.objects.get(pk=pk) 
+    except MealOption.DoesNotExist: 
+        return JsonResponse({'message': 'The meal option does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        mealoption_serializer = MealOptionSerializer(mealoption) 
+        return JsonResponse(mealoption_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        mealoption_data = JSONParser().parse(request) 
+        mealoption_serializer = MealOptionSerializer(mealoption, data=mealoption_data) 
+        if mealoption_serializer.is_valid(): 
+            mealoption_serializer.save() 
+            return JsonResponse(mealoption_serializer.data) 
+        return JsonResponse(mealoption_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        mealoption.delete() 
+        return JsonResponse({'message': 'Meal option was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
