@@ -6,7 +6,6 @@ from users.models import User
 from cooks.models import Cook
 from delivery.models import Courier
 
-
 class RegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -33,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
     class Meta:
-        model = User
+        model = Cook
         fields = ("first_name", 
                     "last_name", 
                     "phone", 
@@ -46,7 +45,7 @@ class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only = True)
 
     class Meta:
-        model = User
+        model = Cook
         fields = ('token', 'email', 'password')
         read_only_fields = ['token']
 

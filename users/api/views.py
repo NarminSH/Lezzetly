@@ -25,6 +25,7 @@ class RegisterAPIView(CreateAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
+    # model = User
     model = User
     
     serializer_class = RegisterSerializer
