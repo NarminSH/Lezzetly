@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
 from orders.api.serializers import OrderListSerializer, OrderSerializer
@@ -7,7 +7,10 @@ from orders.models import Order
 
 
 
+
 class OrdersAPIView(ListCreateAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
     queryset = Order.objects.all()
     serializer_class = OrderListSerializer
     lookup_url_kwarg = 'pk'
@@ -19,6 +22,8 @@ class OrdersAPIView(ListCreateAPIView):
 
 
 class OrderAPIView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Order.objects.all()
@@ -66,6 +71,8 @@ class OrderAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class OrderItemAPIView(RetrieveUpdateDestroyAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
@@ -78,6 +85,8 @@ class OrderItemAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class OrdersCompleteAPIView(GenericAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
     serializer_class = OrderSerializer
 
     def get(self, *args, **kwargs):

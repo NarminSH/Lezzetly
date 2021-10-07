@@ -21,11 +21,11 @@ class AuthUserAPIView(GenericAPIView):
         serializer = RegisterSerializer(user)
         return Response({'user': serializer.data})
 
+
 class RegisterAPIView(CreateAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
-    # model = User
     model = User
     
     serializer_class = RegisterSerializer
@@ -57,14 +57,3 @@ class LoginAPIView(GenericAPIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# class LoginAPIView(APIView):
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = UserDetailSerializer(data=request.data,
-#                                           context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         user_serializer = UserDetailSerializer(user)
-#         return Response(user_serializer.data, status=200)
