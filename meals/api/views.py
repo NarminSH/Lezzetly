@@ -7,9 +7,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import filters
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import generics
 from rest_framework.response import Response
 from .serializers import CategoryCustomSerializer, MealOptionSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer
@@ -39,7 +39,7 @@ def mealsApiOverviews(request):
 
 class MealAPIView(generics.ListAPIView):
     authentication_classes = []
-    permission_classes = [permissions.AllowAny]
+    permission_classes = []
     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
     filter_backends = (filters.SearchFilter,)
     queryset = Meal.objects.all()
@@ -133,7 +133,8 @@ def meal_detail(request, pk):
 # create new category,
 # delete all categories, now in comment
 @api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@authentication_classes([])
+@permission_classes([])
 def category_list(request):
     if request.method == 'GET':
         categories = Category.objects.all()
@@ -188,7 +189,8 @@ def category_detail(request, pk):
     
 # mealoption
 @api_view(['GET', 'POST', 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@authentication_classes([])
+@permission_classes([])
 def mealoption_list(request):
     if request.method == 'GET':
         mealoptions = MealOption.objects.all()
