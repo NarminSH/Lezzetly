@@ -85,22 +85,7 @@ class MealAPIView(generics.ListAPIView):
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def meal_list(request):
-    # if request.method == 'GET':
-    #     queryset = Meal.objects.filter(is_active=True)
-        
-    #     # title = request.query_params.get('search', None)
-    #     # if title is not None:
-    #     #     meals = meals.filter(title__icontains=title, price__icontains=title)
-        
-    #     filterset = MealFilter(request.GET, queryset=queryset)
-    #     if filterset.is_valid():
-    #         queryset = filterset.qs
-
-
-    #     meals_serializer = MealSerializer(queryset, many=True)
-    #     return JsonResponse(meals_serializer.data, safe=False)
-    #     # 'safe=False' for objects serialization
- 
+    
     if request.method == 'POST':
         meal_data = JSONParser().parse(request)
         meal_serializer = MealCreatSerializer(data=meal_data)
@@ -234,7 +219,7 @@ def mealoption_detail(request, pk):
  
     if request.method == 'GET': 
         mealoption_serializer = MealOptionSerializer(mealoption) 
-        return JsonResponse(mealoption_serializer.data) 
+        return JsonResponse(mealoption_serializer.data)
  
     elif request.method == 'PUT': 
         mealoption_data = JSONParser().parse(request) 
