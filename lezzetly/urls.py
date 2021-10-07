@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/v1.0/', include('meals.api.urls')),
     path('api/v1.0/', include('orders.api.urls', namespace='orders_api')),
     path('api/v1.0/', include('cooks.api.urls', namespace='cooks_api')),
+    path('api/v1.0/', include('delivery.api.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

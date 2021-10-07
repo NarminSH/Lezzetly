@@ -14,7 +14,7 @@ class CookAdmin(admin.ModelAdmin):
 
 @admin.register(DeliveryArea)
 class DeliveryAreaAdmin(admin.ModelAdmin):
-    list_display = ('courier', 'delivery_area', 'delivery_price')
+    list_display = ('delivery_area', 'delivery_price')
     list_filter = ('delivery_area', 'delivery_price')
     list_fields = ('delivery_area', 'delivery_price')
 

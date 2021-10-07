@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import filters
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import generics
@@ -145,6 +145,7 @@ def meal_detail(request, pk):
 # create new category,
 # delete all categories, now in comment
 @api_view(['GET', 'POST', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def category_list(request):
     if request.method == 'GET':
         categories = Category.objects.all()
@@ -173,6 +174,7 @@ def category_list(request):
 # update category
 # delete category 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def category_detail(request, pk):
     try: 
         category = Category.objects.get(pk=pk) 
@@ -198,6 +200,7 @@ def category_detail(request, pk):
     
 # mealoption
 @api_view(['GET', 'POST', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def mealoption_list(request):
     if request.method == 'GET':
         mealoptions = MealOption.objects.all()
@@ -222,6 +225,7 @@ def mealoption_list(request):
 # update meal
 # delete meal 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def mealoption_detail(request, pk):
     try: 
         mealoption = MealOption.objects.get(pk=pk) 
