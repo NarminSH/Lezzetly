@@ -45,6 +45,7 @@ class MealAPIView(generics.ListAPIView):
     queryset = Meal.objects.all()
     serializer_class = MealSerializer
 
+
 # Api for  get all meals and for search
 # for search - meals/?search=lunch 
 # class MealAPIView(generics.ListCreateAPIView):

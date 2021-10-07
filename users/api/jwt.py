@@ -4,6 +4,8 @@ from cooks.models import Cook
 from users.models import User
 import os
 import jwt
+
+
 class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
@@ -18,14 +20,16 @@ class JWTAuthentication(BaseAuthentication):
             payload = jwt.decode(token, os.getenv('SECRET_KEY'), algoritms="HS256")
             email = payload['email']
             user = Cook.objects.get(email=email)
-            return (user, token)
         except jwt.ExpiredSignatureError as ex:
             raise exceptions.AuthenticationFailed(
                 'Token is expired, login again!')
         except jwt.DecodeError as ex:
+            print('asadfghjhgf')
             raise exceptions.AuthenticationFailed(
                 'Token is invalid!')
         except User.DoesNotExist as no_user:
             raise exceptions.AuthenticationFailed(
                 'No such user!')
-        return super().authenticate(request)
+                
+        return (user, token)
+    # return super().authenticate(request)

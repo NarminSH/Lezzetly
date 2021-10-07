@@ -32,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
     class Meta:
-        model = Cook
+        model = User
         fields = ("first_name", 
                     "last_name", 
                     "phone", 
@@ -40,6 +40,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                     "user_type", 
                     "password",
                     'email' )
+
+
 
 class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only = True)
