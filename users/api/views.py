@@ -14,7 +14,7 @@ from users.api.serializers import RegisterSerializer, LoginSerializer
 
 class AuthUserAPIView(GenericAPIView):
 
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         user = request.user
