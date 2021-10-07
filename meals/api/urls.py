@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+# all meals apis is alraady done 
+
 urlpatterns = [
     path("", views.mealsApiOverviews, name="api-overview"),
     path("meals/", views.MealAPIView.as_view()),
