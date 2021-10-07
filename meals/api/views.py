@@ -89,9 +89,12 @@ def meal_list(request):
     if request.method == 'POST':
         meal_data = JSONParser().parse(request)
         meal_serializer = MealCreatSerializer(data=meal_data)
+        print(meal_data, 'asdfghjkl')
+        # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
         if meal_serializer.is_valid():
             print("mealCreate ", isinstance(request.user, User))
             meal_serializer.save(cook = request.user)
+            # print(meal_serializer, 'jshckjdsbcfhjdx')
             return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

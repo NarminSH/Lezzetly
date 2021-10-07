@@ -2,8 +2,8 @@ from rest_framework import serializers
 from cooks.models import Cook, Recommendation, Resume
 
 
-# evez edir Category Listi ni
-class CookListSerializer(serializers.ModelSerializer): 
+
+class CookListSerializer(serializers.ModelSerializer):   #serializer for get method
 
     class Meta:
         model = Cook
@@ -12,12 +12,28 @@ class CookListSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'patronymic',
-            'phone',
-            'email',
+            'city',
+            'work_experience',
+            'rating',
+            'is_available',
+            'created_at',
+            'updated_at',
+        )
+
+
+class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Cook
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'patronymic',
+            'city',
+            'service_place',  
+            'payment_address',
             'birth_place',
             'city',
-            'service_place',
-            'payment_address',
             'work_experience',
             'rating',
             'is_available',
@@ -25,7 +41,7 @@ class CookListSerializer(serializers.ModelSerializer):
             'updated_at',
         )
         
-# evez edir Meal i
+
 class RecommendationSerializer(serializers.ModelSerializer):
 
     class Meta:

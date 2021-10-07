@@ -49,6 +49,7 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ('token', 'email', 'password')
         read_only_fields = ['token']
 
+
 # class UserDetailSerializer(serializers.ModelSerializer):
 #     password = serializers.CharField(
 #         label=("Password",),
