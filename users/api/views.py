@@ -1,16 +1,32 @@
+from django.contrib.auth import authenticate
 from rest_framework import permissions
 from django.http.response import JsonResponse
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework import authentication, permissions, serializers
+from lezzetly.settings import SECRET_KEY
 from users.models import User
-from users.api.serializers import RegisterSerializer, UserDetailSerializer
+import os
+from users.api.serializers import RegisterSerializer, LoginSerializer
 
+
+class AuthUserAPIView(GenericAPIView):
+
+    permission_classes = (permissions.IsAuthenticated)
+
+    def get(self, request):
+        user = request.user
+        serializer = RegisterSerializer(user)
+        return Response({'user': serializer.data})
 
 class RegisterAPIView(CreateAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     model = User
-    permission_classes = [permissions.AllowAny]
+    
     serializer_class = RegisterSerializer
 
     def post(self, *args, **kwargs):
@@ -22,12 +38,32 @@ class RegisterAPIView(CreateAPIView):
         return JsonResponse(data=serializer.data, safe=False, status=201)
 
 
-class LoginAPIView(APIView):
+class LoginAPIView(GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
-    def post(self, request, *args, **kwargs):
-        serializer = UserDetailSerializer(data=request.data,
-                                          context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        user_serializer = UserDetailSerializer(user)
-        return Response(user_serializer.data, status=200)
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        email = request.data.get('email', None)
+        password = request.data.get('password', None)
+
+        user = authenticate(username=email, password=password)
+
+        if user:
+            # print("user", user.token)
+            serializer = self.serializer_class(user)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+# class LoginAPIView(APIView):
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = UserDetailSerializer(data=request.data,
+#                                           context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data['user']
+#         user_serializer = UserDetailSerializer(user)
+#         return Response(user_serializer.data, status=200)
