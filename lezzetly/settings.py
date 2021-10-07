@@ -24,6 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-1m6qa72ss#$pqynrut)$s0a!m)oc$m0ya4kb(x*c2r*fm%giop'
 
+# set set environ variable
+os.environ['SECRET_KEY'] = 'supersecretkey'
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False if os.environ.get('DEBUG') else True
 
@@ -52,13 +56,20 @@ INSTALLED_APPS = [
     'drf_yasg',
 ]
 
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'users.api.jwt.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.IsAdminUser', ),
 }
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     )
+
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

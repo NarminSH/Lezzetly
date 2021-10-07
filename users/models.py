@@ -1,6 +1,10 @@
 from django.core.validators import RegexValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+import jwt
+from datetime import datetime, timedelta
+from django.conf import settings
+import os
 
 
 class UserManager(BaseUserManager):
@@ -58,13 +62,28 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def token(self):
+        token = jwt.encode(
+            {
+                'email': self.email,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+                },
+                os.getenv('SECRET_KEY'), algorithm='HS256'
+        )
+        return token
+
+
     def __str__(self):   
         return self.first_name
 
             
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    # EMAIL_FIELD = 'email'
+    # USERNAME_FIELD = 'email'
+    # REQUIRED_FIELDS = []
 
     objects = UserManager()
 

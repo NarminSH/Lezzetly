@@ -71,7 +71,7 @@ class MealCreatSerializer(serializers.ModelSerializer):
             'is_active',
             'created_at',
             'updated_at',
-            'cook',
+            # 'cook',
             'category',
             'ingredients',
             'mealoption',
