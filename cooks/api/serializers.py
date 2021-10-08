@@ -40,7 +40,9 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
             'created_at',
             'updated_at',
         )
+
         
+
 
 class RecommendationSerializer(serializers.ModelSerializer):
 

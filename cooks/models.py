@@ -11,14 +11,11 @@ class Cook(User):
     payment_address = models.CharField(max_length=255, blank=True, null=True)
     work_experience = models.IntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    is_available = models.BooleanField(blank=True, null=True)
+    is_available = models.BooleanField(blank=True, null=True, default=False)
 
     class Meta:
         verbose_name = ('Cook')
     
-    @property
-    def getFirstName(self):
-        return self.first_name
 
     def __str__(self):
         return self.first_name
@@ -36,7 +33,7 @@ class Resume(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.description
+        return f"{self.cook.first_name}'s resume, owner id is {self.cook.id}"
 
 
 class Recommendation(models.Model):
