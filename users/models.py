@@ -62,16 +62,16 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    @property
-    def token(self):
-        token = jwt.encode(
-            {
-                'email': self.email,
-                'exp': datetime.utcnow() + timedelta(hours=24)
-                },
-                os.getenv('SECRET_KEY'), algorithm='HS256'
-        )
-        return token
+    # @property
+    # def token(self):
+    #     token = jwt.encode(
+    #         {
+    #             'email': self.email,
+    #             'exp': datetime.utcnow() + timedelta(hours=24)
+    #             },
+    #             os.getenv('SECRET_KEY'), algorithm='HS256'
+    #     )
+    #     return token
 
 
     def __str__(self):   
