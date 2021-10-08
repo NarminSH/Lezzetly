@@ -1,6 +1,7 @@
 from rest_framework.authentication import get_authorization_header, BaseAuthentication
 from rest_framework import exceptions
 from cooks.models import Cook
+from delivery.models import Courier
 from users.models import User
 import os
 import jwt
@@ -20,7 +21,12 @@ class JWTAuthentication(BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms="HS256")
             email = payload['email']
-            user = Cook.objects.get(email=email)
+            user_type = payload['user_type']
+            first_name = payload['first_name']
+            if user_type == '1':
+                user = Cook.objects.get(email=email)
+            else:
+                user = Courier.objects.get(email=email)
             return (user, token)
         except jwt.ExpiredSignatureError as ex:
             raise exceptions.AuthenticationFailed(

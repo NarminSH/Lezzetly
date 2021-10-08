@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from rest_framework import permissions
 
 from cooks.models import Cook
@@ -38,6 +39,7 @@ def mealsApiOverviews(request):
     return Response(api_urls)
 
 class MealAPIView(generics.ListAPIView):
+    
     authentication_classes = []
     permission_classes = []
     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
@@ -86,8 +88,22 @@ class MealAPIView(generics.ListAPIView):
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def meal_list(request):
-    
-    if request.method == 'POST':
+    # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
+    #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+    is_full = False
+    if request.user.is_available is not None and request.user.service_place is not None and request.user.rating is not None and request.user.payment_address is not None and request.user.work_experience is not None:
+        is_full = True
+    queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
+                            rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+    print("+++++get_user: ", request.user)
+    print("++++++++ get is_full:", is_full)
+    print("+++++get_queryset: ", queryset)
+    if request.method == 'POST' and not isinstance(request.user, Cook):
+        return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
+    elif request.method == 'POST' and not is_full:
+        return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_403_FORBIDDEN)
+    elif request.method == 'POST':    
+        print(request.user)
         meal_data = JSONParser().parse(request)
         meal_serializer = MealCreatSerializer(data=meal_data)
         print(meal_data, 'asdfghjkl')
@@ -98,7 +114,9 @@ def meal_list(request):
             # print(meal_serializer, 'jshckjdsbcfhjdx')
             return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+
     # elif request.method == 'DELETE':
     #     count = Category.objects.all().delete()
     #     return JsonResponse({'message': '{} Categories were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
