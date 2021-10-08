@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.decorators import display
 from cooks.models import Cook, Resume, Recommendation
 # Register your models here.
 
@@ -11,7 +12,7 @@ class CookAdmin(admin.ModelAdmin):
 
 @admin.register(Resume)
 class ResumeAdmin(admin.ModelAdmin):
-    list_display = ( 'cook', 'created_at')
+    display = 'created_at'
 
 
 @admin.register(Recommendation)

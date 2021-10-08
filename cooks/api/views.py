@@ -1,4 +1,4 @@
-from django.http import request
+
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
 from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -9,12 +9,17 @@ from orders.api.serializers import OrderListSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.decorators import api_view, permission_classes
+from django.http.response import JsonResponse
+from rest_framework.parsers import JSONParser 
+from rest_framework import status
 
 
 class CooksAPIView(ListCreateAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    queryset = Cook.objects.filter(is_active=True)
+    queryset = Cook.objects.filter(is_available=True)
     serializer_class = CookListSerializer
 
     def get_serializer_class(self):
@@ -23,18 +28,45 @@ class CooksAPIView(ListCreateAPIView):
         return super(CooksAPIView, self).get_serializer_class()
 
 
-class CookAPIView(RetrieveUpdateDestroyAPIView):
-    authentication_classes = []
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    serializer_class = CookSerializer
-    queryset = Cook.objects.filter(is_active=True)
-    lookup_url_kwarg = 'pk'
 
-    def get_serializer_class(self):
-        if self.request.method == "GET":
-            return CookListSerializer
-        return super(CookAPIView, self).get_serializer_class()
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def cook_detail(request, pk):
+    try: 
+        cook = Cook.objects.get(pk=pk) 
+    except Cook.DoesNotExist: 
+        return JsonResponse({'message': 'The cook does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+
+    if request.method == 'GET' and request.user.user_type == '2' :
+        cook_serializer = CookSerializer(cook)
+        return JsonResponse(cook_serializer.data)
+
+    elif request.method == 'GET': 
+        cook_serializer = CookListSerializer(cook) 
+        return JsonResponse(cook_serializer.data) 
+
+    elif request.method == 'PUT': 
+        cook_data = JSONParser().parse(request) 
+        cook_serializer = CookSerializer(cook, data=cook_data) 
+        if cook_serializer.is_valid(): 
+            cook_serializer.save() 
+            return JsonResponse(cook_serializer.data) 
+        return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE' and request.user != cook :
+        all_orders = cook.orders.all()
+        for order in all_orders:
+            if order.complete == False:
+                not_completed_orders = True
+        if not not_completed_orders:
+            cook.delete()   
+            print('deletedddddddd')       
+            return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
+    return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
+    
 
 
 class RecommendationsAPIView(ListCreateAPIView):

@@ -49,6 +49,10 @@ class Order(models.Model):
         total = sum([item.get_total for item in orderitems])
         return total
     
+    def __str__(self):
+        return f"Order id is {self.id}"
+
+    
 
 class OrderItem(models.Model):
     #relation
@@ -60,3 +64,6 @@ class OrderItem(models.Model):
     def total_price(self):
         total_price = self.meal.get_price * self.quantity
         return total_price
+
+    def __str__(self):
+        return f"Order item id is{self.id}"

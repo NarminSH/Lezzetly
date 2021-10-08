@@ -16,8 +16,7 @@ class CourierSerializer(serializers.ModelSerializer):
             'work_experience',
             'rating',
             'is_available',
-            'latitude',
-            'longitude',
+            'location',
             'created_at',
             'updated_at',
         )
