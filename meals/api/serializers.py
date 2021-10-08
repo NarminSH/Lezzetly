@@ -1,17 +1,18 @@
-from django.db.models import fields
+
 from rest_framework import serializers
 from meals.models import Category, Ingredient, Meal, MealOption
-from cooks.models import Cook
+
+from cooks.api.serializers import CookSerializer
 
 
-class CookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cook
-        fields = (
-            'id',
-            'first_name',
-            'service_place'
-        )
+# class CookSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Cook
+#         fields = (
+#             'id',
+#             'first_name',
+#             'service_place'
+#         )
 
 class CategoryCustomSerializer(serializers.ModelSerializer):
     class Meta:

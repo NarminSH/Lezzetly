@@ -1,3 +1,4 @@
+from django.http import request
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
 from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -28,6 +29,11 @@ class CookAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = CookSerializer
     queryset = Cook.objects.filter(is_active=True)
     lookup_url_kwarg = 'pk'
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return CookListSerializer
+        return super(CookAPIView, self).get_serializer_class()
 
 
 
