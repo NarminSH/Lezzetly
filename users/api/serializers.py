@@ -32,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
     class Meta:
-        model = Cook
+        model = User
         fields = ("first_name", 
                     "last_name", 
                     "phone", 
@@ -41,6 +41,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                     "password",
                     'email' )
 
+
+
 class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only = True)
 
@@ -48,6 +50,7 @@ class LoginSerializer(serializers.ModelSerializer):
         model = Cook
         fields = ('token', 'email', 'password')
         read_only_fields = ['token']
+
 
 # class UserDetailSerializer(serializers.ModelSerializer):
 #     password = serializers.CharField(
