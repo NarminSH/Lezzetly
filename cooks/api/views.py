@@ -31,7 +31,7 @@ class CooksAPIView(ListCreateAPIView):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def cook_detail(request, pk):
     try: 
         cook = Cook.objects.get(pk=pk) 
