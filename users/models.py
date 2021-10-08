@@ -69,7 +69,7 @@ class User(AbstractUser):
                 'email': self.email,
                 'exp': datetime.utcnow() + timedelta(hours=24)
                 },
-                os.getenv('SECRET_KEY'), algorithm='HS256'
+                settings.SECRET_KEY, algorithm='HS256'
         )
         return token
 
