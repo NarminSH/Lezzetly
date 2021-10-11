@@ -5,6 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
+from delivery.models import Courier
 from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderListSerializer, OrderSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order
@@ -79,10 +80,33 @@ def order_detail(request, pk):
         return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  
-# @api_view(['PATCH'])
-# @authentication_classes([])
-# @permission_classes([AllowAny])
-# def order_courier_(request, pk):
+@api_view(['PATCH'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def add_courier_to_order(request, pk):
+    try: 
+        order = Order.objects.get(pk=pk) 
+    except Order.DoesNotExist: 
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    request_data = JSONParser().parse(request)
+    courierId = request_data['courier']
+    print("=============")
+    print("Courier id: ", courierId)
+    print("=============")
+    likedCourier = Courier.objects.get(pk=courierId)
+    print("That courier: ", likedCourier)
+    print("=============")
+    print("Current order: ", order)
+    print("=============")
+    print("Current orderin curyeri evvel: ", order.courier)
+    print("=============")
+    order.courier = likedCourier
+    print("=============")
+    print("Current orderin curyeri assign sonra: ", order.courier)
+    print("=============")
+    order_serializer = OrderFullSerializer(order) 
+    return JsonResponse(order_serializer.data)
+    # return JsonResponse({'message': 'terminala bax'}, status=status.HTTP_202_ACCEPTED)
     
 
 
