@@ -53,6 +53,22 @@ class OrderAPIView(generics.ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderFullSerializer
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def order_detail(request, pk):
+    try: 
+        order = Order.objects.get(pk=pk) 
+    except Order.DoesNotExist: 
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        order_serializer = OrderFullSerializer(order) 
+        return JsonResponse(order_serializer.data) 
+ 
+        
+
+
 # class OrdersAPIView(ListCreateAPIView):
 #     authentication_classes = []
 #     permission_classes = [AllowAny]
