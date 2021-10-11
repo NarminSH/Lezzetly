@@ -19,6 +19,7 @@ class CookListSerializer(serializers.ModelSerializer):   #serializer for get met
             'created_at',
             'updated_at',
         )
+        read_only_fields = ['rating', ]
 
 
 class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods

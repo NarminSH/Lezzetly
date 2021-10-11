@@ -28,7 +28,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'cook',
-            'status',
+            # 'status',
             'complete',
             'created_at',
             'updated_at',
