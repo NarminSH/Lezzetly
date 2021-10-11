@@ -69,6 +69,8 @@ class User(AbstractUser):
                 'user_type': self.user_type,
                 'email': self.email,
                 'first_name': self.first_name,
+                'last_name': self.last_name,
+                'id': self.id,
                 'exp': datetime.utcnow() + timedelta(hours=24)
                 },
                 settings.SECRET_KEY, algorithm='HS256'

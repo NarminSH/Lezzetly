@@ -79,7 +79,11 @@ def order_detail(request, pk):
         return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  
-        
+# @api_view(['PATCH'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+# def order_courier_(request, pk):
+    
 
 
 # class OrdersAPIView(ListCreateAPIView):

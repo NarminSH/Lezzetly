@@ -23,6 +23,8 @@ class JWTAuthentication(BaseAuthentication):
             email = payload['email']
             user_type = payload['user_type']
             first_name = payload['first_name']
+            last_name = payload['last_name']
+            id = payload['id']
             if user_type == '1':
                 user = Cook.objects.get(email=email)
             else:
