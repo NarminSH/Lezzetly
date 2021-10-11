@@ -1,4 +1,6 @@
 
+from django.contrib.auth.models import AnonymousUser
+from django.http import request
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
 from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -10,7 +12,7 @@ from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
@@ -31,6 +33,7 @@ class CooksAPIView(ListCreateAPIView):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+# @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
 @permission_classes([IsAuthenticatedOrReadOnly])
 def cook_detail(request, pk):
     try: 
@@ -39,11 +42,10 @@ def cook_detail(request, pk):
         return JsonResponse({'message': 'The cook does not exist'}, status=status.HTTP_404_NOT_FOUND) 
 
 
-    if request.method == 'GET' and request.user.user_type == '2' :
-        cook_serializer = CookSerializer(cook)
-        return JsonResponse(cook_serializer.data)
-
-    elif request.method == 'GET': 
+    if request.method == 'GET':
+        if request.user.user_type == '2' or request.user.user_type == '1':  
+            cook_serializer = CookSerializer(cook)
+            return JsonResponse(cook_serializer.data)
         cook_serializer = CookListSerializer(cook) 
         return JsonResponse(cook_serializer.data) 
 
@@ -55,18 +57,26 @@ def cook_detail(request, pk):
             return JsonResponse(cook_serializer.data) 
         return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
  
-    elif request.method == 'DELETE' and request.user != cook :
+    elif request.method == 'DELETE' and request.user == cook :
         all_orders = cook.orders.all()
+        print(all_orders)
         for order in all_orders:
             if order.complete == False:
                 not_completed_orders = True
-        if not not_completed_orders:
-            cook.delete()   
-            print('deletedddddddd')       
-            return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-        return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
-    return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
+                if not not_completed_orders:
+            # cook.delete()   
+                    print('deletedddddddd')       
+                return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
     
+
+
+
+
+
+
+
 
 
 class RecommendationsAPIView(ListCreateAPIView):
@@ -91,11 +101,11 @@ class CookRecommendationsAPIView(ListAPIView):
     queryset = Recommendation.objects.all()
 
     def get(self, *args, **kwargs):
-            item = Recommendation.objects.filter(cook=kwargs.get('pk')).first()
+            item = Recommendation.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = RecommendationSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -118,11 +128,11 @@ class CookResumesAPIView(ListAPIView):
     queryset = Resume.objects.all()
 
     def get(self, *args, **kwargs):
-            item = Resume.objects.filter(cook=kwargs.get('pk')).first()
+            item = Resume.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = ResumeSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -134,11 +144,11 @@ class CookMealsAPIView(ListAPIView):
 
 
     def get(self, *args, **kwargs):
-            item = Meal.objects.filter(cook=kwargs.get('pk')).first()
+            item = Meal.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = MealSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -150,10 +160,10 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
     
 
     def get(self, *args, **kwargs):
-            item = Order.objects.filter(cook=kwargs.get('pk')).first()
+            item = Order.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = OrderListSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 

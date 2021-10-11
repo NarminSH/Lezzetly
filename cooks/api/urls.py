@@ -1,5 +1,4 @@
 from django.urls import path
-from cooks.api.views import cook_detail
 from cooks.api.views import (CookMealsAPIView, CookOrdersAPIView, CookRecommendationsAPIView, CooksAPIView, 
                             RecommendationsAPIView, ResumesAPIView, CookResumesAPIView, cook_detail)
 
