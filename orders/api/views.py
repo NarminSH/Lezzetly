@@ -53,7 +53,7 @@ class OrderAPIView(generics.ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderFullSerializer
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'DELETE', 'PATCH'])
 @authentication_classes([])
 @permission_classes([AllowAny])
 def order_detail(request, pk):
@@ -71,6 +71,12 @@ def order_detail(request, pk):
             return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return JsonResponse({'message': 'You can not delete this order, order not complete!'}, status=status.HTTP_403_FORBIDDEN)
+    elif request.method == 'PATCH':
+        order_serializer = OrderFullSerializer(order, data=request.data, partial=True)
+        if order_serializer.is_valid():
+            order_serializer.save()
+            return JsonResponse(order_serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  
         
