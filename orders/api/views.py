@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework import generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -8,7 +9,7 @@ from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, Or
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order
 from meals.models import Meal
-
+from rest_framework import filters
 
 @api_view(['POST'])
 @authentication_classes([])
@@ -43,6 +44,14 @@ def order_create(request):
     
     return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
+class OrderAPIView(generics.ListAPIView):
+    
+    authentication_classes = []
+    permission_classes = []
+    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+    # filter_backends = (filters.SearchFilter,)
+    queryset = Order.objects.all()
+    serializer_class = OrderFullSerializer
 
 # class OrdersAPIView(ListCreateAPIView):
 #     authentication_classes = []

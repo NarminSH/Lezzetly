@@ -58,7 +58,7 @@ class OrderItemCreateSerializer(serializers.ModelSerializer):
 
 class OrderFullSerializer(serializers.ModelSerializer):
     cook = CookSerializer(required=False)
-    orderitems = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
     class Meta:
         model = Order
         fields = (
@@ -70,7 +70,7 @@ class OrderFullSerializer(serializers.ModelSerializer):
             'cook',
             'complete',
             'cook',
-            'orderitems',
+            'ordered_items',
             'created_at',
             'updated_at',   
         )
