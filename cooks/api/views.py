@@ -101,11 +101,11 @@ class CookRecommendationsAPIView(ListAPIView):
     queryset = Recommendation.objects.all()
 
     def get(self, *args, **kwargs):
-            item = Recommendation.objects.filter(cook=kwargs.get('pk')).first()
+            item = Recommendation.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = RecommendationSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -128,11 +128,11 @@ class CookResumesAPIView(ListAPIView):
     queryset = Resume.objects.all()
 
     def get(self, *args, **kwargs):
-            item = Resume.objects.filter(cook=kwargs.get('pk')).first()
+            item = Resume.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = ResumeSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -144,11 +144,11 @@ class CookMealsAPIView(ListAPIView):
 
 
     def get(self, *args, **kwargs):
-            item = Meal.objects.filter(cook=kwargs.get('pk')).first()
+            item = Meal.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = MealSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
 
@@ -160,10 +160,10 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
     
 
     def get(self, *args, **kwargs):
-            item = Order.objects.filter(cook=kwargs.get('pk')).first()
+            item = Order.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
             serializer = OrderListSerializer(
-                item, context={'request': self.request})
+                item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
