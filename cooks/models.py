@@ -2,7 +2,6 @@ from users.models import User
 from django.db import models
 
 
-
 class Cook(User):
     # information
     birth_place = models.CharField(max_length=150, blank=True, null=True)

@@ -1,6 +1,5 @@
 from django.db.models.query import QuerySet
 from rest_framework import permissions
-
 from cooks.models import Cook
 from users.models import User
 from .filters import MealFilter
@@ -9,15 +8,12 @@ from django.http import JsonResponse
 from rest_framework import filters
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
-
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import generics
 from rest_framework.response import Response
 from .serializers import CategoryCustomSerializer, MealOptionSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer
 from ..models import Category, Meal, MealOption
-
 from django.shortcuts import render
-
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
@@ -95,9 +91,9 @@ def meal_list(request):
         is_full = True
     queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
                             rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
-    print("+++++get_user: ", request.user)
-    print("++++++++ get is_full:", is_full)
-    print("+++++get_queryset: ", queryset)
+    # print("+++++get_user: ", request.user)
+    # print("++++++++ get is_full:", is_full)
+    # print("+++++get_queryset: ", queryset)
     if request.method == 'POST' and not isinstance(request.user, Cook):
         return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
     elif request.method == 'POST' and not is_full:
@@ -109,7 +105,7 @@ def meal_list(request):
         print(meal_data, 'asdfghjkl')
         # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
         if meal_serializer.is_valid():
-            print("mealCreate ", isinstance(request.user, User))
+            # print("mealCreate ", isinstance(request.user, User))
             meal_serializer.save(cook = request.user)
             # print(meal_serializer, 'jshckjdsbcfhjdx')
             return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 

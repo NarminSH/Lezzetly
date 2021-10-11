@@ -1,5 +1,5 @@
-from orders.models import Order
-from clients.models import Client
+# from orders.models import Order
+# from clients.models import Client
 from users.models import User
 from django.db import models
 
@@ -40,10 +40,10 @@ class Courier(User):
 
 
 
-class DeliveryService(models.Model):
-    cook = models.ForeignKey(Client, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
-    courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
-    order = models.ForeignKey(Order, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
+# class DeliveryService(models.Model):
+#     cook = models.ForeignKey(Client, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
+#     courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
+#     order = models.ForeignKey(Order, db_index=True, on_delete=models.CASCADE, related_name='delivery_services')
 
-    def __str__(self):
-        return f"Delivery Service id is{self.id}"
+#     def __str__(self):
+#         return f"Delivery Service id is{self.id}"
