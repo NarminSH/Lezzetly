@@ -17,12 +17,12 @@ from rest_framework import filters
 @permission_classes([AllowAny])
 def order_create(request):
     order_data = JSONParser().parse(request)
-    
     # create empty order with out orderItems, with customer data and add cook
     order_serializer = OrderFullSerializer(data=order_data)
     if order_serializer.is_valid():
             order_item_data = order_data['order_items']
             meal_id = None
+            meal_quantity = None
             # get cook from meal
             for i in order_item_data:
                meal_id = i['meal']
@@ -39,6 +39,15 @@ def order_create(request):
     
     # loop inside order items data and create several orderitems
     for i in order_item_data:
+        meal_id = i['meal']
+        meal = Meal.objects.get(pk=meal_id)
+        meal_quantity = i['quantity']
+        difference = meal.stock_quantity - meal_quantity
+        if difference > 0:
+            meal.stock_quantity = difference
+        else:
+            meal.stock_quantity = 0
+        # print("+++ meal quantity:", meal_quantity)
         orderItem_serializer = OrderItemCreateSerializer(data=i)
         if orderItem_serializer.is_valid():
                 orderItem_serializer.save(order = curren_order)
@@ -103,6 +112,9 @@ def add_courier_to_order(request, pk):
     print("Current orderin curyeri evvel: ", order.courier)
     print("=============")
     order.courier = likedCourier
+
+    # I take this couirer nad he is not available
+    likedCourier.is_available = False
     print("=============")
     print("Current orderin curyeri assign sonra: ", order.courier)
     print("=============")
@@ -110,7 +122,19 @@ def add_courier_to_order(request, pk):
     return JsonResponse(order_serializer.data)
     # return JsonResponse({'message': 'terminala bax'}, status=status.HTTP_202_ACCEPTED)
     
-
+@api_view(['PATCH'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def complete_order(request, pk):
+    try: 
+        order = Order.objects.get(pk=pk) 
+    except Order.DoesNotExist: 
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    request_data = JSONParser().parse(request)
+    order.courier.is_available = True
+    order.complete = True
+    order_serializer = OrderFullSerializer(order)
+    return JsonResponse(order_serializer.data)
 
 # class OrdersAPIView(ListCreateAPIView):
 #     authentication_classes = []
