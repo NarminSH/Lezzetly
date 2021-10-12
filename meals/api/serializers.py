@@ -43,6 +43,14 @@ class MealOptionSerializer(serializers.ModelSerializer):
             'title',
         )
 
+class IngredientCustomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'title',
+        )
+
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient

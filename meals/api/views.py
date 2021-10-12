@@ -11,8 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import generics
 from rest_framework.response import Response
-from .serializers import CategoryCustomSerializer, MealOptionSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer
-from ..models import Category, Meal, MealOption
+from .serializers import CategoryCustomSerializer, MealOptionSerializer, MealSerializer, MealCreatSerializer, CategoryUpdateSerializer, IngredientCustomSerializer
+from ..models import Category, Ingredient, Meal, MealOption
 from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
@@ -117,10 +117,26 @@ def meal_list(request):
     #     count = Category.objects.all().delete()
     #     return JsonResponse({'message': '{} Categories were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
 
+
+# @api_view(['GET'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+# def meal_single(request, pk):
+#     try: 
+#         meal = Meal.objects.get(pk=pk) 
+#     except Meal.DoesNotExist: 
+#         return JsonResponse({'message': 'The meal does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+#     if request.method == 'GET': 
+#         meal_serializer = MealSerializer(meal) 
+#         return JsonResponse(meal_serializer.data) 
+
 # get single meal
 # update meal
 # delete meal 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PATCH', 'DELETE'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def meal_detail(request, pk):
     try: 
         meal = Meal.objects.get(pk=pk) 
@@ -131,8 +147,10 @@ def meal_detail(request, pk):
         meal_serializer = MealSerializer(meal) 
         return JsonResponse(meal_serializer.data) 
  
-    elif request.method == 'PUT': 
-        meal_data = JSONParser().parse(request) 
+    elif request.method == 'PATCH': 
+    # if request.method == 'PATCH': 
+        meal_data = JSONParser().parse(request)
+        print("+++++ meal data: ", meal_data) 
         meal_serializer = MealCreatSerializer(meal, data=meal_data) 
         if meal_serializer.is_valid(): 
             meal_serializer.save() 
@@ -140,16 +158,20 @@ def meal_detail(request, pk):
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
  
     elif request.method == 'DELETE':
-        check_count = 0
         queryset = meal.ordered_items.all()
-        for i in queryset:
-            if i.order.complete == False:
-                check_count += 1
-        if check_count == 0: 
-            meal.delete() 
+        if not queryset:
+            meal.delete()
             return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)
+            check_count = 0
+            for i in queryset:
+                if i.order.complete == False:
+                    check_count += 1
+            if check_count != 0:
+                return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)    
+            else:
+                meal.is_active = False
+                return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
 # get all categories,
 # create new category,
@@ -185,7 +207,8 @@ def category_list(request):
 # update category
 # delete category 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def category_detail(request, pk):
     try: 
         category = Category.objects.get(pk=pk) 
@@ -259,3 +282,63 @@ def mealoption_detail(request, pk):
     elif request.method == 'DELETE': 
         mealoption.delete() 
         return JsonResponse({'message': 'Meal option was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    
+
+# get all ingredients,
+# create new ingredient,
+# delete all ingredients, now in comment
+@api_view(['GET', 'POST', 'DELETE'])
+@authentication_classes([])
+@permission_classes([])
+def ingredient_list(request):
+    if request.method == 'GET':
+        ingredients = Ingredient.objects.all()
+        
+        title = request.query_params.get('search', None)
+        if title is not None:
+            ingredients = ingredients.filter(title__icontains=title)
+        
+        ingredient_serializer = IngredientCustomSerializer(ingredients, many=True)
+        return JsonResponse(ingredient_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        ingredient_data = JSONParser().parse(request)
+        ingredient_serializer = IngredientCustomSerializer(data=ingredient_data)
+        if ingredient_serializer.is_valid():
+            ingredient_serializer.save()
+            return JsonResponse(ingredient_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(ingredient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # elif request.method == 'DELETE':
+    #     count = Category.objects.all().delete()
+    #     return JsonResponse({'message': '{} Categories were deleted successfully!'.format(count[0])}, status=status.HTTP_204_NO_CONTENT)
+ 
+# get single ingredient
+# update ingredient
+# delete ingredient
+@api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def ingredient_detail(request, pk):
+    try: 
+        ingredient = Ingredient.objects.get(pk=pk) 
+    except Ingredient.DoesNotExist: 
+        return JsonResponse({'message': 'The ingredient does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        ingredient_serializer = IngredientCustomSerializer(ingredient) 
+        return JsonResponse(ingredient_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        ingredient_data = JSONParser().parse(request) 
+        ingredient_serializer = IngredientCustomSerializer(ingredient, data=ingredient_data) 
+        if ingredient_serializer.is_valid(): 
+            ingredient_serializer.save() 
+            return JsonResponse(ingredient_serializer.data) 
+        return JsonResponse(ingredient_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        ingredient.delete() 
+        return JsonResponse({'message': 'Ingredient was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
