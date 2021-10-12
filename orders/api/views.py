@@ -131,7 +131,9 @@ def complete_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    order.courier.is_available = True
+    courierId = request_data['courier']
+    likedCourier = Courier.objects.get(pk=courierId)
+    likedCourier.is_available = True
     order.complete = True
     order_serializer = OrderFullSerializer(order)
     return JsonResponse(order_serializer.data)
