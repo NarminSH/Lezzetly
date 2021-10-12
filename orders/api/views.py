@@ -54,6 +54,8 @@ class OrderAPIView(generics.ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderFullSerializer
 
+
+
 @api_view(['GET', 'DELETE', 'PATCH'])
 @authentication_classes([])
 @permission_classes([AllowAny])

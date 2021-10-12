@@ -10,7 +10,7 @@ class DeliveryArea(models.Model):
     # courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, related_name='delivery_areas')    
 
     # information
-    delivery_area = models.CharField(max_length=150, blank=True, null=True)
+    delivery_area = models.CharField(max_length=150)
     delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
@@ -20,7 +20,7 @@ class DeliveryArea(models.Model):
 class Courier(User):
 
     #relations
-    deliveryArea = models.ManyToManyField(DeliveryArea, related_name='meals', db_index=True, blank=True)
+    deliveryArea = models.ManyToManyField(DeliveryArea, related_name='meals', db_index=True)
 
     # information
     transport = models.CharField(max_length=150, blank=True, null=True)

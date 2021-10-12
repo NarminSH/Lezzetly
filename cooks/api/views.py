@@ -3,7 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import request
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
-from rest_framework.generics import  ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import  ListAPIView, ListCreateAPIView
 from cooks.api.serializers import CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
 from cooks.models import Cook, Recommendation, Resume
 from users.api.serializers import RegisterSerializer
@@ -11,7 +11,7 @@ from orders.api.serializers import OrderListSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
@@ -34,13 +34,12 @@ class CooksAPIView(ListCreateAPIView):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 # @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([AllowAny])
 def cook_detail(request, pk):
     try: 
         cook = Cook.objects.get(pk=pk) 
     except Cook.DoesNotExist: 
         return JsonResponse({'message': 'The cook does not exist'}, status=status.HTTP_404_NOT_FOUND) 
-
 
     if request.method == 'GET':
         if request.user.user_type == '2' or request.user.user_type == '1':  
@@ -50,32 +49,29 @@ def cook_detail(request, pk):
         return JsonResponse(cook_serializer.data) 
 
     elif request.method == 'PUT': 
-        cook_data = JSONParser().parse(request) 
+        cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
         cook_serializer = CookSerializer(cook, data=cook_data) 
-        if cook_serializer.is_valid(): 
+        if cook_serializer.is_valid(raise_exception=True): 
             cook_serializer.save() 
             return JsonResponse(cook_serializer.data) 
         return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
- 
+
     elif request.method == 'DELETE' and request.user == cook :
         all_orders = cook.orders.all()
+        ongoing_orders = 0
         print(all_orders)
-        for order in all_orders:
-            if order.complete == False:
-                not_completed_orders = True
-                if not not_completed_orders:
-            # cook.delete()   
-                    print('deletedddddddd')       
+        if all_orders:
+            for order in all_orders:
+                if order.complete == False:
+                    ongoing_orders += 1
+            if ongoing_orders == 0:
+                cook.delete()   
+                print('deletedddddddd')       
                 return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-            return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
         return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
     
-
-
-
-
-
-
 
 
 

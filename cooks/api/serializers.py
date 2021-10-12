@@ -41,6 +41,7 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
             'created_at',
             'updated_at',
         )
+        read_only_fields = ['rating', ]
 
         
 
