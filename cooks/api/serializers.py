@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from cooks.models import Cook, Recommendation, Resume
 
@@ -23,6 +24,8 @@ class CookListSerializer(serializers.ModelSerializer):   #serializer for get met
 
 
 class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+
+    
     class Meta:
         model = Cook
         fields = (
@@ -42,6 +45,7 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
             'updated_at',
         )
         read_only_fields = ['rating', ]
+
 
         
 

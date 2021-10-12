@@ -48,7 +48,7 @@ def cook_detail(request, pk):
         cook_serializer = CookListSerializer(cook) 
         return JsonResponse(cook_serializer.data) 
 
-    elif request.method == 'PUT': 
+    elif request.method == 'PUT' and request.user == cook: 
         cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
         cook_serializer = CookSerializer(cook, data=cook_data) 
         if cook_serializer.is_valid(raise_exception=True): 
