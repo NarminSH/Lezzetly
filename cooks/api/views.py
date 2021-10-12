@@ -56,20 +56,21 @@ def cook_detail(request, pk):
             return JsonResponse(cook_serializer.data) 
         return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
-    elif request.method == 'DELETE' and request.user == cook :
-        all_orders = cook.orders.all()
-        ongoing_orders = 0
-        print(all_orders)
-        if all_orders:
-            for order in all_orders:
-                if order.complete == False:
-                    ongoing_orders += 1
-            if ongoing_orders == 0:
-                cook.delete()   
-                print('deletedddddddd')       
-                return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
-            else:
-                return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
+    elif request.method == 'DELETE':
+        if request.user == cook:
+            all_orders = cook.orders.all()
+            ongoing_orders = 0
+            print(all_orders)
+            if all_orders:
+                for order in all_orders:
+                    if order.complete == False:
+                        ongoing_orders += 1
+                if ongoing_orders == 0:
+                    cook.delete()   
+                    print('deletedddddddd')       
+                    return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+                else:
+                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
         return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
     
 
