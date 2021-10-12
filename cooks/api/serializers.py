@@ -2,6 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from cooks.models import Cook, Recommendation, Resume
 
+# valid_characters = 
 
 
 class CookListSerializer(serializers.ModelSerializer):   #serializer for get method
