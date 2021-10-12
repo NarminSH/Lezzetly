@@ -158,16 +158,20 @@ def meal_detail(request, pk):
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
  
     elif request.method == 'DELETE':
-        check_count = 0
         queryset = meal.ordered_items.all()
-        for i in queryset:
-            if i.order.complete == False:
-                check_count += 1
-        if check_count == 0: 
-            meal.delete() 
+        if not queryset:
+            meal.delete()
             return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)
+            check_count = 0
+            for i in queryset:
+                if i.order.complete == False:
+                    check_count += 1
+            if check_count != 0:
+                return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)    
+            else:
+                meal.is_active = False
+                return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
 # get all categories,
 # create new category,
