@@ -260,7 +260,8 @@ def mealoption_list(request):
 # update meal
 # delete meal 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@authentication_classes([])
+@permission_classes([])
 def mealoption_detail(request, pk):
     try: 
         mealoption = MealOption.objects.get(pk=pk) 
