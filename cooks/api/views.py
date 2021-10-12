@@ -7,7 +7,7 @@ from rest_framework.generics import  ListAPIView, ListCreateAPIView
 from cooks.api.serializers import CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
 from cooks.models import Cook, Recommendation, Resume
 from users.api.serializers import RegisterSerializer
-from orders.api.serializers import OrderListSerializer
+from orders.api.serializers import OrderFullSerializer, OrderListSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
@@ -58,6 +58,8 @@ def cook_detail(request, pk):
 
     elif request.method == 'DELETE':
         if request.user == cook:
+            print(request.user)
+            print(cook)
             all_orders = cook.orders.all()
             ongoing_orders = 0
             print(all_orders)
@@ -152,7 +154,7 @@ class CookMealsAPIView(ListAPIView):
 class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = OrderListSerializer
+    serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
     
 
@@ -160,7 +162,7 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
             item = Order.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 raise Http404
-            serializer = OrderListSerializer(
+            serializer = OrderFullSerializer(
                 item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 

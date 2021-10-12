@@ -9,6 +9,7 @@ from delivery.models import Courier
 class RegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    user_type = serializers.CharField(required=True)
 
     def create(self, validated_data):
         user_type = validated_data['user_type']
@@ -27,6 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user_type = validated_data['user_type'],
         email = validated_data['email']
     )
+    
         user.set_password(validated_data['password'])
         user.save()
         return user
