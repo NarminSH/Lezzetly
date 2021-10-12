@@ -40,7 +40,7 @@ class MealAPIView(generics.ListAPIView):
     permission_classes = []
     search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
     filter_backends = (filters.SearchFilter,)
-    queryset = Meal.objects.all()
+    queryset = Meal.objects.filter(is_active=True)
     serializer_class = MealSerializer
 
 
