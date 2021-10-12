@@ -87,7 +87,7 @@ def meal_list(request):
     # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
     #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
     is_full = False
-    if request.user.is_available is not None and request.user.service_place is not None and request.user.rating is not None and request.user.payment_address is not None and request.user.work_experience is not None:
+    if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
         is_full = True
     queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
                             rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
