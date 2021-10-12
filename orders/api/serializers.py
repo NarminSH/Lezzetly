@@ -79,3 +79,25 @@ class OrderFullSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',   
         )
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    cook = CookSerializer(required=False)
+    # courier = CourierSerializer(required=False)
+    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'customer_first_name',
+            'customer_last_name',
+            'customer_phone',
+            'customer_email',
+            'customer_location',
+            'cook',
+            'complete',
+            'cook',
+            'courier',
+            'ordered_items',
+            'created_at',
+            'updated_at',   
+        )

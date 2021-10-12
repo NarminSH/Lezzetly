@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
 from delivery.models import Courier
-from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderListSerializer, OrderSerializer
+from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order
 from meals.models import Meal
@@ -111,6 +111,8 @@ def add_courier_to_order(request, pk):
     print("=============")
     print("Current orderin curyeri evvel: ", order.courier)
     print("=============")
+    print("likedCourier.id: ", likedCourier.id)
+    print("++++==")
     order.courier = likedCourier
 
     # I take this couirer nad he is not available
@@ -118,9 +120,12 @@ def add_courier_to_order(request, pk):
     print("=============")
     print("Current orderin curyeri assign sonra: ", order.courier)
     print("=============")
-    order_serializer = OrderFullSerializer(order) 
-    return JsonResponse(order_serializer.data)
-    # return JsonResponse({'message': 'terminala bax'}, status=status.HTTP_202_ACCEPTED)
+    order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+    if order_serializer.is_valid(raise_exception=True):
+        order_serializer.save()
+    # return JsonResponse(order_serializer.data)
+    return JsonResponse({'message': 'terminala bax'}, status=status.HTTP_202_ACCEPTED)
     
 @api_view(['PATCH'])
 @authentication_classes([])
@@ -131,11 +136,17 @@ def complete_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    courierId = request_data['courier']
+    print("+++ req.data: ", request_data)
+    courierId = order.courier
+    print(print("+++ req.data: ", courierId))
     likedCourier = Courier.objects.get(pk=courierId)
     likedCourier.is_available = True
     order.complete = True
-    order_serializer = OrderFullSerializer(order)
+    order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+    if order_serializer.is_valid(raise_exception=True):
+        order_serializer.save()
+    order_serializer.save()
     return JsonResponse(order_serializer.data)
 
 # class OrdersAPIView(ListCreateAPIView):
