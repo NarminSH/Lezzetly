@@ -1,5 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
+from rest_framework.fields import JSONField
 from delivery.api.serializers import CourierSerializer
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
@@ -82,7 +83,7 @@ class OrderFullSerializer(serializers.ModelSerializer):
 
 class OrderUpdateSerializer(serializers.ModelSerializer):
     cook = CookSerializer(required=False)
-    # courier = CourierSerializer(required=False)
+    # courier = JSONField()
     ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
     class Meta:
         model = Order

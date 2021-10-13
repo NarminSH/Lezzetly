@@ -5,6 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
+from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier
 from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -100,32 +101,29 @@ def add_courier_to_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
+    
     courierId = request_data['courier']
-    print("=============")
-    print("Courier id: ", courierId)
-    print("=============")
+    
     likedCourier = Courier.objects.get(pk=courierId)
-    print("That courier: ", likedCourier)
-    print("=============")
-    print("Current order: ", order)
-    print("=============")
-    print("Current orderin curyeri evvel: ", order.courier)
-    print("=============")
-    print("likedCourier.id: ", likedCourier.id)
-    print("++++==")
+
+    print("Evvelce Curyerin statusu", likedCourier.is_available)
+    
     order.courier = likedCourier
+    # likedCourier.is_available = False
+    order.courier.is_available = False
+    likedCourier.save()
+    order.save()
 
-    # I take this couirer nad he is not available
-    likedCourier.is_available = False
-    print("=============")
-    print("Current orderin curyeri assign sonra: ", order.courier)
-    print("=============")
-    order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+    print("Sonra Curyerin statusu", likedCourier.is_available)
+      
+    # curier_serializer = CourierSerializer(likedCourier, )
+    # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
+    # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
-    if order_serializer.is_valid(raise_exception=True):
-        order_serializer.save()
+    # if order_serializer.is_valid(raise_exception=True):
+    #     order_serializer.save()
     # return JsonResponse(order_serializer.data)
-    return JsonResponse({'message': 'terminala bax'}, status=status.HTTP_202_ACCEPTED)
+    return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
     
 @api_view(['PATCH'])
 @authentication_classes([])
