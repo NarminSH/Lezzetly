@@ -21,7 +21,6 @@ def order_create(request):
     # create empty order with out orderItems, with customer data and add cook
     order_serializer = OrderFullSerializer(data=order_data)
     if order_serializer.is_valid():
-
         order_item_data = order_data['order_items']
         meal_id = None
         meal_quantity = None
@@ -59,10 +58,14 @@ def order_create(request):
         meal = Meal.objects.get(pk=meal_id)
         meal_quantity = i['quantity']
         difference = meal.stock_quantity - meal_quantity
+        print("////// stock difference: ", difference)
         if difference > 0:
             meal.stock_quantity = difference
+            meal.save()
         else:
+            print("girdi else stok dif sohbeti")
             meal.stock_quantity = 0
+            meal.save()
         # print("+++ meal quantity:", meal_quantity)
         orderItem_serializer = OrderItemCreateSerializer(data=i)
         if orderItem_serializer.is_valid():
