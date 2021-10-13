@@ -99,7 +99,7 @@ def order_detail(request, pk):
     elif request.method == 'DELETE':
         if order.complete == True: 
             order.delete() 
-            return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'Order was deleted successfully!'}, status=status.HTTP_200_OK)
         else:
             return JsonResponse({'message': 'You can not delete this order, order not complete!'}, status=status.HTTP_403_FORBIDDEN)
     elif request.method == 'PATCH':
