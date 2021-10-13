@@ -17,9 +17,8 @@ class CouriersAPIView(ListCreateAPIView):
     #                         rating__isnull=False, work_experience__isnull=False, deliveryArea__isnull=False )
     queryset = Courier.objects.all()
     serializer_class = CourierSerializer
-    search_fields = ['deliveryArea']
+    search_fields = ['deliveryArea__delivery_area']
     filter_backends = (filters.SearchFilter,)
-
 
 
 
