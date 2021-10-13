@@ -83,7 +83,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
         courier.delete()
         print('deleteddd')
         print(serializer.data)
-        return JsonResponse({"message" : "Courier is deleted successfully!"}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse(data="Courier is deleted successfully!", safe=False)
 
     def patch(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
