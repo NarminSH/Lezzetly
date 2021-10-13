@@ -161,7 +161,7 @@ def meal_detail(request, pk):
         queryset = meal.ordered_items.all()
         if not queryset:
             meal.delete()
-            return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'meal was deleted successfully!'}, status=status.HTTP_200_OK)
         else:
             check_count = 0
             for i in queryset:
