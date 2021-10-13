@@ -70,10 +70,10 @@ def cook_detail(request, pk):
                 if ongoing_orders == 0:
                     cook.delete()   
                     print('deletedddddddd')       
-                    return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+                    return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_200_OK)
                 else:
-                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_204_NO_CONTENT)
-        return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_204_NO_CONTENT)
+                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_200_OK)
     
 
 

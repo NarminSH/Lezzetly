@@ -64,7 +64,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def put(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
         if not courier:
             raise Http404
         serializer = CourierSerializer(data=self.request.data,
@@ -76,17 +76,20 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def delete(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to delete the user!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'You do not have permissions to delete the user!'}, status=status.HTTP_200_OK)
         if not courier:
             raise Http404
         serializer = CourierSerializer(courier)
         courier.delete()
-        return JsonResponse({'message': 'Courier deleted successfully'}, serializer.data, safe=False)
+        print('deleteddd')
+        print(serializer.data)
+        # return JsonResponse(data="Courier is deleted successfully!", safe=False)
+        return JsonResponse({'message': 'deleted courier!'}, status=status.HTTP_200_OK)
 
     def patch(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
         serializer = CourierSerializer(data=self.request.data, instance=courier, 
                                     context={'request': self.request}, partial=True) # set partial=True to update a data partially
         if serializer.is_valid(raise_exception=True):
