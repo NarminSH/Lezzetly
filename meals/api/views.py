@@ -151,7 +151,7 @@ def meal_detail(request, pk):
     # if request.method == 'PATCH': 
         meal_data = JSONParser().parse(request)
         print("+++++ meal data: ", meal_data) 
-        meal_serializer = MealCreatSerializer(meal, data=meal_data) 
+        meal_serializer = MealCreatSerializer(meal, data=meal_data, partial=True) 
         if meal_serializer.is_valid(): 
             meal_serializer.save() 
             return JsonResponse(meal_serializer.data) 
@@ -260,7 +260,8 @@ def mealoption_list(request):
 # update meal
 # delete meal 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@authentication_classes([])
+@permission_classes([])
 def mealoption_detail(request, pk):
     try: 
         mealoption = MealOption.objects.get(pk=pk) 
