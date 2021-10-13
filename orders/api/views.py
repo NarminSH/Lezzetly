@@ -21,15 +21,30 @@ def order_create(request):
     # create empty order with out orderItems, with customer data and add cook
     order_serializer = OrderFullSerializer(data=order_data)
     if order_serializer.is_valid():
-            order_item_data = order_data['order_items']
-            meal_id = None
-            meal_quantity = None
-            # get cook from meal
-            for i in order_item_data:
-               meal_id = i['meal']
-            meal = Meal.objects.get(pk=meal_id)
-            cook1 = meal.cook
+
+        order_item_data = order_data['order_items']
+        meal_id = None
+        meal_quantity = None
+        # get cook from meal
+        for i in order_item_data:
+            meal_id = i['meal']
+        meal = Meal.objects.get(pk=meal_id)
+        cook1 = meal.cook
+        is_same_cook = True
+        oneCookId = cook1.id
+        print("****** oneCookId", oneCookId)
+        for i in order_item_data:
+            meal1_id = i['meal']
+            meal1 = Meal.objects.get(pk=meal1_id)
+            print("*****or item cook_id:", meal1.cook.id)
+            print("*****or item title:", meal1.title)
+            if meal1.cook.id != oneCookId:
+                is_same_cook = False
+        print("****** is_same_cook", is_same_cook)
+        if is_same_cook:
             order_serializer.save(cook = cook1)
+        else:
+            return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_403_FORBIDDEN)            
     
     # get current order id for assigning to orderItem
     current_order_id = order_serializer.data['id']
