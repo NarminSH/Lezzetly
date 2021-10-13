@@ -34,7 +34,7 @@ class CourierOrdersAPIView(ListAPIView):
             if not item:
                 raise Http404
             serializer = OrderFullSerializer(
-                item, many=True, context={'request': self.request})
+                item, many=True, context={'request': self.request}, exclude=["courier"])
             return JsonResponse(data=serializer.data, safe=False)
 
 

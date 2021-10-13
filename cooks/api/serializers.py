@@ -34,6 +34,7 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
             'first_name',
             'last_name',
             'patronymic',
+            'phone',
             'city',
             'service_place',  
             'payment_address',
@@ -78,6 +79,13 @@ class ResumeSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         )
+        read_only_fields = ["cook", ]
+
+        def save(self, attrs):
+            request = self.context.get('request')
+            print(request, 'requesttttttt')
+            attrs['cook'] = request.user
+            return super(ResumeSerializer, self).validate(attrs)
 
 
 class ResumeListSerializer(ResumeSerializer):
