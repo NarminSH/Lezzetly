@@ -170,7 +170,12 @@ def meal_detail(request, pk):
             if check_count != 0:
                 return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)    
             else:
+                print("************")
+                print("mealin statusu delete-den evvel: ", meal.is_active)
                 meal.is_active = False
+                meal.save()
+                print("mealin statusu delete-den sonra: ", meal.is_active)
+                print("************")
                 return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
 # get all categories,
