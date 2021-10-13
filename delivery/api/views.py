@@ -81,7 +81,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
             raise Http404
         serializer = CourierSerializer(courier)
         courier.delete()
-        return JsonResponse(serializer.data, safe=False)
+        return JsonResponse({'message': 'Courier deleted successfully'}, serializer.data, safe=False)
 
     def patch(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
