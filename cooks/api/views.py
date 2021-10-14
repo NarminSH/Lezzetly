@@ -120,8 +120,8 @@ class ResumesAPIView(ListCreateAPIView):
         return super(ResumesAPIView, self).get_serializer_class()
 
 
-class CookResumesAPIView(ListAPIView):
-    authentication_classes = []
+class CookResumesAPIView(ListCreateAPIView):
+    # authentication_classes = []
     permission_classes = [permissions.AllowAny]
     serializer_class = ResumeSerializer
     queryset = Resume.objects.all()
@@ -134,6 +134,17 @@ class CookResumesAPIView(ListAPIView):
                 item, many=True, context={'request': self.request})
             return JsonResponse(data=serializer.data, safe=False)
 
+    
+    def post(self, *args, **kwargs):
+        resume_data = self.request.data
+        if self.request.user.id == kwargs.get('pk'): 
+            serializer = ResumeSerializer(data=resume_data, context={
+                                            'request': self.request})
+            serializer.is_valid(raise_exception=True)
+            serializer.validated_data['cook']= self.request.user
+            serializer.save()
+            return JsonResponse(data=serializer.data, safe=False, status=201)
+        return JsonResponse (data="You do not have permissions to create a resume for the cook!", status=200, safe=False)
 
 class CookMealsAPIView(ListAPIView):
     authentication_classes = []
