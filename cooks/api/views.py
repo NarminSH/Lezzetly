@@ -11,7 +11,7 @@ from orders.api.serializers import OrderFullSerializer, OrderListSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
@@ -48,13 +48,15 @@ def cook_detail(request, pk):
         cook_serializer = CookListSerializer(cook) 
         return JsonResponse(cook_serializer.data) 
 
-    elif request.method == 'PUT' and request.user == cook: 
-        cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-        cook_serializer = CookSerializer(cook, data=cook_data) 
-        if cook_serializer.is_valid(raise_exception=True): 
-            cook_serializer.save() 
-            return JsonResponse(cook_serializer.data) 
-        return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    elif request.method == 'PUT': 
+        if request.user == cook:
+            cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            cook_serializer = CookSerializer(cook, data=cook_data) 
+            if cook_serializer.is_valid(raise_exception=True): 
+                cook_serializer.save() 
+                return JsonResponse(cook_serializer.data) 
+            return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return JsonResponse({'message': 'You have no rights to change this cook!'}, status=status.HTTP_403_FORBIDDEN)
 
     elif request.method == 'DELETE':
         if request.user == cook:
@@ -167,22 +169,24 @@ class CookMealsAPIView(ListAPIView):
             if not item:
                 raise Http404
             serializer = MealSerializer(
-                item, many=True, context={'request': self.request})
+                item, many=True, context={'request': self.request}, exclude=["cook", ])
             return JsonResponse(data=serializer.data, safe=False)
 
 
 class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
-    authentication_classes = []
-    permission_classes = [permissions.AllowAny]
+    # authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
     
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(cook=kwargs.get('pk'))
-            if not item:
-                raise Http404
-            serializer = OrderFullSerializer(
-                item, many=True, context={'request': self.request})
-            return JsonResponse(data=serializer.data, safe=False)
+            if self.request.user.id == kwargs.get('pk'):
+                if not item:
+                    raise Http404
+                serializer = OrderFullSerializer(
+                    item, many=True, context={'request': self.request}, exclude=['cook'])
+                return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse(data="You don't own permissions for this action", safe=False, status=403)
 
