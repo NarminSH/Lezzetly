@@ -66,6 +66,10 @@ class OrderItem(models.Model):
     quantity = models.PositiveSmallIntegerField(default=1)
     
     @property
+    def meal_title(self):
+        return self.meal.title
+
+    @property
     def total_price(self):
         total_price = self.meal.get_price * self.quantity
         return total_price

@@ -105,7 +105,8 @@ class OrderItemForOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'quantity',
-            'meal',   
+            'meal',
+            'meal_title'
         )
 
 class OrderItemSerializer(serializers.ModelSerializer):
