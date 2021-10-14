@@ -99,7 +99,26 @@ class MealSerializer(serializers.ModelSerializer):
             'ingredients',
             'mealoption',
         )
- 
+
+
+
+# This is for orderItem
+class MealOrderItemSerializer(serializers.ModelSerializer):
+    # cook = CookSerializer()
+    # mealoption = MealOptionSerializer(read_only=True, required=False, many=True)
+    # ingredients = IngredientSerializer(read_only=True, required=False, many=True)
+    # category = CategorySerializer(read_only=True, required=False, many=True)
+    class Meta:
+        model = Meal
+        fields = (
+            'id',
+            'title',
+            'price',
+            'stock_quantity',
+            'is_active',
+        )
+
+
 # class MealListSerializer(MealSerializer):
 #     category = CategoryListSerializer(many=True)
 

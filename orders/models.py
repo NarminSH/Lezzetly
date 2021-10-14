@@ -36,7 +36,8 @@ class Order(models.Model):
     customer_email = models.EmailField(('email address'), max_length=254) 
     # status = models.CharField(max_length=2, choices=STATUS_CHOICES, blank=True, null=True)
     complete = models.BooleanField(default=False)
-
+    is_rejected = models.BooleanField(null=True, blank=True, default=False)
+    reject_reason = models.CharField('reject reason', max_length=250, null=True, blank=True, default=None)
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -44,9 +45,9 @@ class Order(models.Model):
     # def order_total(self):
     
     @property
-    def get_order_total(self):
+    def order_total(self):
         # check
-        orderitems = self.orderitem_set.all()
+        orderitems = self.items.all()
         if orderitems:
             total = sum([item.get_total for item in orderitems])
             return total
@@ -65,9 +66,18 @@ class OrderItem(models.Model):
     quantity = models.PositiveSmallIntegerField(default=1)
     
     @property
-    def total_price(self):
-        total_price = self.meal.get_price * self.quantity
-        return total_price
+    def meal_title(self):
+        return self.meal.title
+
+    @property
+    def get_total(self):
+        total = self.meal.price * self.quantity
+        return total
+
+    # @property
+    # def total_price(self):
+    #     total_price = self.meal.get_price * self.quantity
+    #     return total_price
 
     def __str__(self):
         return f"Order item id is{self.id}"

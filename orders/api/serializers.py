@@ -2,9 +2,11 @@ from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import JSONField
 from delivery.api.serializers import CourierSerializer
-from meals.api.serializers import MealSerializer
+from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal
 from orders.models import Order, OrderItem
+from cooks.models import Cook
+from delivery.models import Courier
 from cooks.api.serializers import CookListSerializer, CookSerializer
 
 class OrderCreatSerializer(serializers.ModelSerializer):
@@ -87,35 +89,43 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(exclude_name)
 
 
-class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
-    cook = CookSerializer(required=False)
-    courier = CourierSerializer(required=False)
-    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+
+class OrderForItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
+        meal = MealOrderItemSerializer(read_only=True, required=False)
         fields = (
             'id',
-            'customer_first_name',
-            'customer_last_name',
-            'customer_phone',
-            'customer_email',
-            'customer_location',
-            'cook',
-            'complete',
-            'cook',
-            'courier',
-            'ordered_items',
-            'created_at',
-            'updated_at',   
+            'complete',   
         )
 
+class OrderItemForOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = (
+            'id',
+            'quantity',
+            'meal',
+            'meal_title'
+        )
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    order = OrderForItemSerializer(read_only=True, required=False)
+    meal = MealOrderItemSerializer(read_only=True, required=False)
+    class Meta:
+        model = OrderItem
+        fields = (
+            'id',
+            'quantity',
+            'order',
+            'meal',
+        )
 
 
 class OrderUpdateSerializer(serializers.ModelSerializer):
     cook = CookSerializer(required=False)
     # courier = JSONField()
-    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+    items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
     class Meta:
         model = Order
         fields = (
@@ -129,7 +139,64 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             'complete',
             'cook',
             'courier',
-            'ordered_items',
+            'items',
+            'created_at',
+            'updated_at',   
+        )
+
+class CookForOrderSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Cook
+        fields = (
+            'id',
+            'first_name',
+            'phone',
+            'service_place',  
+            'payment_address',
+            'is_available',
+            
+        )
+        # read_only_fields = ['rating', ]
+
+class CourierForOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Courier
+        fields = (
+            'id',
+            'first_name',
+            'phone',
+            'transport',
+            'deliveryArea',
+            'is_available',
+            'location',
+        )
+        # extra_kwargs = {'transport': {'required': True}, 'work_experience': {'required': True}, 
+        #                                                         'location': {'required': True}}
+            
+        # read_only_fields = ['rating'] 
+
+
+
+class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
+    cook = CookForOrderSerializer(required=False)
+    courier = CourierForOrderSerializer(required=False)
+    items = OrderItemForOrderSerializer(read_only=True, many=True)
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'complete',
+            'is_rejected',
+            'reject_reason',
+            'order_total',
+            'customer_first_name',
+            'customer_last_name',
+            'customer_phone',
+            'customer_email',
+            'customer_location',
+            'cook',
+            'courier',
+            'items',
             'created_at',
             'updated_at',   
         )

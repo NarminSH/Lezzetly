@@ -7,9 +7,9 @@ from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier
-from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
+from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from orders.models import Order
+from orders.models import Order, OrderItem
 from meals.models import Meal
 from rest_framework import filters
 
@@ -81,6 +81,15 @@ class OrderAPIView(generics.ListAPIView):
     # filter_backends = (filters.SearchFilter,)
     queryset = Order.objects.all()
     serializer_class = OrderFullSerializer
+
+class OrderItemAPIView(generics.ListAPIView):
+    
+    authentication_classes = []
+    permission_classes = []
+    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+    # filter_backends = (filters.SearchFilter,)
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
 
 
 
@@ -170,6 +179,7 @@ def complete_order(request, pk):
     print("**************************")
     return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
     # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
 
     # if order_serializer.is_valid(raise_exception=True):
     #     order_serializer.save()

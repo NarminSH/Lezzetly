@@ -234,7 +234,7 @@ def category_detail(request, pk):
  
     elif request.method == 'DELETE': 
         category.delete() 
-        return JsonResponse({'message': 'Category was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({'message': 'Category was deleted successfully!'}, status=status.HTTP_200_OK)
 
     
 # mealoption
@@ -287,7 +287,7 @@ def mealoption_detail(request, pk):
  
     elif request.method == 'DELETE': 
         mealoption.delete() 
-        return JsonResponse({'message': 'Meal option was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({'message': 'Meal option was deleted successfully!'}, status=status.HTTP_200_OK)
     
 
 # get all ingredients,
@@ -346,5 +346,5 @@ def ingredient_detail(request, pk):
  
     elif request.method == 'DELETE': 
         ingredient.delete() 
-        return JsonResponse({'message': 'Ingredient was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return JsonResponse({'message': 'Ingredient was deleted successfully!'}, status=status.HTTP_200_OK)
 
