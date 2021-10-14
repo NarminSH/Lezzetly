@@ -246,6 +246,8 @@ def reject_order(request, pk):
         print("**************")
         if order.is_rejected:
             return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+        elif order.complete:
+            return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
         elif request_data['is_rejected'] == True and not request_data['reject_reason']:
             return JsonResponse({'message': 'You can not reject with out reject reason information!'}, status=status.HTTP_200_OK)    
         else:
