@@ -81,6 +81,20 @@ class OrderFullSerializer(serializers.ModelSerializer):
             'updated_at',   
         )
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    cook = CookSerializer()
+    order = MealOptionSerializer(read_only=True, required=False, many=True)
+    meal = IngredientSerializer(read_only=True, required=False, many=True)
+    class Meta:
+        model = Meal
+        fields = (
+            'quantity'
+            'id',
+            'order',
+            'meal',
+        )
+
+
 class OrderUpdateSerializer(serializers.ModelSerializer):
     cook = CookSerializer(required=False)
     # courier = JSONField()
