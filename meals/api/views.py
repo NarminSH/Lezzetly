@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.db.models.query import QuerySet
 from rest_framework import permissions
 from cooks.models import Cook
+from users.api.jwt import JWTAuthentication
 from users.models import User
 from .filters import MealFilter
 from django.shortcuts import render
@@ -17,6 +19,7 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
+import jwt
  
 @api_view(['GET'])
 def mealsApiOverviews(request):
@@ -139,9 +142,11 @@ def meal_list(request):
 # update meal
 # delete meal 
 @api_view(['GET', 'PATCH', 'DELETE'])
-@authentication_classes([])
-@permission_classes([AllowAny])
+# @authentication_classes([])
+@permission_classes([IsAuthenticated])
 def meal_detail(request, pk):
+    # token = request.GET.get('token')
+    # print("request.token", request.token)
     try: 
         meal = Meal.objects.get(pk=pk) 
     except Meal.DoesNotExist: 
@@ -151,8 +156,18 @@ def meal_detail(request, pk):
         meal_serializer = MealSerializer(meal) 
         return JsonResponse(meal_serializer.data) 
  
-    elif request.method == 'PATCH': 
-    # if request.method == 'PATCH': 
+    elif request.method == 'PATCH' and isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
+    elif request.method == 'PATCH' and isinstance(request.user, Cook) == True:
+        # print("jwt decode: ", payload = JWTAuthentication.decode(token, settings.SECRET_KEY, algorithms="HS256"))
+        # return JsonResponse({'message': 'terminala bax!'}, status=status.HTTP_200_OK)
+    # elif request.method == 'PATCH':
+    #     print("Token", token)
+    #     data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    #     print("jwt decode: ", data)
+    #     return JsonResponse({'message': 'terminala bax!'}, status=status.HTTP_200_OK)
+
+    # # if request.method == 'PATCH': 
         meal_data = JSONParser().parse(request)
         print("+++++ meal data: ", meal_data) 
         meal_serializer = MealCreatSerializer(meal, data=meal_data, partial=True) 
@@ -161,7 +176,9 @@ def meal_detail(request, pk):
             return JsonResponse(meal_serializer.data) 
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
  
-    elif request.method == 'DELETE':
+    elif request.method == 'DELETE' and isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
+    elif request.method == 'DELETE' and isinstance(request.user, Cook) == True:
         queryset = meal.ordered_items.all()
         if not queryset:
             meal.delete()
