@@ -5,6 +5,8 @@ from delivery.api.serializers import CourierSerializer
 from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal
 from orders.models import Order, OrderItem
+from cooks.models import Cook
+from delivery.models import Courier
 from cooks.api.serializers import CookListSerializer, CookSerializer
 
 class OrderCreatSerializer(serializers.ModelSerializer):
@@ -141,9 +143,42 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             'updated_at',   
         )
 
+class CookForOrderSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Cook
+        fields = (
+            'id',
+            'first_name',
+            'phone',
+            'service_place',  
+            'payment_address',
+            'is_available',
+            
+        )
+        # read_only_fields = ['rating', ]
+
+class CourierForOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Courier
+        fields = (
+            'id',
+            'first_name',
+            'phone',
+            'transport',
+            'deliveryArea',
+            'is_available',
+            'location',
+        )
+        # extra_kwargs = {'transport': {'required': True}, 'work_experience': {'required': True}, 
+        #                                                         'location': {'required': True}}
+            
+        # read_only_fields = ['rating'] 
+
+
+
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
-    cook = CookSerializer(required=False)
-    courier = CourierSerializer(required=False)
+    cook = CookForOrderSerializer(required=False)
+    courier = CourierForOrderSerializer(required=False)
     items = OrderItemForOrderSerializer(read_only=True, many=True)
     class Meta:
         model = Order
@@ -156,6 +191,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'customer_location',
             'cook',
             'complete',
+            'is_rejected',
             'cook',
             'courier',
             'items',

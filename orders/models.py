@@ -36,6 +36,7 @@ class Order(models.Model):
     customer_email = models.EmailField(('email address'), max_length=254) 
     # status = models.CharField(max_length=2, choices=STATUS_CHOICES, blank=True, null=True)
     complete = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(null=True, blank=True, default=False)
 
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
