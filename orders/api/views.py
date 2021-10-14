@@ -43,7 +43,7 @@ def order_create(request):
         if is_same_cook:
             order_serializer.save(cook = cook1)
         else:
-            return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_403_FORBIDDEN)            
+            return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
     
     # get current order id for assigning to orderItem
     current_order_id = order_serializer.data['id']
@@ -54,24 +54,26 @@ def order_create(request):
     
     # loop inside order items data and create several orderitems
     for i in order_item_data:
-        meal_id = i['meal']
-        meal = Meal.objects.get(pk=meal_id)
-        meal_quantity = i['quantity']
-        difference = meal.stock_quantity - meal_quantity
-        print("////// stock difference: ", difference)
-        if difference > 0:
-            meal.stock_quantity = difference
-            meal.save()
-        else:
-            print("girdi else stok dif sohbeti")
-            meal.stock_quantity = 0
-            meal.save()
+        print("i in order_item", i)
+        # meal_id = i['meal']
+        # meal = Meal.objects.get(pk=meal_id)
+        # meal_quantity = i['quantity']
+        # difference = meal.stock_quantity - meal_quantity
+        # print("////// stock difference: ", difference)
+        # if difference > 0:
+        #     meal.stock_quantity = difference
+        #     meal.save()
+        # else:
+        #     print("girdi else stok dif sohbeti")
+        #     meal.stock_quantity = 0
+        #     meal.save()
         # print("+++ meal quantity:", meal_quantity)
         orderItem_serializer = OrderItemCreateSerializer(data=i)
         if orderItem_serializer.is_valid():
-                orderItem_serializer.save(order = curren_order)
-    
-    return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
+            orderItem_serializer.save(order = curren_order)
+    # f"Hello, {name}"
+    return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
+    # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
 class OrderAPIView(generics.ListAPIView):
     
@@ -125,32 +127,58 @@ def order_detail(request, pk):
 def add_courier_to_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
-    except Order.DoesNotExist: 
+    except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
+
+    if order.complete == True:
+        return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
     
+    print("******//// order.items:", order.items.all())
     courierId = request_data['courier']
     
     likedCourier = Courier.objects.get(pk=courierId)
+    print("likedCourier.transport__isnull == True: ", likedCourier.transport)
 
-    print("Evvelce Curyerin statusu", likedCourier.is_available)
+    if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.deliveryArea == None:
+        return JsonResponse({'message': 'This courier has not enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
+    elif likedCourier.is_available != True:
+        return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
+    else:
+        for i in order.items.all():
+            # meal_id = i['meal']
+            # meal = Meal.objects.get(pk=meal_id)
+            # meal_quantity = i['quantity']
+            difference = i.meal.stock_quantity - i.quantity
+            print("////// stock difference: ", difference)
+            if difference > 0:
+                i.meal.stock_quantity = difference
+                i.meal.save()
+            else:
+                print("girdi else stok dif sohbeti")
+                i.meal.stock_quantity = 0
+                i.meal.save()
+        print("Evvelce Curyerin statusu", likedCourier.is_available) 
+        order.courier = likedCourier
+
+        # meal-in stokunu burda azaldiriq
+
+        # likedCourier.is_available = False
+        order.courier.is_available = False
+        likedCourier.save()
+        order.save()
+
+        print("Sonra Curyerin statusu", likedCourier.is_available)
+        
+        # curier_serializer = CourierSerializer(likedCourier, )
+        # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
+        # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+        # if order_serializer.is_valid(raise_exception=True):
+        #     order_serializer.save()
+        # return JsonResponse(order_serializer.data)
+        return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
     
-    order.courier = likedCourier
-    # likedCourier.is_available = False
-    order.courier.is_available = False
-    likedCourier.save()
-    order.save()
-
-    print("Sonra Curyerin statusu", likedCourier.is_available)
-      
-    # curier_serializer = CourierSerializer(likedCourier, )
-    # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
-    # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
-
-    # if order_serializer.is_valid(raise_exception=True):
-    #     order_serializer.save()
-    # return JsonResponse(order_serializer.data)
-    return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
     
 @api_view(['PATCH'])
 @authentication_classes([])
