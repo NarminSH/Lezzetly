@@ -5,6 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
+from cooks.models import Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier
 from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
@@ -96,125 +97,182 @@ class OrderItemAPIView(generics.ListAPIView):
 
 
 @api_view(['GET', 'DELETE', 'PATCH'])
-@authentication_classes([])
-@permission_classes([AllowAny])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def order_detail(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND) 
- 
     if request.method == 'GET': 
         order_serializer = OrderFullSerializer(order) 
         return JsonResponse(order_serializer.data)
-    elif request.method == 'DELETE':
-        if order.complete == True: 
-            order.delete() 
-            return JsonResponse({'message': 'Order was deleted successfully!'}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({'message': 'You can not delete this order, order not complete!'}, status=status.HTTP_403_FORBIDDEN)
-    elif request.method == 'PATCH':
-        order_serializer = OrderFullSerializer(order, data=request.data, partial=True)
-        if order_serializer.is_valid():
-            order_serializer.save()
-            return JsonResponse(order_serializer.data, status=status.HTTP_200_OK)
-        return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # elif request.method == 'DELETE':
+    #     if order.complete == True: 
+    #         order.delete() 
+    #         return JsonResponse({'message': 'Order was deleted successfully!'}, status=status.HTTP_200_OK)
+    #     else:
+    #         return JsonResponse({'message': 'You can not delete this order, order not complete!'}, status=status.HTTP_403_FORBIDDEN)
+    # elif request.method == 'PATCH':
+    #     order_serializer = OrderFullSerializer(order, data=request.data, partial=True)
+    #     if order_serializer.is_valid():
+    #         order_serializer.save()
+    #         return JsonResponse(order_serializer.data, status=status.HTTP_200_OK)
+    #     return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
  
 @api_view(['PATCH'])
-@authentication_classes([])
-@permission_classes([AllowAny])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def add_courier_to_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    if order.complete == True:
-        return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
-    elif order.courier.id:
-        return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
-
-
-    
-    print("******//// order.items:", order.items.all())
-    courierId = request_data['courier']
-    
-    likedCourier = Courier.objects.get(pk=courierId)
-    print("likedCourier.transport__isnull == True: ", likedCourier.transport)
-
-    if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
-        return JsonResponse({'message': 'This courier has not enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
-    elif likedCourier.is_available != True:
-        return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
+    if isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
     else:
-        for i in order.items.all():
-            # meal_id = i['meal']
-            # meal = Meal.objects.get(pk=meal_id)
-            # meal_quantity = i['quantity']
-            difference = i.meal.stock_quantity - i.quantity
-            print("////// stock difference: ", difference)
-            if difference > 0:
-                i.meal.stock_quantity = difference
-                i.meal.save()
-            else:
-                print("girdi else stok dif sohbeti")
-                i.meal.stock_quantity = 0
-                i.meal.save()
-        print("Evvelce Curyerin statusu", likedCourier.is_available) 
-        order.courier = likedCourier
+        if order.complete == True:
+            return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
+        elif order.courier != None:
+            return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
 
-        # meal-in stokunu burda azaldiriq
 
-        # likedCourier.is_available = False
-        order.courier.is_available = False
-        likedCourier.save()
-        order.save()
-
-        print("Sonra Curyerin statusu", likedCourier.is_available)
+    
+        print("******//// order.items:", order.items.all())
+        courierId = request_data['courier']
         
-        # curier_serializer = CourierSerializer(likedCourier, )
-        # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
-        # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+        likedCourier = Courier.objects.get(pk=courierId)
+        print("likedCourier.transport__isnull == True: ", likedCourier.transport)
 
-        # if order_serializer.is_valid(raise_exception=True):
-        #     order_serializer.save()
-        # return JsonResponse(order_serializer.data)
-        return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
-    
-    
+        if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
+            return JsonResponse({'message': 'This courier has not enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
+        elif likedCourier.is_available != True:
+            return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
+        else:
+            for i in order.items.all():
+                # meal_id = i['meal']
+                # meal = Meal.objects.get(pk=meal_id)
+                # meal_quantity = i['quantity']
+                difference = i.meal.stock_quantity - i.quantity
+                print("////// stock difference: ", difference)
+                if difference > 0:
+                    i.meal.stock_quantity = difference
+                    i.meal.save()
+                else:
+                    print("girdi else stok dif sohbeti")
+                    i.meal.stock_quantity = 0
+                    i.meal.save()
+            print("Evvelce Curyerin statusu", likedCourier.is_available) 
+            order.courier = likedCourier
+
+            # meal-in stokunu burda azaldiriq
+
+            # likedCourier.is_available = False
+            order.courier.is_available = False
+            likedCourier.save()
+            order.save()
+
+            print("Sonra Curyerin statusu", likedCourier.is_available)
+            
+            # curier_serializer = CourierSerializer(likedCourier, )
+            # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
+            # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+            # if order_serializer.is_valid(raise_exception=True):
+            #     order_serializer.save()
+            # return JsonResponse(order_serializer.data)
+            return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
+        
+        
 @api_view(['PATCH'])
-@authentication_classes([])
-@permission_classes([AllowAny])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def complete_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    if not order.courier:
-        return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+    if isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
     else:
-        print("couriers id", order.courier.id)
-        print("order.courier", order.courier)
-        courierId = order.courier.id
-        print(courierId)
-        likedCourier = Courier.objects.get(pk=courierId)
-        print("**************************")
-        print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
-        print("Evvelce complete-de Orderin statusu", order.complete)
-        print("**************************")
-        likedCourier.is_available = True
-        order.complete = True
-        likedCourier.save()
-        order.save()
-        print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
-        print("Sonra complete-de Orderin statusu", order.complete)
-        print("**************************")
-        return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
-        # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+        if not order.courier:
+            return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+        else:
+            print("couriers id", order.courier.id)
+            print("order.courier", order.courier)
+            courierId = order.courier.id
+            print(courierId)
+            likedCourier = Courier.objects.get(pk=courierId)
+            print("**************************")
+            print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
+            print("Evvelce complete-de Orderin statusu", order.complete)
+            print("**************************")
+            likedCourier.is_available = True
+            order.complete = True
+            likedCourier.save()
+            order.save()
+            print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
+            print("Sonra complete-de Orderin statusu", order.complete)
+            print("**************************")
+            return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
+            # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
 
+@api_view(['PATCH'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
+def reject_order(request, pk):
+    try: 
+        order = Order.objects.get(pk=pk) 
+    except Order.DoesNotExist: 
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    request_data = JSONParser().parse(request)
+    if isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+    else:
+
+        print("**************")
+        print("rejectde request_data", request_data)
+        print("is rejected", request_data['is_rejected'])
+        print("is rejected=True", request_data['is_rejected']==True)
+        print("**************")
+        if order.is_rejected:
+            return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+        elif request_data['is_rejected'] == True and not request_data['reject_reason']:
+            return JsonResponse({'message': 'You can not reject with out reject reason information!'}, status=status.HTTP_200_OK)    
+        else:
+            order.is_rejected = True
+            order.reject_reason = request_data['is_rejected']
+            order.save()
+            return JsonResponse({'message': f"Order with {order.id} id is rejected!"}, status=status.HTTP_200_OK)
+    # if not order.courier:
+    #     return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+    # else:
+    #     print("couriers id", order.courier.id)
+    #     print("order.courier", order.courier)
+    #     courierId = order.courier.id
+    #     print(courierId)
+    #     likedCourier = Courier.objects.get(pk=courierId)
+    #     print("**************************")
+    #     print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
+    #     print("Evvelce complete-de Orderin statusu", order.complete)
+    #     print("**************************")
+    #     likedCourier.is_available = True
+    #     order.complete = True
+    #     likedCourier.save()
+    #     order.save()
+    #     print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
+    #     print("Sonra complete-de Orderin statusu", order.complete)
+    #     print("**************************")
+    #     return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
+    #     # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
     
 
 
