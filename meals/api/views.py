@@ -84,32 +84,36 @@ class MealAPIView(generics.ListAPIView):
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def meal_list(request):
-    # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
-    #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
-    is_full = False
-    if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
-        is_full = True
-    queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
-                            rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
-    # print("+++++get_user: ", request.user)
-    # print("++++++++ get is_full:", is_full)
-    # print("+++++get_queryset: ", queryset)
-    if request.method == 'POST' and not isinstance(request.user, Cook):
-        return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
-    elif request.method == 'POST' and not is_full:
-        return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_403_FORBIDDEN)
-    elif request.method == 'POST':    
-        print(request.user)
-        meal_data = JSONParser().parse(request)
-        meal_serializer = MealCreatSerializer(data=meal_data)
-        print(meal_data, 'asdfghjkl')
-        # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
-        if meal_serializer.is_valid():
-            # print("mealCreate ", isinstance(request.user, User))
-            meal_serializer.save(cook = request.user)
-            # print(meal_serializer, 'jshckjdsbcfhjdx')
-            return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # x = isinstance(5, int)
+    if isinstance(request.user, Cook) == False:
+        return JsonResponse({'message': 'Only cook can create meal!'}, status=status.HTTP_200_OK)
+    else:
+        # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
+        #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+        is_full = False
+        if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
+            is_full = True
+        queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
+                                rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+        # print("+++++get_user: ", request.user)
+        # print("++++++++ get is_full:", is_full)
+        # print("+++++get_queryset: ", queryset)
+        if request.method == 'POST' and not isinstance(request.user, Cook):
+            return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
+        elif request.method == 'POST' and not is_full:
+            return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_403_FORBIDDEN)
+        elif request.method == 'POST':    
+            print(request.user)
+            meal_data = JSONParser().parse(request)
+            meal_serializer = MealCreatSerializer(data=meal_data)
+            print(meal_data, 'asdfghjkl')
+            # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
+            if meal_serializer.is_valid():
+                # print("mealCreate ", isinstance(request.user, User))
+                meal_serializer.save(cook = request.user)
+                # print(meal_serializer, 'jshckjdsbcfhjdx')
+                return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
+            return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
