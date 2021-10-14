@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 from django.http import request
 from django.http.response import Http404, JsonResponse
+from rest_framework.response import Response
 from rest_framework import filters, serializers, status
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -24,10 +25,33 @@ class CouriersAPIView(ListCreateAPIView):
 
 
 class CourierOrdersAPIView(ListAPIView):
-    authentication_classes = []
+    # authentication_classes = []
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
+
+    # serializer_class_Order = OrderFullSerializer
+    # serializer_class_delivery = DeliveryAreaPriceListSerializer
+    
+
+    # def get_queryset_Order(self):
+    #     order =  Order.objects.filter(courier=self.kwargs.get('pk'), complete=True)
+    #     return order
+    
+
+    # def get_queryset_delivery(self):
+    #     courier = DeliveryPrice.objects.filter(courier=self.kwargs.get('pk'))
+    #     print(courier.delivery_areas, 'dslcmlksmdlkcmslkdmc')
+    #     return courier
+
+    # def list(self, request, *args, **kwargs):
+    #     delivery = self.serializer_class_delivery(self.get_queryset_delivery(), many=True, context={'request': self.request})
+    #     order = self.serializer_class_Order(self.get_queryset_Order(), many=True, context={'request': self.request})
+
+    #     return Response({
+    #         "**ORDER**": order.data,
+    #         "**DELIVERY**": delivery.data
+    #     })
 
 
     def get(self, *args, **kwargs):
