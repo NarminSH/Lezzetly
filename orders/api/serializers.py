@@ -188,6 +188,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'complete',
             'is_rejected',
             'reject_reason',
+            'order_total',
             'customer_first_name',
             'customer_last_name',
             'customer_phone',

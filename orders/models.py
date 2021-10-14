@@ -45,9 +45,9 @@ class Order(models.Model):
     # def order_total(self):
     
     @property
-    def get_order_total(self):
+    def order_total(self):
         # check
-        orderitems = self.orderitem_set.all()
+        orderitems = self.items.all()
         if orderitems:
             total = sum([item.get_total for item in orderitems])
             return total
@@ -70,9 +70,14 @@ class OrderItem(models.Model):
         return self.meal.title
 
     @property
-    def total_price(self):
-        total_price = self.meal.get_price * self.quantity
-        return total_price
+    def get_total(self):
+        total = self.meal.price * self.quantity
+        return total
+
+    # @property
+    # def total_price(self):
+    #     total_price = self.meal.get_price * self.quantity
+    #     return total_price
 
     def __str__(self):
         return f"Order item id is{self.id}"
