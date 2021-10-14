@@ -130,9 +130,12 @@ def add_courier_to_order(request, pk):
     except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-
     if order.complete == True:
         return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
+    elif order.courier.id:
+        return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
+
+
     
     print("******//// order.items:", order.items.all())
     courierId = request_data['courier']
@@ -140,7 +143,7 @@ def add_courier_to_order(request, pk):
     likedCourier = Courier.objects.get(pk=courierId)
     print("likedCourier.transport__isnull == True: ", likedCourier.transport)
 
-    if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.deliveryArea == None:
+    if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
         return JsonResponse({'message': 'This courier has not enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
     elif likedCourier.is_available != True:
         return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
@@ -189,24 +192,30 @@ def complete_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    print("couriers id", order.courier.id)
-    print("order.courier", order.courier)
-    courierId = order.courier.id
-    print(courierId)
-    likedCourier = Courier.objects.get(pk=courierId)
-    print("**************************")
-    print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
-    print("Evvelce complete-de Orderin statusu", order.complete)
-    print("**************************")
-    likedCourier.is_available = True
-    order.complete = True
-    likedCourier.save()
-    order.save()
-    print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
-    print("Sonra complete-de Orderin statusu", order.complete)
-    print("**************************")
-    return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
-    # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+    if not order.courier:
+        return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+    else:
+        print("couriers id", order.courier.id)
+        print("order.courier", order.courier)
+        courierId = order.courier.id
+        print(courierId)
+        likedCourier = Courier.objects.get(pk=courierId)
+        print("**************************")
+        print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
+        print("Evvelce complete-de Orderin statusu", order.complete)
+        print("**************************")
+        likedCourier.is_available = True
+        order.complete = True
+        likedCourier.save()
+        order.save()
+        print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
+        print("Sonra complete-de Orderin statusu", order.complete)
+        print("**************************")
+        return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
+        # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+
+    
 
 
     # if order_serializer.is_valid(raise_exception=True):
