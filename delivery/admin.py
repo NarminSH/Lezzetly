@@ -1,7 +1,8 @@
 from django.contrib import admin
 from delivery.models import (
     Courier,
-    DeliveryArea
+    DeliveryArea,
+    DeliveryPrice
 )
 
 # Register your models here.
@@ -13,9 +14,14 @@ class CookAdmin(admin.ModelAdmin):
 
 @admin.register(DeliveryArea)
 class DeliveryAreaAdmin(admin.ModelAdmin):
-    list_display = ('delivery_area', 'delivery_price')
-    list_filter = ('delivery_area', 'delivery_price')
-    list_fields = ('delivery_area', 'delivery_price')
+    list_display = (['area_name'])
+    list_filter = (['area_name'])
+    list_fields = (['area_name'])
+
+
+admin.site.register(DeliveryPrice)
+   
+
 
 # @admin.register(DeliveryService)
 # class DeliveryServiceAdmin(admin.ModelAdmin):

@@ -5,22 +5,10 @@ from django.db import models
 
 # Create your models here.
 
-class DeliveryArea(models.Model):
-    # relations
-    # courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, related_name='delivery_areas')    
-
-    # information
-    delivery_area = models.CharField(max_length=150)
-    delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
-
-    def __str__(self):
-        return self.delivery_area
-
-
 class Courier(User):
 
     #relations
-    deliveryArea = models.ManyToManyField(DeliveryArea, related_name='meals', db_index=True)
+    # deliveryArea = models.ManyToManyField(DeliveryArea, related_name='meals', db_index=True)
 
     # information
     transport = models.CharField(max_length=150, blank=True, null=True)
@@ -36,6 +24,43 @@ class Courier(User):
 
     def __str__(self):
         return self.first_name
+
+
+
+class DeliveryArea(models.Model):
+    area_name = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.area_name
+
+
+
+class DeliveryPrice(models.Model):
+    area = models.ForeignKey(DeliveryArea, db_index=True, related_name='exact_places', on_delete=models.CASCADE)
+    courier = models.ForeignKey(Courier, db_index=True, related_name='delivery_areas', on_delete=models.CASCADE)
+
+    delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self):
+        return f"Price for {self.area.area_name} is {self.delivery_price } ,  for {  self.courier.first_name}"
+
+
+
+
+
+
+# class DeliveryPrice(models.Model):
+#     # relations
+#     # courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, related_name='delivery_areas')    
+
+#     # information
+#     delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
+
+#     def __str__(self):
+#         return f"Price is {self.delivery_price}"
+
+
+
 
 
 
