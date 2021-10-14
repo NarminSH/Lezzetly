@@ -166,7 +166,7 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
             'first_name',
             'phone',
             'transport',
-            'deliveryArea',
+            # 'deliveryArea',
             'is_available',
             'location',
         )
