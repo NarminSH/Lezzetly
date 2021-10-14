@@ -32,11 +32,14 @@ class CourierOrdersAPIView(ListAPIView):
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
-            if not item:
-                raise Http404
-            serializer = OrderFullSerializer(
-                item, many=True, context={'request': self.request}, exclude=["courier"])
-            return JsonResponse(data=serializer.data, safe=False)
+            if self.request.user.id == kwargs.get('pk'): 
+                if not item:
+                    raise Http404
+                serializer = OrderFullSerializer(
+                    item, many=True, context={'request': self.request}, exclude=["courier"])
+                return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse (data="You do not have permissions to look at others orders!", status=403, safe=False)
+
 
 
 class CourierActiveOrdersAPIView(ListAPIView):
@@ -96,7 +99,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def put(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
             raise Http404
         serializer = CourierSerializer(data=self.request.data,
@@ -108,7 +111,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def delete(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to delete the user!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'You do not have permissions to delete the user!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
             raise Http404
         serializer = CourierSerializer(courier)
@@ -138,4 +141,47 @@ class DeliveryAreasAPIView(ListAPIView):
     serializer_class = DeliveryAreaSerializer 
 
 
+class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change certain datas of particular courier
+    # authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
+    queryset = DeliveryPrice.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return DeliveryAreaPriceListSerializer     # for swagger file
+        return DeliveryAreaPriceSerializer
+
+    def put(self, *args, **kwargs):
+        courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
+        delivery_area = DeliveryPrice.objects.filter(pk=kwargs.get('id')).first()
+        if courier != self.request.user:
+            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
+        if not courier:
+            raise Http404
+        serializer = DeliveryAreaPriceSerializer(data=self.request.data,
+                                       instance=delivery_area, context={'request': self.request})
+        serializer.is_valid(raise_exception=True)
+        serializer.validated_data['courier']= self.request.user
+        serializer.save()
+        return JsonResponse(data=serializer.data, safe=False)
+    
+    def delete(self, *args, **kwargs):
+        courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
+        delivery_area = DeliveryPrice.objects.filter(pk=kwargs.get('id')).first()
+        if courier != self.request.user:
+            return JsonResponse({'message': 'You do not have permissions to delete the delivery area!'}, status=status.HTTP_403_FORBIDDEN)
+        if not courier:
+            raise Http404
+        delivery_area.delete()
+        return JsonResponse({'message': 'Delivery area is deleted successfully!'}, status=status.HTTP_200_OK)
+
+
+
+class CouriersDeliveryAreasAPIView(ListAPIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    queryset = DeliveryPrice.objects.all()
+    serializer_class = DeliveryAreaPriceListSerializer
