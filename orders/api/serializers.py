@@ -184,14 +184,14 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
         model = Order
         fields = (
             'id',
+            'complete',
+            'is_rejected',
+            'reject_reason',
             'customer_first_name',
             'customer_last_name',
             'customer_phone',
             'customer_email',
             'customer_location',
-            'cook',
-            'complete',
-            'is_rejected',
             'cook',
             'courier',
             'items',

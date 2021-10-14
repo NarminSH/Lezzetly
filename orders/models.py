@@ -37,7 +37,7 @@ class Order(models.Model):
     # status = models.CharField(max_length=2, choices=STATUS_CHOICES, blank=True, null=True)
     complete = models.BooleanField(default=False)
     is_rejected = models.BooleanField(null=True, blank=True, default=False)
-
+    reject_reason = models.CharField('reject reason', max_length=250, null=True, blank=True, default=None)
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
