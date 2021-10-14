@@ -2,7 +2,7 @@ from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import JSONField
 from delivery.api.serializers import CourierSerializer
-from meals.api.serializers import MealSerializer
+from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal
 from orders.models import Order, OrderItem
 from cooks.api.serializers import CookListSerializer, CookSerializer
@@ -87,37 +87,33 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(exclude_name)
 
 
-class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
-    cook = CookSerializer(required=False)
-    courier = CourierSerializer(required=False)
-    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+
+class OrderForItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
+        meal = MealOrderItemSerializer(read_only=True, required=False)
         fields = (
             'id',
-            'customer_first_name',
-            'customer_last_name',
-            'customer_phone',
-            'customer_email',
-            'customer_location',
-            'cook',
-            'complete',
-            'cook',
-            'courier',
-            'ordered_items',
-            'created_at',
-            'updated_at',   
+            'complete',   
+        )
+
+class OrderItemForOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = (
+            'id',
+            'quantity',
+            'meal',   
         )
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    cook = CookSerializer()
-    order = MealOptionSerializer(read_only=True, required=False, many=True)
-    meal = IngredientSerializer(read_only=True, required=False, many=True)
+    order = OrderForItemSerializer(read_only=True, required=False)
+    meal = MealOrderItemSerializer(read_only=True, required=False)
     class Meta:
-        model = Meal
+        model = OrderItem
         fields = (
-            'quantity'
             'id',
+            'quantity',
             'order',
             'meal',
         )
@@ -126,7 +122,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderUpdateSerializer(serializers.ModelSerializer):
     cook = CookSerializer(required=False)
     # courier = JSONField()
-    ordered_items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
+    items = OrderItemCreateSerializer(read_only=True, required=False, many=True)
     class Meta:
         model = Order
         fields = (
@@ -140,7 +136,29 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             'complete',
             'cook',
             'courier',
-            'ordered_items',
+            'items',
+            'created_at',
+            'updated_at',   
+        )
+
+class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
+    cook = CookSerializer(required=False)
+    courier = CourierSerializer(required=False)
+    items = OrderItemForOrderSerializer(read_only=True, many=True)
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'customer_first_name',
+            'customer_last_name',
+            'customer_phone',
+            'customer_email',
+            'customer_location',
+            'cook',
+            'complete',
+            'cook',
+            'courier',
+            'items',
             'created_at',
             'updated_at',   
         )
