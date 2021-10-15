@@ -163,7 +163,8 @@ def meal_single(request, pk):
     # token = request.GET.get('token')
     # print("request.token", request.token)
     try: 
-        meal = Meal.objects.get(pk=pk) 
+        meal = Meal.objects.get(pk=pk, is_active=True)
+        print("meal inside singe meal: ", meal) 
     except Meal.DoesNotExist: 
         return JsonResponse({'message': 'The meal does not exist'}, status=status.HTTP_404_NOT_FOUND) 
  
