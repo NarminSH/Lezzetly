@@ -30,29 +30,6 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(exclude_name)
 
 
-class CourierSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Courier
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'patronymic',
-            'phone',
-            'email',
-            'transport',
-            # 'deliveryArea',
-            'work_experience',
-            'rating',
-            'is_available',
-            'location',
-            'created_at',
-            'updated_at',
-        )
-        extra_kwargs = {'transport': {'required': True}, 'work_experience': {'required': True}, 
-                                                                'location': {'required': True}}
-            
-        read_only_fields = ['rating'] 
 
 
 class DeliveryAreaSerializer(serializers.ModelSerializer):
@@ -70,7 +47,37 @@ class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
 
 class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer, DeliveryAreaSerializer):
     area = DeliveryAreaSerializer()
-    courier = CourierSerializer()
+
+
+
+class CourierSerializer(serializers.ModelSerializer):
+    delivery_areas = DeliveryAreaPriceListSerializer(many=True, read_only=True)
+    class Meta:
+        model = Courier
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'patronymic',
+            'phone',
+            'email',
+            'transport',
+            'delivery_areas',
+            'work_experience',
+            'rating',
+            'is_available',
+            'location',
+            'created_at',
+            'updated_at',
+        )
+        extra_kwargs = {'transport': {'required': True}, 'work_experience': {'required': True}, 
+                                                                'location': {'required': True}}
+            
+        read_only_fields = ['rating'] 
+
+
+
+    # courier = CourierSerializer()
 
 
 
