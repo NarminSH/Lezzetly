@@ -48,9 +48,11 @@ class CourierActiveOrdersAPIView(ListAPIView):
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+            print(self.request.user)
+
             if self.request.user.id == kwargs.get('pk'): 
                 if not item:
-                    return JsonResponse (data="You don't have active orders", status=200, safe=False)
+                    return JsonResponse (data=[], status=200, safe=False)
                 serializer = OrderFullSerializer(
                     item, many=True, context={'request': self.request}, exclude=["courier"])
                 return JsonResponse(data=serializer.data, safe=False)
