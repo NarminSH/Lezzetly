@@ -1,18 +1,16 @@
 
-from django.contrib.auth.models import AnonymousUser
-from django.http import request
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
-from cooks.api.serializers import CookListSerializer, CookSerializer, RecommendationSerializer, ResumeSerializer
+from cooks.api.serializers import CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
 from cooks.models import Cook, Recommendation, Resume
 from users.api.serializers import RegisterSerializer
-from orders.api.serializers import OrderFullSerializer, OrderListSerializer
+from orders.api.serializers import OrderFullSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
@@ -32,7 +30,7 @@ class CooksAPIView(ListCreateAPIView):
 
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 # @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
 @permission_classes([AllowAny])
 def cook_detail(request, pk):
@@ -58,34 +56,42 @@ def cook_detail(request, pk):
             return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         return JsonResponse({'message': 'You have no rights to change this cook!'}, status=status.HTTP_403_FORBIDDEN)
 
+
+    elif request.method == 'PATCH': 
+        if request.user == cook:
+            cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
+            if cook_serializer.is_valid(raise_exception=True): 
+                cook_serializer.save() 
+                return JsonResponse(cook_serializer.data) 
+            return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return JsonResponse({'message': 'You have no rights to change this cook!'}, status=status.HTTP_403_FORBIDDEN)
+
+
     elif request.method == 'DELETE':
         if request.user == cook:
-            print(request.user)
-            print(cook)
             all_orders = cook.orders.all()
             ongoing_orders = 0
-            print(all_orders)
             if all_orders:
                 for order in all_orders:
                     if order.complete == False:
                         ongoing_orders += 1
                 if ongoing_orders == 0:
                     cook.delete()   
-                    print('deletedddddddd')       
                     return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_200_OK)
                 else:
-                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_403_FORBIDDEN)
         return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_403_FORBIDDEN)   #changed status fromm 200 to 403
     
 
 
 
-# class RecommendationsAPIView(ListAPIView):
-#     authentication_classes = []
-#     permission_classes = [permissions.AllowAny]
+class RecommendationsAPIView(ListAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
-#     queryset = Recommendation.objects.all()
-#     serializer_class = RecommendationListSerializer
+    queryset = Recommendation.objects.all()
+    serializer_class = RecommendationListSerializer
 
 
 
@@ -148,11 +154,12 @@ class CookResumesAPIView(ListCreateAPIView):
 
 
 
-# class ResumesAPIView(ListAPIView):
-#     authentication_classes = []
-#     permission_classes = [permissions.AllowAny]
-#     queryset = Resume.objects.all()
-#     serializer_class = ResumeListSerializer
+
+class ResumesAPIView(ListAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    queryset = Resume.objects.all()
+    serializer_class = ResumeListSerializer
 
 
 

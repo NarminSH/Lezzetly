@@ -97,8 +97,8 @@ class RecommendationSerializer(DynamicFieldsModelSerializer):
         
 
 
-# class RecommendationListSerializer(RecommendationSerializer):
-#     cook = CookListSerializer()
+class RecommendationListSerializer(RecommendationSerializer):
+    cook = CookListSerializer()
 
 
 class ResumeSerializer(DynamicFieldsModelSerializer):
@@ -120,5 +120,5 @@ class ResumeSerializer(DynamicFieldsModelSerializer):
         #     return super(ResumeSerializer, self).validate(attrs)
 
 
-# class ResumeListSerializer(ResumeSerializer):
-#     cook = CookListSerializer()
+class ResumeListSerializer(ResumeSerializer):
+    cook = CookListSerializer()

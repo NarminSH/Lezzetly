@@ -1,12 +1,8 @@
-from django.contrib.auth.models import AnonymousUser
-from django.http import request
+
 from django.http.response import Http404, JsonResponse
-from rest_framework.response import Response
-from rest_framework import filters, serializers, status
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny, DjangoModelPermissionsOrAnonReadOnly, IsAdminUser, IsAuthenticatedOrReadOnly
-from cooks.models import Cook
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer
@@ -30,33 +26,10 @@ class CourierOrdersAPIView(ListAPIView):
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
 
-    # serializer_class_Order = OrderFullSerializer
-    # serializer_class_delivery = DeliveryAreaPriceListSerializer
-    
-
-    # def get_queryset_Order(self):
-    #     order =  Order.objects.filter(courier=self.kwargs.get('pk'), complete=True)
-    #     return order
-    
-
-    # def get_queryset_delivery(self):
-    #     courier = DeliveryPrice.objects.filter(courier=self.kwargs.get('pk'))
-    #     print(courier.delivery_areas, 'dslcmlksmdlkcmslkdmc')
-    #     return courier
-
-    # def list(self, request, *args, **kwargs):
-    #     delivery = self.serializer_class_delivery(self.get_queryset_delivery(), many=True, context={'request': self.request})
-    #     order = self.serializer_class_Order(self.get_queryset_Order(), many=True, context={'request': self.request})
-
-    #     return Response({
-    #         "**ORDER**": order.data,
-    #         "**DELIVERY**": delivery.data
-    #     })
-
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
-            if self.request.user.id != kwargs.get('pk'): 
+            if self.request.user.id == kwargs.get('pk'): 
                 if not item:
                     raise Http404
                 serializer = OrderFullSerializer(
@@ -75,9 +48,10 @@ class CourierActiveOrdersAPIView(ListAPIView):
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+            print(self.request.user)
             if self.request.user.id == kwargs.get('pk'): 
                 if not item:
-                    raise Http404
+                    return JsonResponse (data=[], status=200, safe=False)
                 serializer = OrderFullSerializer(
                     item, many=True, context={'request': self.request}, exclude=["courier"])
                 return JsonResponse(data=serializer.data, safe=False)
