@@ -2,6 +2,7 @@ from django.http import request
 from rest_framework import serializers
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 
+
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     """
     A ModelSerializer that takes an additional `fields` argument that
@@ -69,6 +70,7 @@ class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
 
 class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer, DeliveryAreaSerializer):
     area = DeliveryAreaSerializer()
+    courier = CourierSerializer()
 
 
 

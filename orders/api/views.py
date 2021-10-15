@@ -149,7 +149,7 @@ def add_courier_to_order(request, pk):
         print("likedCourier.transport__isnull == True: ", likedCourier.transport)
 
         if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
-            return JsonResponse({'message': 'This courier has not enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
+            return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
         elif likedCourier.is_available != True:
             return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
         else:
