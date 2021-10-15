@@ -5,7 +5,7 @@ from delivery.api.views import CourierAPIView, CourierActiveOrdersAPIView, Couri
 
 urlpatterns = [
     path('couriers/', CouriersAPIView.as_view(), name='couriers'),
-    path('couriers/<int:pk>', CourierAPIView.as_view(), name='courier'),
+    path('couriers/<int:pk>/', CourierAPIView.as_view(), name='courier'),
     path('couriers/<int:pk>/orders/', CourierOrdersAPIView.as_view(), name='courierorders'),
     path('couriers/<int:pk>/activeorders/', CourierActiveOrdersAPIView.as_view(), name='courieractiveorders'),
     path('deliveryareas/', DeliveryAreasAPIView.as_view(), name='deliveryareas'),
