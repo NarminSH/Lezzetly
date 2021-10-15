@@ -3,6 +3,7 @@ from django.db.models.query import QuerySet
 from rest_framework import permissions
 from cooks.models import Cook
 from users.api.jwt import JWTAuthentication
+from django.contrib.auth.models import Permission
 from users.models import User
 from .filters import MealFilter
 from django.shortcuts import render
@@ -155,12 +156,10 @@ def meal_list(request):
 #         return JsonResponse(meal_serializer.data) 
 
 # get single meal
-# update meal
-# delete meal 
-@api_view(['GET', 'PATCH', 'DELETE'])
-# @authentication_classes([])
-@permission_classes([IsAuthenticated])
-def meal_detail(request, pk):
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def meal_single(request, pk):
     # token = request.GET.get('token')
     # print("request.token", request.token)
     try: 
@@ -172,7 +171,34 @@ def meal_detail(request, pk):
         meal_serializer = MealSerializer(meal) 
         return JsonResponse(meal_serializer.data) 
  
-    elif request.method == 'PATCH' and isinstance(request.user, Cook) == False:
+
+
+
+# update meal
+# delete meal 
+@api_view(['PATCH', 'DELETE'])
+# @authentication_classes([])
+@permission_classes([IsAuthenticated,])
+def meal_detail(request, pk):
+    permissions = Permission.objects.filter(user=request.user)
+    
+    print("***** inside meal_detail ********")
+    print("permissions: ", permissions)
+    print("all permissions: ", request.user.get_all_permissions())
+    print("permission_classes:", permission_classes.__doc__)
+    print("***** inside meal_detail ********")
+    # token = request.GET.get('token')
+    # print("request.token", request.token)
+    try: 
+        meal = Meal.objects.get(pk=pk) 
+    except Meal.DoesNotExist: 
+        return JsonResponse({'message': 'The meal does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    # if request.method == 'GET':
+    #     meal_serializer = MealSerializer(meal) 
+    #     return JsonResponse(meal_serializer.data) 
+ 
+    if request.method == 'PATCH' and isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
     elif request.method == 'PATCH' and isinstance(request.user, Cook) == True:
         # print("jwt decode: ", payload = JWTAuthentication.decode(token, settings.SECRET_KEY, algorithms="HS256"))
@@ -215,28 +241,39 @@ def meal_detail(request, pk):
                 print("************")
                 return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_204_NO_CONTENT)
 
+
 # get all categories,
+class CategoryAPIView(generics.ListAPIView):
+    # authentication_classes = []
+    authentication_classes = []
+    permission_classes = []
+    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+    # filter_backends = (filters.SearchFilter,)
+    queryset = Category.objects.filter(is_active=True)
+    serializer_class = CategoryCustomSerializer
+
+
 # create new category,
 # delete all categories, now in comment
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['POST'])
 # @authentication_classes([])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,])
 def category_list(request):
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can get, create and update category!'}, status=status.HTTP_200_OK)
     else:
-        if request.method == 'GET':
-            categories = Category.objects.all()
+        # if request.method == 'GET':
+        #     categories = Category.objects.all()
             
-            title = request.query_params.get('search', None)
-            if title is not None:
-                categories = categories.filter(title__icontains=title)
+        #     title = request.query_params.get('search', None)
+        #     if title is not None:
+        #         categories = categories.filter(title__icontains=title)
             
-            categories_serializer = CategoryCustomSerializer(categories, many=True)
-            return JsonResponse(categories_serializer.data, safe=False)
+        #     categories_serializer = CategoryCustomSerializer(categories, many=True)
+        #     return JsonResponse(categories_serializer.data, safe=False)
             # 'safe=False' for objects serialization
     
-        elif request.method == 'POST':
+        if request.method == 'POST':
             category_data = JSONParser().parse(request)
             category_serializer = CategoryCustomSerializer(data=category_data)
             if category_serializer.is_valid():
@@ -277,26 +314,35 @@ def category_detail(request, pk):
             category.delete() 
             return JsonResponse({'message': 'Category was deleted successfully!'}, status=status.HTTP_200_OK)
 
-    
+# get all mealoptions,
+class MealOptionAPIView(generics.ListAPIView):
+    # authentication_classes = []
+    authentication_classes = []
+    permission_classes = []
+    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+    # filter_backends = (filters.SearchFilter,)
+    queryset = MealOption.objects.filter(is_active=True)
+    serializer_class = MealOptionSerializer
+
 # mealoption
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mealoption_list(request):
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can get, create and update mealoption!'}, status=status.HTTP_200_OK)
     else:
-        if request.method == 'GET':
-            mealoptions = MealOption.objects.all()
+        # if request.method == 'GET':
+        #     mealoptions = MealOption.objects.all()
             
-            title = request.query_params.get('search', None)
-            if title is not None:
-                mealoptions = mealoptions.filter(title__icontains=title)
+        #     title = request.query_params.get('search', None)
+        #     if title is not None:
+        #         mealoptions = mealoptions.filter(title__icontains=title)
             
-            mealoptions_serializer = MealOptionSerializer(mealoptions, many=True)
-            return JsonResponse(mealoptions_serializer.data, safe=False)
+        #     mealoptions_serializer = MealOptionSerializer(mealoptions, many=True)
+        #     return JsonResponse(mealoptions_serializer.data, safe=False)
             # 'safe=False' for objects serialization
     
-        elif request.method == 'POST':
+        if request.method == 'POST':
             mealoption_data = JSONParser().parse(request)
             mealoption_serializer = MealOptionSerializer(data=mealoption_data)
             if mealoption_serializer.is_valid():
@@ -332,29 +378,39 @@ def mealoption_detail(request, pk):
         elif request.method == 'DELETE': 
             mealoption.delete() 
             return JsonResponse({'message': 'Meal option was deleted successfully!'}, status=status.HTTP_200_OK)
-        
+
+# get all ingredients,
+class IngredientOptionAPIView(generics.ListAPIView):
+    # authentication_classes = []
+    authentication_classes = []
+    permission_classes = []
+    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+    # filter_backends = (filters.SearchFilter,)
+    queryset = Ingredient.objects.filter(is_active=True)
+    serializer_class = IngredientCustomSerializer
+
 
 # get all ingredients,
 # create new ingredient,
 # delete all ingredients, now in comment
-@api_view(['GET', 'POST', 'DELETE'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ingredient_list(request):
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can get, create and update ingredients!'}, status=status.HTTP_200_OK)
     else:
-        if request.method == 'GET':
-            ingredients = Ingredient.objects.all()
+        # if request.method == 'GET':
+        #     ingredients = Ingredient.objects.all()
             
-            title = request.query_params.get('search', None)
-            if title is not None:
-                ingredients = ingredients.filter(title__icontains=title)
+        #     title = request.query_params.get('search', None)
+        #     if title is not None:
+        #         ingredients = ingredients.filter(title__icontains=title)
             
-            ingredient_serializer = IngredientCustomSerializer(ingredients, many=True)
-            return JsonResponse(ingredient_serializer.data, safe=False)
+        #     ingredient_serializer = IngredientCustomSerializer(ingredients, many=True)
+        #     return JsonResponse(ingredient_serializer.data, safe=False)
             # 'safe=False' for objects serialization
     
-        elif request.method == 'POST':
+        if request.method == 'POST':
             ingredient_data = JSONParser().parse(request)
             ingredient_serializer = IngredientCustomSerializer(data=ingredient_data)
             if ingredient_serializer.is_valid():

@@ -29,6 +29,7 @@ class Ingredient(models.Model):
 
     #information
     title = models.CharField(max_length=100)
+    is_active = models.BooleanField('is_active', null=True,blank=True, default=True)
 
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
@@ -44,7 +45,7 @@ class MealOption(models.Model):
 
     #information
     title = models.CharField(max_length=100)
-
+    is_active = models.BooleanField('is_active', null=True,blank=True, default=True)
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
