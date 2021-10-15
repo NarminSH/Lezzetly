@@ -181,7 +181,6 @@ def meal_single(request, pk):
 @permission_classes([IsAuthenticated,])
 def meal_detail(request, pk):
     
-   
     # token = request.GET.get('token')
     # print("request.token", request.token)
     try: 
@@ -244,7 +243,7 @@ def meal_detail(request, pk):
                 if i.order.complete == False:
                     check_count += 1
             if check_count != 0:
-                return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_403_FORBIDDEN)    
+                return JsonResponse({'message': 'You can not delete this meal, this meal in active order!'}, status=status.HTTP_200_OK)    
             else:
                 print("************")
                 print("mealin statusu delete-den evvel: ", meal.is_active)
@@ -252,7 +251,7 @@ def meal_detail(request, pk):
                 meal.save()
                 print("mealin statusu delete-den sonra: ", meal.is_active)
                 print("************")
-                return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_204_NO_CONTENT)
+                return JsonResponse({'message': 'meal status changed to not active successfully!'}, status=status.HTTP_200_OK)
 
 
 # get all categories,
