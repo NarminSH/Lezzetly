@@ -9,6 +9,7 @@ urlpatterns = [
     # path("meals/<str:pk>/", views.meal_single),
     path("meal-create/", views.meal_list),
     path("meals/<str:pk>/", views.meal_detail),
+    path("meal/<str:pk>/", views.meal_single),
     path('categories/', views.category_list),
     path('categories/<str:pk>/', views.category_detail),
     path('mealoptions/', views.mealoption_list),

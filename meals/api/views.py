@@ -3,6 +3,7 @@ from django.db.models.query import QuerySet
 from rest_framework import permissions
 from cooks.models import Cook
 from users.api.jwt import JWTAuthentication
+from django.contrib.auth.models import Permission
 from users.models import User
 from .filters import MealFilter
 from django.shortcuts import render
@@ -155,12 +156,10 @@ def meal_list(request):
 #         return JsonResponse(meal_serializer.data) 
 
 # get single meal
-# update meal
-# delete meal 
-@api_view(['GET', 'PATCH', 'DELETE'])
-# @authentication_classes([])
-@permission_classes([IsAuthenticated])
-def meal_detail(request, pk):
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def meal_single(request, pk):
     # token = request.GET.get('token')
     # print("request.token", request.token)
     try: 
@@ -172,7 +171,34 @@ def meal_detail(request, pk):
         meal_serializer = MealSerializer(meal) 
         return JsonResponse(meal_serializer.data) 
  
-    elif request.method == 'PATCH' and isinstance(request.user, Cook) == False:
+
+
+
+# update meal
+# delete meal 
+@api_view(['PATCH', 'DELETE'])
+# @authentication_classes([])
+@permission_classes([IsAuthenticated,])
+def meal_detail(request, pk):
+    permissions = Permission.objects.filter(user=request.user)
+    
+    print("***** inside meal_detail ********")
+    print("permissions: ", permissions)
+    print("all permissions: ", request.user.get_all_permissions())
+    print("permission_classes:", permission_classes.__doc__)
+    print("***** inside meal_detail ********")
+    # token = request.GET.get('token')
+    # print("request.token", request.token)
+    try: 
+        meal = Meal.objects.get(pk=pk) 
+    except Meal.DoesNotExist: 
+        return JsonResponse({'message': 'The meal does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    # if request.method == 'GET':
+    #     meal_serializer = MealSerializer(meal) 
+    #     return JsonResponse(meal_serializer.data) 
+ 
+    if request.method == 'PATCH' and isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
     elif request.method == 'PATCH' and isinstance(request.user, Cook) == True:
         # print("jwt decode: ", payload = JWTAuthentication.decode(token, settings.SECRET_KEY, algorithms="HS256"))
