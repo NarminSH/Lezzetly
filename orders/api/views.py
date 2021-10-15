@@ -123,7 +123,7 @@ def order_detail(request, pk):
 
  
 @api_view(['PATCH'])
-@authentication_classes([])
+# @authentication_classes([])
 # @permission_classes([AllowAny])
 @permission_classes([IsAuthenticated]) #!
 def add_courier_to_order(request, pk):

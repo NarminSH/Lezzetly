@@ -34,7 +34,6 @@ class DeliveryArea(models.Model):
         return self.area_name
 
 
-
 class DeliveryPrice(models.Model):
     area = models.ForeignKey(DeliveryArea, db_index=True, related_name='exact_places', on_delete=models.CASCADE)
     courier = models.ForeignKey(Courier, db_index=True, related_name='delivery_areas', on_delete=models.CASCADE)
