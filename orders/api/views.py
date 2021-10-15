@@ -236,8 +236,11 @@ def reject_order(request, pk):
     request_data = JSONParser().parse(request)
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+    elif order.complete:
+        return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+    elif order.courier:
+        return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
     else:
-
         print("**************")
         print("rejectde request_data", request_data)
         print("is rejected", request_data['is_rejected'])
@@ -245,6 +248,8 @@ def reject_order(request, pk):
         print("**************")
         if order.is_rejected:
             return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+        elif order.complete:
+            return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
         elif request_data['is_rejected'] == True and not request_data['reject_reason']:
             return JsonResponse({'message': 'You can not reject with out reject reason information!'}, status=status.HTTP_200_OK)    
         else:
