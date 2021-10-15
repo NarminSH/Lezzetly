@@ -136,7 +136,7 @@ def add_courier_to_order(request, pk):
     request_data = JSONParser().parse(request)
     if isinstance(request.user, Cook) == False: #!
         return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
-    elif isinstance(request.user, Cook) == False and orderId != requestUserId:
+    elif isinstance(request.user, Cook) != False and orderId != requestUserId:
         return JsonResponse({'message': 'You have not permission add courier to this order!'}, status=status.HTTP_200_OK)
     else:
         if order.is_rejected:
