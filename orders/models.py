@@ -1,7 +1,7 @@
 from clients.models import Client
 from django.db import models
 from cooks.models import Cook
-from delivery.models import Courier
+from delivery.models import Courier, DeliveryPrice
 from meals.models import Meal
 from django.core.validators import RegexValidator
 # Create your models here.
@@ -12,6 +12,7 @@ class Order(models.Model):
     #relations
     cook = models.ForeignKey(Cook, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
     courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
+    delivery_information = models.ForeignKey(DeliveryPrice, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
     # client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders' )
     #information
 
@@ -22,7 +23,7 @@ class Order(models.Model):
         ('2', 'Preparing order'),
         ('3', 'Order is ready'),
         ('4', 'Courier took order'),
-        ('5', 'Courier is on the to you'),
+        ('5', 'Courier is on the way to you'),
         ('6', 'Order is here!'),
     ]
 

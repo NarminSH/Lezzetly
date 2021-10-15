@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
 from cooks.models import Cook
 from delivery.api.serializers import CourierSerializer
-from delivery.models import Courier
+from delivery.models import Courier, DeliveryPrice
 from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order, OrderItem
@@ -123,16 +123,16 @@ def order_detail(request, pk):
 
  
 @api_view(['PATCH'])
-# @authentication_classes([])
+@authentication_classes([])
 # @permission_classes([AllowAny])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) #!
 def add_courier_to_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
-    if isinstance(request.user, Cook) == False:
+    if isinstance(request.user, Cook) == False: #!
         return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
     else:
         if order.complete == True:
@@ -142,11 +142,18 @@ def add_courier_to_order(request, pk):
 
 
     
-        print("******//// order.items:", order.items.all())
+        # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
+        delivery_id = request_data['delivery_information']
         
-        likedCourier = Courier.objects.get(pk=courierId)
-        print("likedCourier.transport__isnull == True: ", likedCourier.transport)
+        likedCourier = Courier.objects.filter(pk=courierId).first()
+        choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
+        # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
+        if likedCourier is None:
+            return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
+
+        if choosen_delivery not in likedCourier.delivery_areas.all():
+            return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_403_FORBIDDEN)
 
         if likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
             return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
@@ -168,6 +175,7 @@ def add_courier_to_order(request, pk):
                     i.meal.save()
             print("Evvelce Curyerin statusu", likedCourier.is_available) 
             order.courier = likedCourier
+            order.delivery_information = choosen_delivery
 
             # meal-in stokunu burda azaldiriq
 
@@ -185,7 +193,7 @@ def add_courier_to_order(request, pk):
             # if order_serializer.is_valid(raise_exception=True):
             #     order_serializer.save()
             # return JsonResponse(order_serializer.data)
-            return JsonResponse({'message': 'You assign courier to order!'}, status=status.HTTP_202_ACCEPTED)
+            return JsonResponse({'message': 'You assigned courier to order!'}, status=status.HTTP_202_ACCEPTED)
         
         
 @api_view(['PATCH'])

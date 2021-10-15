@@ -1,3 +1,4 @@
+from django.db import models
 from django.http import request
 from rest_framework import serializers
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
@@ -31,11 +32,11 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 
 
 
-
 class DeliveryAreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryArea
         fields = ('id', 'area_name',)
+
 
 
 class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
@@ -45,13 +46,25 @@ class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
         read_only_fields = ['courier']
 
 
-class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer, DeliveryAreaSerializer):
+
+class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer):
     area = DeliveryAreaSerializer()
 
 
 
+class DeliveryAreaOrderSerializer(serializers.ModelSerializer):   #this one is to hide courier id
+    area = DeliveryAreaSerializer()
+    class Meta:
+        model = DeliveryPrice
+        fields = ('id', 'area', 'delivery_price', )
+
+        read_only_fields = ['id', 'area', 'delivery_price']
+
+
+
 class CourierSerializer(serializers.ModelSerializer):
-    delivery_areas = DeliveryAreaPriceListSerializer(many=True, read_only=True)
+    delivery_areas = DeliveryAreaOrderSerializer(many=True, read_only=True)
+
     class Meta:
         model = Courier
         fields = (
@@ -61,7 +74,7 @@ class CourierSerializer(serializers.ModelSerializer):
             'patronymic',
             'phone',
             'email',
-            'transport',
+            'transport',    
             'delivery_areas',
             'work_experience',
             'rating',
@@ -75,9 +88,6 @@ class CourierSerializer(serializers.ModelSerializer):
             
         read_only_fields = ['rating'] 
 
-
-
-    # courier = CourierSerializer()
 
 
 

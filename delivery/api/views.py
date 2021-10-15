@@ -56,13 +56,13 @@ class CourierOrdersAPIView(ListAPIView):
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
-            if self.request.user.id == kwargs.get('pk'): 
+            if self.request.user.id != kwargs.get('pk'): 
                 if not item:
                     raise Http404
                 serializer = OrderFullSerializer(
                     item, many=True, context={'request': self.request}, exclude=["courier"])
                 return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse (data="You do not have permissions to look at others orders!", status=403, safe=False)
+            return JsonResponse (data="You do not have permissions to look at others !", status=403, safe=False)
 
 
 
@@ -123,7 +123,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def put(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse({'message': 'Only courier himself can update the courier!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
             raise Http404
         serializer = CourierSerializer(data=self.request.data,
@@ -135,7 +135,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def delete(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to delete the user!'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse({'message': 'Only courier himself can delete the courier!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
             raise Http404
         serializer = CourierSerializer(courier)
@@ -148,7 +148,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
     def patch(self, *args, **kwargs):
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'Only courier himself can update the courier!!'}, status=status.HTTP_200_OK)
         serializer = CourierSerializer(data=self.request.data, instance=courier, 
                                     context={'request': self.request}, partial=True) # set partial=True to update a data partially
         if serializer.is_valid(raise_exception=True):
@@ -180,7 +180,7 @@ class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change 
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         delivery_area = DeliveryPrice.objects.filter(pk=kwargs.get('id')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to update the user!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'Only courier himself can update the courier area!!'}, status=status.HTTP_200_OK)
         if not courier:
             raise Http404
         serializer = DeliveryAreaPriceSerializer(data=self.request.data,
@@ -194,7 +194,7 @@ class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change 
         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
         delivery_area = DeliveryPrice.objects.filter(pk=kwargs.get('id')).first()
         if courier != self.request.user:
-            return JsonResponse({'message': 'You do not have permissions to delete the delivery area!'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse({'message': 'Only courier himself can delete the delivery area!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
             raise Http404
         delivery_area.delete()
