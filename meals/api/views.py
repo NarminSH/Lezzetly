@@ -180,27 +180,29 @@ def meal_single(request, pk):
 # @authentication_classes([])
 @permission_classes([IsAuthenticated,])
 def meal_detail(request, pk):
-    permissions = Permission.objects.filter(user=request.user)
     
-    print("***** inside meal_detail ********")
-    print("permissions: ", permissions)
-    print("all permissions: ", request.user.get_all_permissions())
-    print("permission_classes:", permission_classes.__doc__)
-    print("***** inside meal_detail ********")
+   
     # token = request.GET.get('token')
     # print("request.token", request.token)
     try: 
         meal = Meal.objects.get(pk=pk) 
     except Meal.DoesNotExist: 
         return JsonResponse({'message': 'The meal does not exist'}, status=status.HTTP_404_NOT_FOUND) 
- 
+    cookId = meal.cook.id
+    userInRequestId = request.user.id
+    # print("***** inside meal_detail ********")
+    # print("cookId", cookId)
+    # print("userInRequestId", userInRequestId)
+    # print("***** inside meal_detail ********")
     # if request.method == 'GET':
     #     meal_serializer = MealSerializer(meal) 
     #     return JsonResponse(meal_serializer.data) 
  
     if request.method == 'PATCH' and isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
-    elif request.method == 'PATCH' and isinstance(request.user, Cook) == True:
+    elif request.method == 'PATCH' and isinstance(request.user, Cook) == True and cookId != userInRequestId:
+        return JsonResponse({'message': 'You have not permission update this meal!'}, status=status.HTTP_200_OK)
+    elif request.method == 'PATCH' and isinstance(request.user, Cook) == True and cookId == userInRequestId:
         # print("jwt decode: ", payload = JWTAuthentication.decode(token, settings.SECRET_KEY, algorithms="HS256"))
         # return JsonResponse({'message': 'terminala bax!'}, status=status.HTTP_200_OK)
     # elif request.method == 'PATCH':
@@ -211,16 +213,27 @@ def meal_detail(request, pk):
 
     # # if request.method == 'PATCH': 
         meal_data = JSONParser().parse(request)
-        print("+++++ meal data: ", meal_data) 
-        meal_serializer = MealCreatSerializer(meal, data=meal_data, partial=True) 
-        if meal_serializer.is_valid(): 
-            meal_serializer.save() 
-            return JsonResponse(meal_serializer.data) 
+        orderItemsOfMeal = meal.ordered_items.all()
+        print("+++++ orderItemsOfMeal: ", orderItemsOfMeal)
+        is_in_active_order = False
+        for i in orderItemsOfMeal:
+            if i.order.complete == False:
+                is_in_active_order = True
+            print("OrderItemWithMeal.complete: ", i.order.complete)
+        if is_in_active_order:
+            return JsonResponse({'message': 'This meal in active order you can not change it!'}, status=status.HTTP_200_OK)
+        else:
+            meal_serializer = MealCreatSerializer(meal, data=meal_data, partial=True) 
+            if meal_serializer.is_valid(): 
+                meal_serializer.save() 
+                return JsonResponse(meal_serializer.data) 
         return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
  
     elif request.method == 'DELETE' and isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can update meal!'}, status=status.HTTP_200_OK)
-    elif request.method == 'DELETE' and isinstance(request.user, Cook) == True:
+    elif request.method == 'DELETE' and isinstance(request.user, Cook) == True and cookId != userInRequestId:
+        return JsonResponse({'message': 'You have not permission update this meal!'}, status=status.HTTP_200_OK)
+    elif request.method == 'DELETE' and isinstance(request.user, Cook) == True and cookId == userInRequestId:
         queryset = meal.ordered_items.all()
         if not queryset:
             meal.delete()

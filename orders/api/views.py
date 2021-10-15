@@ -198,11 +198,21 @@ def complete_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
+    order_items = order.items.all()
+    cookId = None
+    for i in order_items:
+        cookId = i.meal.cook.id
+    
+    userInRequestId = request.user.id
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
-    else:
+    elif isinstance(request.user, Cook) == True and cookId != userInRequestId:
+        return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
+    elif isinstance(request.user, Cook) == True and cookId == userInRequestId:
         if not order.courier:
             return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+        elif order.complete:
+            return JsonResponse({'message': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
         else:
             print("couriers id", order.courier.id)
             print("order.courier", order.courier)
@@ -234,9 +244,16 @@ def reject_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
+    order_items = order.items.all()
+    cookId = None
+    userInRequestId = request.user.id
+    for i in order_items:
+        cookId = i.meal.cook.id
     if isinstance(request.user, Cook) == False:
         return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
-    elif order.complete:
+    elif isinstance(request.user, Cook) == True and cookId != userInRequestId:
+        return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
+    elif isinstance(request.user, Cook) == True and cookId != userInRequestId and order.complete:
         return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
     elif order.courier:
         return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
