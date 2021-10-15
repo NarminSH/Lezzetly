@@ -217,7 +217,9 @@ def complete_order(request, pk):
     elif isinstance(request.user, Cook) == True and cookId != userInRequestId:
         return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
     elif isinstance(request.user, Cook) == True and cookId == userInRequestId:
-        if not order.courier:
+        if order.is_rejected:
+            return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+        elif not order.courier:
             return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
         elif order.complete:
             return JsonResponse({'message': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
