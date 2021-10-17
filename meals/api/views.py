@@ -1,6 +1,9 @@
+import re
 from django.conf import settings
 from django.db.models.query import QuerySet
 from rest_framework import permissions
+from rest_framework.settings import reload_api_settings
+from rest_framework.utils import json
 from cooks.models import Cook
 from users.api.jwt import JWTAuthentication
 from django.contrib.auth.models import Permission
@@ -20,7 +23,12 @@ from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import parser_classes
 import jwt
+# import sys
+# reload_api_settings(sys)
+# sys.setdefaultencoding("utf-8")
  
 @api_view(['GET'])
 def mealsApiOverviews(request):
@@ -83,10 +91,76 @@ class MealAPIView(generics.ListAPIView):
     # serializer_class = MealSerializer
 
 
+# @parser_classes((MultiPartParser, ))
+# @permission_classes([IsAuthenticated, ])
+# class UploadFileAndJson(APIView):
+
+#     def post(self, request, format=None):
+#         print("Tezede request.user: ", request.user)
+#         if isinstance(request.user, Cook) == False:
+#             return JsonResponse({'message': 'Only cook can create meal!'}, status=status.HTTP_200_OK)
+#         else:
+#             # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
+#             #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+#             is_full = False
+#             print()
+#             if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
+#                 is_full = True
+#             queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
+#                                     rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+#             meal_data = JSONParser().parse(request)
+
+#             print("************")
+#             print("Tezede meal_data: ", meal_data)
+#             print("************")
+#             # print("+++++get_user: ", request.user)
+#             # print("++++++++ get is_full:", is_full)
+#             # print("+++++get_queryset: ", queryset)
+#             # if request.method == 'POST' and not isinstance(request.user, Cook):
+#             #     return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
+#             if request.method == 'POST' and not is_full:
+#                 return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['category'] and not meal_data['ingredients'] and not meal_data['mealoption']:
+#                 return JsonResponse({'message': 'You have to add category, mealoption and ingredients!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['category'] and not meal_data['ingredients']:
+#                 return JsonResponse({'message': 'You have to add category and ingredients!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['category'] and not meal_data['mealoption']:
+#                 return JsonResponse({'message': 'You have to add category and mealoption!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['category']:
+#                 return JsonResponse({'message': 'You have to add category!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['ingredients'] and not meal_data['mealoption']:
+#                 return JsonResponse({'message': 'You have to add ingredients and mealoption!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['mealoption']:
+#                 return JsonResponse({'message': 'You have to add mealoption!'}, status=status.HTTP_200_OK)
+#             elif request.method == 'POST' and not meal_data['ingredients']:
+#                 return JsonResponse({'message': 'You have to add ingredients!'}, status=status.HTTP_200_OK)
+            
+#             print("meap data", meal_data['category'])
+#             print(request.user)
+            
+#             meal_serializer = MealCreatSerializer(data=meal_data)
+#             print(meal_data, 'asdfghjkl')
+#             # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
+#             if meal_serializer.is_valid():
+#                 # print("mealCreate ", isinstance(request.user, User))
+#                 meal_serializer.save(cook = request.user)
+#                 # print(meal_serializer, 'jshckjdsbcfhjdx')
+#                 return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
+#             return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # thumbnail = request.FILES["file"]
+            # info = json.loads(request.data['info'])
+            # print("yeni create-da request.data", request.data['data'])
+            # print("yeni create-da request.data", request.data['image'])
+            # print("yeni create-da request.data", request.data)
+            # # print("yeni create-da thumbnail", thumbnail)
+            
+            # return JsonResponse({'message': 'terminala bax!'}, status=status.HTTP_200_OK)
+
 # create new meals,
 # delete all meals, now in comment
 @api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
+@parser_classes([JSONParser, MultiPartParser])
 def meal_list(request):
     # x = isinstance(5, int)
     if isinstance(request.user, Cook) == False:
@@ -94,46 +168,54 @@ def meal_list(request):
     else:
         # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
         #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
+        # datam = JSONParser().parse(request.data)
+        print("//////////")
+        print("meal create-da Data category", request.data)
+        # print("meal create-da Data category", request.data['category'])
+        print("//////////")
         is_full = False
         if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
             is_full = True
         queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
                                 rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
-        meal_data = JSONParser().parse(request)
+        # meal_data = JSONParser().parse(request)
+        print("************")
+        # print("meal_data: ", meal_data)
+        print("************")
         # print("+++++get_user: ", request.user)
         # print("++++++++ get is_full:", is_full)
         # print("+++++get_queryset: ", queryset)
-        # if request.method == 'POST' and not isinstance(request.user, Cook):
-        #     return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
+        if request.method == 'POST' and not isinstance(request.user, Cook):
+            return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
         if request.method == 'POST' and not is_full:
             return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['category'] and not meal_data['ingredients'] and not meal_data['mealoption']:
+        elif request.method == 'POST' and not request.data.get('category') and not request.data.get('ingredients') and not request.data.get('mealoption'):
             return JsonResponse({'message': 'You have to add category, mealoption and ingredients!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['category'] and not meal_data['ingredients']:
+        elif request.method == 'POST' and not request.data.get('category') and not request.data.get('ingredients'):
             return JsonResponse({'message': 'You have to add category and ingredients!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['category'] and not meal_data['mealoption']:
+        elif request.method == 'POST' and not request.data.get('category') and not request.data.get('mealoption'):
             return JsonResponse({'message': 'You have to add category and mealoption!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['category']:
+        elif request.method == 'POST' and not request.data.get('category'):
             return JsonResponse({'message': 'You have to add category!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['ingredients'] and not meal_data['mealoption']:
+        elif request.method == 'POST' and not request.data.get('ingredients') and not request.data.get('mealoption'):
             return JsonResponse({'message': 'You have to add ingredients and mealoption!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['mealoption']:
+        elif request.method == 'POST' and not request.data.get('mealoption'):
             return JsonResponse({'message': 'You have to add mealoption!'}, status=status.HTTP_200_OK)
-        elif request.method == 'POST' and not meal_data['ingredients']:
+        elif request.method == 'POST' and not request.data.get('ingredients'):
             return JsonResponse({'message': 'You have to add ingredients!'}, status=status.HTTP_200_OK)
-        
-        print("meap data", meal_data['category'])
+        print("Category printine kimi geldi")
+        # print("meap data", meal_data['category'])
         print(request.user)
-        
-        meal_serializer = MealCreatSerializer(data=meal_data)
-        print(meal_data, 'asdfghjkl')
+        # , safe=False
+        meal_serializer = MealCreatSerializer(data=request.data)
+        # print(meal_data, 'asdfghjkl')
         # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
         if meal_serializer.is_valid():
             # print("mealCreate ", isinstance(request.user, User))
             meal_serializer.save(cook = request.user)
             # print(meal_serializer, 'jshckjdsbcfhjdx')
-            return JsonResponse(meal_serializer.data, status=status.HTTP_201_CREATED) 
-        return JsonResponse(meal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(meal_serializer.data, safe=False, status=status.HTTP_201_CREATED) 
+        return JsonResponse(meal_serializer.errors, safe=False, status=status.HTTP_400_BAD_REQUEST)
 
 
 

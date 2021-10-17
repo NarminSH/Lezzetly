@@ -8,6 +8,7 @@ urlpatterns = [
     path("meals/", views.MealAPIView.as_view()),
     # path("meals/<str:pk>/", views.meal_single),
     path("meal-create/", views.meal_list),
+    # path("meal-create/", views.UploadFileAndJson.as_view()),
     path("meals/<str:pk>/", views.meal_detail),
     path("meal/<str:pk>/", views.meal_single),
     path('categories/', views.CategoryAPIView.as_view()),
