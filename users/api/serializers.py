@@ -53,7 +53,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cook
-        fields = ('token', 'email', 'password', "first_name")
+        fields = ('token','password',)
         read_only_fields = ['token']
 
 
