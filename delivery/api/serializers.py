@@ -52,7 +52,9 @@ class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer):
 
 class DeliveryAreaOrderForAddCourierSerializer(serializers.ModelSerializer):   #this one is to hide courier id
     # area = DeliveryAreaSerializer()
+    id = serializers.IntegerField()
     class Meta:
+        
         model = DeliveryPrice
         fields = ('id',)
 

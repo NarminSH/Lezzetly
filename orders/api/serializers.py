@@ -160,7 +160,9 @@ class CookForOrderSerializer(serializers.ModelSerializer): # serializer for put,
         # read_only_fields = ['rating', ]
 
 class CourierForAddCourierSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     class Meta:
+        
         model = Courier
         fields = (
             'id',
@@ -185,8 +187,8 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
         # read_only_fields = ['rating'] 
 
 class AddCourierSerializer(DynamicFieldsModelSerializer):
-    courier = CourierForAddCourierSerializer()
-    delivery_information = DeliveryAreaOrderForAddCourierSerializer()
+    courier = CourierForAddCourierSerializer(read_only=True)
+    delivery_information = DeliveryAreaOrderForAddCourierSerializer(read_only=True)
     class Meta:
         model = Order
         fields = (
@@ -194,6 +196,14 @@ class AddCourierSerializer(DynamicFieldsModelSerializer):
             'delivery_information',
         )
 
+
+class RejectOrderSerializer(DynamicFieldsModelSerializer):
+    class Meta:
+        model = Order
+        fields = (
+            'is_rejected',
+            'reject_reason',   
+        )
 
 
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed

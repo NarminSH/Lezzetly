@@ -8,7 +8,7 @@ from django.http.response import Http404, JsonResponse
 from cooks.models import Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier, DeliveryPrice
-from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
+from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer, RejectOrderSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order, OrderItem
 from meals.models import Meal
@@ -136,9 +136,9 @@ def order_detail(request, pk):
     #     return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-test_param_order = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
-user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
-@swagger_auto_schema(method='patch', manual_parameters=[test_param_order],request_body=AddCourierSerializer, responses={200: "You assigned courier to order!"})
+test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=AddCourierSerializer, responses={200: "You assigned courier to order!"})
 # @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
 @api_view(['PATCH'])
 # @authentication_classes([])
@@ -269,6 +269,10 @@ def complete_order(request, pk):
             # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
 
+test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
+# @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
 @api_view(['PATCH'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
