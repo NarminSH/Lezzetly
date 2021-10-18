@@ -31,7 +31,7 @@ class CourierOrdersAPIView(ListAPIView):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
             if self.request.user.id == kwargs.get('pk'): 
                 if not item:
-                    raise Http404
+                    return JsonResponse (data=[], status=200, safe=False)
                 serializer = OrderFullSerializer(
                     item, many=True, context={'request': self.request}, exclude=["courier"])
                 return JsonResponse(data=serializer.data, safe=False)
@@ -67,7 +67,7 @@ class CourierAreasAPIView(ListCreateAPIView):
     def get(self, *args, **kwargs):
             item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
             if not item:
-                raise Http404
+                return JsonResponse (data=[], status=200, safe=False)
             serializer = DeliveryAreaPriceListSerializer(
                 item, many=True, context={'request': self.request}, exclude =['courier'])
             return JsonResponse(data=serializer.data, safe=False)
@@ -99,7 +99,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
         if courier != self.request.user:
             return JsonResponse({'message': 'Only courier himself can update the courier!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
-            raise Http404
+            return JsonResponse (data=[], status=200, safe=False)
         serializer = CourierSerializer(data=self.request.data,
                                        instance=courier, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
@@ -111,7 +111,7 @@ class CourierAPIView(RetrieveUpdateDestroyAPIView):
         if courier != self.request.user:
             return JsonResponse({'message': 'Only courier himself can delete the courier!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
-            raise Http404
+            return JsonResponse (data=[], status=200, safe=False)
         serializer = CourierSerializer(courier)
         courier.delete()
         print('deleteddd')
@@ -156,7 +156,7 @@ class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change 
         if courier != self.request.user:
             return JsonResponse({'message': 'Only courier himself can update the courier area!!'}, status=status.HTTP_200_OK)
         if not courier:
-            raise Http404
+            return JsonResponse (data=[], status=200, safe=False)
         serializer = DeliveryAreaPriceSerializer(data=self.request.data,
                                        instance=delivery_area, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
@@ -170,7 +170,7 @@ class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change 
         if courier != self.request.user:
             return JsonResponse({'message': 'Only courier himself can delete the delivery area!'}, status=status.HTTP_403_FORBIDDEN)
         if not courier:
-            raise Http404
+            return JsonResponse (data=[], status=200, safe=False)
         delivery_area.delete()
         return JsonResponse({'message': 'Delivery area is deleted successfully!'}, status=status.HTTP_200_OK)
 
