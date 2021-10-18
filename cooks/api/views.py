@@ -35,14 +35,14 @@ class CooksAPIView(ListCreateAPIView):
 
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
-user_response = openapi.Response('Get information about single cook wiyh id', CookSerializer)
-
+user_response = openapi.Response('Get information about single cook with id', CookSerializer)
+put_response = openapi.Response('Change information about single cook with id', CookSerializer)
 
 
 # 'method' can be used to customize a single HTTP method of a view
 @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 # 'methods' can be used to apply the same modification to multiple methods
-@swagger_auto_schema(methods=['put', 'PATCH', 'DELETE'], request_body=CookSerializer)
+@swagger_auto_schema(methods=['put', 'PATCH', 'DELETE'], request_body=CookSerializer, responses={200: put_response})
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 # @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
 @permission_classes([AllowAny])
