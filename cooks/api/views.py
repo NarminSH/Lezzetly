@@ -1,6 +1,15 @@
 
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.decorators import api_view, permission_classes
+from django.http.response import JsonResponse
+from rest_framework.parsers import JSONParser 
+from rest_framework import status
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import api_view
+from drf_yasg import openapi
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
 from cooks.api.serializers import CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
 from cooks.models import Cook, Recommendation, Resume
@@ -9,11 +18,7 @@ from orders.api.serializers import OrderFullSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.decorators import api_view, permission_classes
-from django.http.response import JsonResponse
-from rest_framework.parsers import JSONParser 
-from rest_framework import status
+
 
 
 class CooksAPIView(ListCreateAPIView):
@@ -29,7 +34,15 @@ class CooksAPIView(ListCreateAPIView):
 
 
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
+user_response = openapi.Response('Get information about single cook wiyh id', CookSerializer)
 
+
+
+# 'method' can be used to customize a single HTTP method of a view
+@swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(methods=['put', 'PATCH', 'DELETE'], request_body=CookSerializer)
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 # @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
 @permission_classes([AllowAny])
