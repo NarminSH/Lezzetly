@@ -26,6 +26,11 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import parser_classes
 import jwt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import api_view
+
+from drf_yasg import openapi
 # import sys
 # reload_api_settings(sys)
 # sys.setdefaultencoding("utf-8")
@@ -158,7 +163,14 @@ class MealAPIView(generics.ListAPIView):
 
 # create new meals,
 # delete all meals, now in comment
-@api_view(['POST', 'DELETE'])
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=MealCreatSerializer)
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, MultiPartParser])
 def meal_list(request):
@@ -216,6 +228,7 @@ def meal_list(request):
             # print(meal_serializer, 'jshckjdsbcfhjdx')
             return JsonResponse(meal_serializer.data, safe=False, status=status.HTTP_201_CREATED) 
         return JsonResponse(meal_serializer.errors, safe=False, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 
@@ -238,6 +251,12 @@ def meal_list(request):
 #         return JsonResponse(meal_serializer.data) 
 
 # get single meal
+# @swagger_auto_schema(method = 'GET',request_body=MealSerializer)
+
+test_param_meal = openapi.Parameter('test', openapi.IN_QUERY, description="id in parametr is important", type=openapi.TYPE_BOOLEAN)
+user_response_meal = openapi.Response('Asagidaki Melumatlar qayidir', MealSerializer)
+
+@swagger_auto_schema(method='get', manual_parameters=[test_param_meal], responses={200: user_response_meal})
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
@@ -258,7 +277,13 @@ def meal_single(request, pk):
 
 
 # update meal
-# delete meal 
+# delete meal
+
+test_param_delete = openapi.Parameter('delete', openapi.IN_QUERY, description="id in parametr is important", type=openapi.TYPE_BOOLEAN)
+# user_response_meal = openapi.Response('Asagidaki Melumatlar qayidir', MealSerializer)
+
+@swagger_auto_schema(methods=['delete'], manual_parameters=[test_param_meal], responses={200: "meal was deleted successfully"})
+@swagger_auto_schema(methods=['patch'], request_body=MealCreatSerializer)
 @api_view(['PATCH', 'DELETE'])
 # @authentication_classes([])
 @permission_classes([IsAuthenticated,])
@@ -350,6 +375,13 @@ class CategoryAPIView(generics.ListAPIView):
 
 # create new category,
 # delete all categories, now in comment
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=CategoryCustomSerializer)
 @api_view(['POST'])
 # @authentication_classes([])
 @permission_classes([IsAuthenticated,])
@@ -382,7 +414,13 @@ def category_list(request):
  
 # get single category
 # update category
-# delete category 
+# delete category
+test_param_category = openapi.Parameter('category', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+user_response_category = openapi.Response('Asagidaki Melumatlar qayidir', CategoryCustomSerializer)
+
+
+@swagger_auto_schema(methods=['get', 'put'], manual_parameters=[test_param_category], responses={200: user_response_category}) 
+@swagger_auto_schema(methods=['delete'], manual_parameters=[test_param_category], responses={200: "category was deleted successfully"})
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def category_detail(request, pk):
@@ -420,6 +458,14 @@ class MealOptionAPIView(generics.ListAPIView):
     serializer_class = MealOptionSerializer
 
 # mealoption
+
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=MealOptionSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mealoption_list(request):
@@ -448,6 +494,11 @@ def mealoption_list(request):
 # get single mealoption
 # update mealoption
 # delete mealoption
+test_param_mealoption = openapi.Parameter('mealoption', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+user_response_mealoption = openapi.Response('Asagidaki Melumatlar qayidir', MealOptionSerializer)
+
+@swagger_auto_schema(methods=['get', 'put'], manual_parameters=[test_param_mealoption], responses={200: user_response_mealoption}) 
+@swagger_auto_schema(methods=['delete'], manual_parameters=[test_param_mealoption], responses={200: "mealoption was deleted successfully"})
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def mealoption_detail(request, pk):
@@ -488,6 +539,13 @@ class IngredientOptionAPIView(generics.ListAPIView):
 # get all ingredients,
 # create new ingredient,
 # delete all ingredients, now in comment
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=IngredientCustomSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ingredient_list(request):
@@ -520,6 +578,11 @@ def ingredient_list(request):
 # get single ingredient
 # update ingredient
 # delete ingredient
+test_param_ingredient = openapi.Parameter('ingredient', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+user_response_ingredient = openapi.Response('Asagidaki Melumatlar qayidir', IngredientCustomSerializer)
+
+@swagger_auto_schema(methods=['get', 'put'], manual_parameters=[test_param_ingredient], responses={200: user_response_ingredient}) 
+@swagger_auto_schema(methods=['delete'], manual_parameters=[test_param_ingredient], responses={200: "ingredient was deleted successfully"})
 @api_view(['GET', 'PUT', 'DELETE'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
