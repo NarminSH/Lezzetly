@@ -50,6 +50,17 @@ class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
 class DeliveryAreaPriceListSerializer(DeliveryAreaPriceSerializer):
     area = DeliveryAreaSerializer()
 
+class DeliveryAreaOrderForAddCourierSerializer(serializers.ModelSerializer):   #this one is to hide courier id
+    # area = DeliveryAreaSerializer()
+    id = serializers.IntegerField()
+    class Meta:
+        
+        model = DeliveryPrice
+        fields = ('id',)
+
+        # read_only_fields = ['id', 'area', 'delivery_price']
+
+
 
 
 class DeliveryAreaOrderSerializer(serializers.ModelSerializer):   #this one is to hide courier id

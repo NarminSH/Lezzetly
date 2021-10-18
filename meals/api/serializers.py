@@ -121,6 +121,7 @@ class MealSerializer(DynamicFieldsModelSerializer):
             'price',
             'image',
             'stock_quantity',
+            'quantity',
             'is_active',
             'created_at',
             'updated_at',

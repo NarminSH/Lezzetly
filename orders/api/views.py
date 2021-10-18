@@ -8,73 +8,88 @@ from django.http.response import Http404, JsonResponse
 from cooks.models import Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier, DeliveryPrice
-from orders.api.serializers import OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer
+from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer, RejectOrderSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order, OrderItem
 from meals.models import Meal
 from rest_framework import filters
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=OrderFullSerializer)
 @api_view(['POST'])
 @authentication_classes([])
 @permission_classes([AllowAny])
 def order_create(request):
     order_data = JSONParser().parse(request)
     # create empty order with out orderItems, with customer data and add cook
-    order_serializer = OrderFullSerializer(data=order_data)
-    if order_serializer.is_valid():
-        order_item_data = order_data['order_items']
-        meal_id = None
-        meal_quantity = None
-        # get cook from meal
-        for i in order_item_data:
-            meal_id = i['meal']
-        meal = Meal.objects.get(pk=meal_id)
-        cook1 = meal.cook
-        is_same_cook = True
-        oneCookId = cook1.id
-        print("****** oneCookId", oneCookId)
-        for i in order_item_data:
-            meal1_id = i['meal']
-            meal1 = Meal.objects.get(pk=meal1_id)
-            print("*****or item cook_id:", meal1.cook.id)
-            print("*****or item title:", meal1.title)
-            if meal1.cook.id != oneCookId:
-                is_same_cook = False
-        print("****** is_same_cook", is_same_cook)
-        if is_same_cook:
-            order_serializer.save(cook = cook1)
-        else:
-            return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
-    
-    # get current order id for assigning to orderItem
-    current_order_id = order_serializer.data['id']
-    curren_order = Order.objects.get(pk=current_order_id)
-    
-    # get from data only order_item part
     order_item_data = order_data['order_items']
-    
-    # loop inside order items data and create several orderitems
-    for i in order_item_data:
-        print("i in order_item", i)
-        # meal_id = i['meal']
-        # meal = Meal.objects.get(pk=meal_id)
-        # meal_quantity = i['quantity']
-        # difference = meal.stock_quantity - meal_quantity
-        # print("////// stock difference: ", difference)
-        # if difference > 0:
-        #     meal.stock_quantity = difference
-        #     meal.save()
-        # else:
-        #     print("girdi else stok dif sohbeti")
-        #     meal.stock_quantity = 0
-        #     meal.save()
-        # print("+++ meal quantity:", meal_quantity)
-        orderItem_serializer = OrderItemCreateSerializer(data=i)
-        if orderItem_serializer.is_valid():
-            orderItem_serializer.save(order = curren_order)
-    # f"Hello, {name}"
-    return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
-    # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
+    if not order_item_data:
+        return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
+    else:
+        order_serializer = OrderFullSerializer(data=order_data)
+        if order_serializer.is_valid():
+            order_item_data = order_data['order_items']
+            meal_id = None
+            meal_quantity = None
+            # get cook from meal
+            for i in order_item_data:
+                meal_id = i['meal']
+            meal = Meal.objects.get(pk=meal_id)
+            cook1 = meal.cook
+            is_same_cook = True
+            oneCookId = cook1.id
+            print("****** oneCookId", oneCookId)
+            for i in order_item_data:
+                meal1_id = i['meal']
+                meal1 = Meal.objects.get(pk=meal1_id)
+                print("*****or item cook_id:", meal1.cook.id)
+                print("*****or item title:", meal1.title)
+                if meal1.cook.id != oneCookId:
+                    is_same_cook = False
+            print("****** is_same_cook", is_same_cook)
+            if is_same_cook:
+                order_serializer.save(cook = cook1)
+            else:
+                return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
+        
+        # get current order id for assigning to orderItem
+        current_order_id = order_serializer.data['id']
+        curren_order = Order.objects.get(pk=current_order_id)
+        
+        # get from data only order_item part
+        order_item_data = order_data['order_items']
+        
+        # loop inside order items data and create several orderitems
+            
+
+        for i in order_item_data:
+            print("i in order_item", i)
+            # meal_id = i['meal']
+            # meal = Meal.objects.get(pk=meal_id)
+            # meal_quantity = i['quantity']
+            # difference = meal.stock_quantity - meal_quantity
+            # print("////// stock difference: ", difference)
+            # if difference > 0:
+            #     meal.stock_quantity = difference
+            #     meal.save()
+            # else:
+            #     print("girdi else stok dif sohbeti")
+            #     meal.stock_quantity = 0
+            #     meal.save()
+            # print("+++ meal quantity:", meal_quantity)
+            orderItem_serializer = OrderItemCreateSerializer(data=i)
+            if orderItem_serializer.is_valid():
+                orderItem_serializer.save(order = curren_order)
+        # f"Hello, {name}"
+        return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
+        # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
 class OrderAPIView(generics.ListAPIView):
     
@@ -95,8 +110,13 @@ class OrderItemAPIView(generics.ListAPIView):
     serializer_class = OrderItemSerializer
 
 
+test_param_order = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
 
-@api_view(['GET', 'DELETE', 'PATCH'])
+
+@swagger_auto_schema(methods=['get'], manual_parameters=[test_param_order], responses={200: user_response_order}) 
+# @swagger_auto_schema(methods=['delete'], manual_parameters=[test_param_order], responses={200: "order was deleted successfully"})
+@api_view(['GET'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
 @permission_classes([IsAuthenticated])
@@ -121,7 +141,11 @@ def order_detail(request, pk):
     #         return JsonResponse(order_serializer.data, status=status.HTTP_200_OK)
     #     return JsonResponse(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
- 
+
+test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=AddCourierSerializer, responses={200: "You assigned courier to order!"})
+# @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
 @api_view(['PATCH'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
@@ -251,6 +275,10 @@ def complete_order(request, pk):
             # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
 
+test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
+# @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
 @api_view(['PATCH'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
