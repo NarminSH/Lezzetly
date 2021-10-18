@@ -54,6 +54,8 @@ class MealOption(models.Model):
     def __str__(self):
         return self.title
 
+def upload_path(instance, filename):
+    return '/'.join(['images', str(instance.title), filename])
 
 class Meal(models.Model):
     #relations
@@ -62,7 +64,7 @@ class Meal(models.Model):
     category = models.ManyToManyField(Category, related_name='meals', db_index=True,  blank=True)
     ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)
     #information
-    image = models.ImageField(upload_to='meal_images/')
+    image = models.ImageField(upload_to=upload_path, null=True, blank=True)
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 
     stock_quantity = models.PositiveSmallIntegerField(blank=True, null=True)
