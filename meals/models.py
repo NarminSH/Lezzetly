@@ -68,6 +68,7 @@ class Meal(models.Model):
     title = models.CharField(max_length=60)
     price = models.DecimalField(max_digits=5, decimal_places=2) 
     stock_quantity = models.PositiveSmallIntegerField(blank=True, null=True)
+    quantity = models.PositiveSmallIntegerField(blank=True, null=True, default=1)
     # is_available = models.BooleanField()
     is_active = models.BooleanField(default=True)
     preparing_time = models.CharField(max_length=20)
