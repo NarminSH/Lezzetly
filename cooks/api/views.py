@@ -197,3 +197,22 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse(data="You don't own permissions for this action", safe=False, status=403)
 
+
+
+class CookActiveOrdersAPIView(ListAPIView):
+    # authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = OrderFullSerializer
+    queryset = Order.objects.all()
+
+
+    def get(self, *args, **kwargs):
+            item = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+            print(self.request.user)
+            if self.request.user.id == kwargs.get('pk'): 
+                if not item:
+                    return JsonResponse (data=[], status=200, safe=False)
+                serializer = OrderFullSerializer(
+                    item, many=True, context={'request': self.request}, exclude=["cook"])
+                return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse (data="You do not have permissions to look at other cooks' orders!", status=403, safe=False)

@@ -1,5 +1,5 @@
 from django.urls import path
-from cooks.api.views import (CookMealsAPIView, CookOrdersAPIView, CookRecommendationsAPIView, CooksAPIView, 
+from cooks.api.views import (CookActiveOrdersAPIView, CookMealsAPIView, CookOrdersAPIView, CookRecommendationsAPIView, CooksAPIView, 
                              CookResumesAPIView, RecommendationsAPIView, ResumesAPIView, cook_detail)
 
 app_name = 'cooks_api'
@@ -13,4 +13,6 @@ urlpatterns = [
     path('cooks/<int:pk>/resumes/', CookResumesAPIView.as_view(), name='cook-resumes'),
     path('cooks/<int:pk>/meals/', CookMealsAPIView.as_view(), name='cook-meals'),
     path('cooks/<int:pk>/orders/', CookOrdersAPIView.as_view(), name='cook-orders'),
+    path('cooks/<int:pk>/activeorders/', CookActiveOrdersAPIView.as_view(), name='cook-activeorders'),
+
 ]
