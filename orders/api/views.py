@@ -29,61 +29,67 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def order_create(request):
     order_data = JSONParser().parse(request)
     # create empty order with out orderItems, with customer data and add cook
-    order_serializer = OrderFullSerializer(data=order_data)
-    if order_serializer.is_valid():
-        order_item_data = order_data['order_items']
-        meal_id = None
-        meal_quantity = None
-        # get cook from meal
-        for i in order_item_data:
-            meal_id = i['meal']
-        meal = Meal.objects.get(pk=meal_id)
-        cook1 = meal.cook
-        is_same_cook = True
-        oneCookId = cook1.id
-        print("****** oneCookId", oneCookId)
-        for i in order_item_data:
-            meal1_id = i['meal']
-            meal1 = Meal.objects.get(pk=meal1_id)
-            print("*****or item cook_id:", meal1.cook.id)
-            print("*****or item title:", meal1.title)
-            if meal1.cook.id != oneCookId:
-                is_same_cook = False
-        print("****** is_same_cook", is_same_cook)
-        if is_same_cook:
-            order_serializer.save(cook = cook1)
-        else:
-            return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
-    
-    # get current order id for assigning to orderItem
-    current_order_id = order_serializer.data['id']
-    curren_order = Order.objects.get(pk=current_order_id)
-    
-    # get from data only order_item part
     order_item_data = order_data['order_items']
-    
-    # loop inside order items data and create several orderitems
-    for i in order_item_data:
-        print("i in order_item", i)
-        # meal_id = i['meal']
-        # meal = Meal.objects.get(pk=meal_id)
-        # meal_quantity = i['quantity']
-        # difference = meal.stock_quantity - meal_quantity
-        # print("////// stock difference: ", difference)
-        # if difference > 0:
-        #     meal.stock_quantity = difference
-        #     meal.save()
-        # else:
-        #     print("girdi else stok dif sohbeti")
-        #     meal.stock_quantity = 0
-        #     meal.save()
-        # print("+++ meal quantity:", meal_quantity)
-        orderItem_serializer = OrderItemCreateSerializer(data=i)
-        if orderItem_serializer.is_valid():
-            orderItem_serializer.save(order = curren_order)
-    # f"Hello, {name}"
-    return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
-    # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
+    if not order_item_data:
+        return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
+    else:
+        order_serializer = OrderFullSerializer(data=order_data)
+        if order_serializer.is_valid():
+            order_item_data = order_data['order_items']
+            meal_id = None
+            meal_quantity = None
+            # get cook from meal
+            for i in order_item_data:
+                meal_id = i['meal']
+            meal = Meal.objects.get(pk=meal_id)
+            cook1 = meal.cook
+            is_same_cook = True
+            oneCookId = cook1.id
+            print("****** oneCookId", oneCookId)
+            for i in order_item_data:
+                meal1_id = i['meal']
+                meal1 = Meal.objects.get(pk=meal1_id)
+                print("*****or item cook_id:", meal1.cook.id)
+                print("*****or item title:", meal1.title)
+                if meal1.cook.id != oneCookId:
+                    is_same_cook = False
+            print("****** is_same_cook", is_same_cook)
+            if is_same_cook:
+                order_serializer.save(cook = cook1)
+            else:
+                return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
+        
+        # get current order id for assigning to orderItem
+        current_order_id = order_serializer.data['id']
+        curren_order = Order.objects.get(pk=current_order_id)
+        
+        # get from data only order_item part
+        order_item_data = order_data['order_items']
+        
+        # loop inside order items data and create several orderitems
+            
+
+        for i in order_item_data:
+            print("i in order_item", i)
+            # meal_id = i['meal']
+            # meal = Meal.objects.get(pk=meal_id)
+            # meal_quantity = i['quantity']
+            # difference = meal.stock_quantity - meal_quantity
+            # print("////// stock difference: ", difference)
+            # if difference > 0:
+            #     meal.stock_quantity = difference
+            #     meal.save()
+            # else:
+            #     print("girdi else stok dif sohbeti")
+            #     meal.stock_quantity = 0
+            #     meal.save()
+            # print("+++ meal quantity:", meal_quantity)
+            orderItem_serializer = OrderItemCreateSerializer(data=i)
+            if orderItem_serializer.is_valid():
+                orderItem_serializer.save(order = curren_order)
+        # f"Hello, {name}"
+        return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
+        # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
 class OrderAPIView(generics.ListAPIView):
     
