@@ -178,6 +178,8 @@ def add_courier_to_order(request, pk):
         
         likedCourier = Courier.objects.filter(pk=courierId).first()
         choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
+        if choosen_delivery not in likedCourier.delivery_areas.all():
+            return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
         if likedCourier is None:
             return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
@@ -187,8 +189,7 @@ def add_courier_to_order(request, pk):
 
         elif likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
             return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
-        elif choosen_delivery not in likedCourier.delivery_areas.all():
-            return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
+
         
         else:
             for i in order.items.all():
