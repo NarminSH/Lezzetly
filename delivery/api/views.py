@@ -1,5 +1,10 @@
 
+from django.db.models.query import QuerySet
 from django.http.response import Http404, JsonResponse
+from rest_framework import filters
+from django_filters import rest_framework as djangofilters
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -14,8 +19,12 @@ class CouriersAPIView(ListCreateAPIView):
     permission_classes = [AllowAny]
     # queryset = Courier.objects.filter(is_available=True, transport__isnull=False, 
     #                         rating__isnull=False, work_experience__isnull=False, deliveryArea__isnull=False )
+    
+    search_fields = ('delivery_areas__area__area_name',)
+    filter_backends = (djangofilters.DjangoFilterBackend, filters.SearchFilter)
     queryset = Courier.objects.all()
     serializer_class = CourierSerializer
+
 
 
 
