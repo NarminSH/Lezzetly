@@ -57,4 +57,4 @@ class LoginAPIView(GenericAPIView):
             serializer = self.serializer_class(user)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_200_OK)
