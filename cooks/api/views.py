@@ -119,7 +119,7 @@ class CookRecommendationsAPIView(ListCreateAPIView):
     def get(self, *args, **kwargs):
             item = Recommendation.objects.filter(cook=kwargs.get('pk'))
             if not item:
-                raise Http404
+                return JsonResponse (data=[], status=200, safe=False)
             serializer = RecommendationSerializer(
                 item, many=True, context={'request': self.request}, exclude=['cook'])
             return JsonResponse(data=serializer.data, safe=False)
@@ -147,7 +147,7 @@ class CookResumesAPIView(ListCreateAPIView):
     def get(self, *args, **kwargs):
             item = Resume.objects.filter(cook=kwargs.get('pk'))
             if not item:
-                raise Http404
+                return JsonResponse (data=[], status=200, safe=False)
             serializer = ResumeSerializer(
                 item, many=True, context={'request': self.request}, exclude=['cook'])
             return JsonResponse(data=serializer.data, safe=False)
@@ -187,7 +187,7 @@ class CookMealsAPIView(ListAPIView):
     def get(self, *args, **kwargs):
             item = Meal.objects.filter(cook=kwargs.get('pk'))
             if not item:
-                raise Http404
+                return JsonResponse (data=[], status=200, safe=False)
             serializer = MealSerializer(
                 item, many=True, context={'request': self.request}, exclude=["cook", ])
             return JsonResponse(data=serializer.data, safe=False)
@@ -204,7 +204,7 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
             item = Order.objects.filter(cook=kwargs.get('pk'))
             if self.request.user.id == kwargs.get('pk'):
                 if not item:
-                    raise Http404
+                    return JsonResponse (data=[], status=200, safe=False)
                 serializer = OrderFullSerializer(
                     item, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)

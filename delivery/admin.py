@@ -7,7 +7,7 @@ from delivery.models import (
 
 # Register your models here.
 @admin.register(Courier)
-class CookAdmin(admin.ModelAdmin):
+class CourierAdmin(admin.ModelAdmin):
     list_display = ('id', 'first_name','last_name','transport','rating','work_experience','is_available','created_at')
     list_filter = ('id', 'first_name','rating','transport','created_at')
     search_fields = ('id','first_name', 'transport')
