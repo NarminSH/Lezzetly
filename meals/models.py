@@ -59,7 +59,7 @@ def upload_path(instance, filename):
 
 class Meal(models.Model):
     #relations
-    cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE)
+    cook = models.ForeignKey(Cook, db_index=True, related_name='meals', on_delete=models.CASCADE, blank=True)
     mealoption = models.ManyToManyField(MealOption, related_name='meals', db_index=True, blank=True)
     category = models.ManyToManyField(Category, related_name='meals', db_index=True,  blank=True)
     ingredients = models.ManyToManyField(Ingredient, related_name='meals', db_index=True, blank=True)

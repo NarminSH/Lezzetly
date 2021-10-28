@@ -178,6 +178,7 @@ def add_courier_to_order(request, pk):
         
         likedCourier = Courier.objects.filter(pk=courierId).first()
         choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
+        
         if choosen_delivery not in likedCourier.delivery_areas.all():
             return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)

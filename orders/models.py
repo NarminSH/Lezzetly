@@ -1,4 +1,3 @@
-from clients.models import Client
 from django.db import models
 from cooks.models import Cook
 from delivery.models import Courier, DeliveryPrice

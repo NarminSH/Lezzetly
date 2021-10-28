@@ -1,7 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import JSONField
-from clients import models
 from delivery.api.serializers import CourierSerializer, DeliveryAreaOrderForAddCourierSerializer, DeliveryAreaOrderSerializer
 from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal

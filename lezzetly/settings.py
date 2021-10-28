@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'users',
     'meals',
     'orders',
-    'clients',
     'delivery',
     'rest_framework',
     'corsheaders',
