@@ -300,7 +300,7 @@ def reject_order(request, pk):
         return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
     elif isinstance(request.user, Cook) == True and cookId != userInRequestId:
         return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
-    elif isinstance(request.user, Cook) == True and cookId != userInRequestId and order.complete:
+    elif isinstance(request.user, Cook) == True and cookId == userInRequestId and order.complete:
         return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
     elif order.courier:
         return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
