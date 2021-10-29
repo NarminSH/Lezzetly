@@ -31,8 +31,11 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
         model = Cook
         fields = (
             'id',
+            'username',
             'first_name',
             'last_name',
+            'email',
+            'user_type',
             'patronymic',
             'phone',
             'city',

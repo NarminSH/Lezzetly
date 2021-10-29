@@ -2,7 +2,7 @@
 from rest_framework import permissions
 from django.http.response import Http404, JsonResponse
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
@@ -31,7 +31,6 @@ class CooksAPIView(ListCreateAPIView):
         if self.request.method == 'POST':
             return RegisterSerializer
         return super(CooksAPIView, self).get_serializer_class()
-
 
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
@@ -97,6 +96,40 @@ def cook_detail(request, pk):
         return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_403_FORBIDDEN)   #changed status fromm 200 to 403
     
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def getCookByUsername(request, username):
+    # token = request.GET.get('token')
+    # print("request.token", request.token)
+    try: 
+        cook = Cook.objects.get(username=username, is_available=True)
+        print("cook inside singe meal: ", cook)
+    except Cook.DoesNotExist:
+        return JsonResponse({'warning': 'The cook does not exist'}, status=status.HTTP_200_OK) 
+    if request.method == 'GET': 
+        cook_serializer = CookSerializer(cook) 
+        return JsonResponse(cook_serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def getCookByUsernameBool(request, username):
+    # token = request.GET.get('token')
+    # print("request.token", request.token)
+    # is_cook = False
+    try: 
+        cook = Cook.objects.get(username=username, is_available=True)
+        # is_cook = True
+        print("cook inside singe meal: ", cook)
+        return JsonResponse({'Message': 'true'}, status=status.HTTP_200_OK) 
+    except Cook.DoesNotExist: 
+        return JsonResponse({'warning': 'false'}, status=status.HTTP_200_OK) 
+    
+    # if request.method == 'GET': 
+    #     cook_serializer = CookSerializer(cook) 
+    #     return JsonResponse(cook_serializer.data) 
+ 
 
 
 class RecommendationsAPIView(ListAPIView):
