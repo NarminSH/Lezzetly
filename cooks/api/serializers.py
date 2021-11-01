@@ -23,6 +23,34 @@ class CookListSerializer(serializers.ModelSerializer):   #serializer for get met
         )
         read_only_fields = ['rating', ]
 
+class CookCreateSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+
+    
+    class Meta:
+        model = Cook
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'user_type',
+            'patronymic',
+            'phone',
+            'city',
+            'service_place',  
+            'payment_address',
+            'birth_place',
+            'city',
+            'work_experience',
+            'rating',
+            'is_available',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = ['rating', ]
+
+
+
 
 class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
 
@@ -31,8 +59,11 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
         model = Cook
         fields = (
             'id',
+            'username',
             'first_name',
             'last_name',
+            'email',
+            'user_type',
             'patronymic',
             'phone',
             'city',
