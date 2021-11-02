@@ -1,5 +1,6 @@
 
 from rest_framework import permissions
+# from rest_framework_jwt.utils import jwt_decode_handler
 from django.http.response import Http404, JsonResponse
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -12,7 +13,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
 from drf_yasg import openapi
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
-from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer
+from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
 from cooks.models import Cook, Recommendation, Resume
 from users.api.serializers import RegisterSerializer
 from orders.api.serializers import OrderFullSerializer
@@ -20,7 +21,7 @@ from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
 import jwt
-
+from django.conf import settings
 
 
 # class CooksAPIView(ListCreateAPIView):
@@ -46,72 +47,111 @@ class CooksAPIView(generics.ListAPIView):
 # permission_classes = []
 # @permission_classes([AllowAny])
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+@swagger_auto_schema(method = 'POST',request_body=ShortCookCreateSerializer)
 @parser_classes([JSONParser, MultiPartParser])
-@api_view(['POST', 'PUT'])
+@api_view(['POST'])
 @authentication_classes([])
 @permission_classes([])
-def cookCreateUpdate(request, username):
+def cookCreate(request):
     # token = request.data['Token']
 
     # print("Token: ", token)
     print("Daxil oldu CookCreate-e")
-    print("request******", request.user)
-    print("cook-create username:", username)
+    # print("request******", request.user)
     # print("cook-create usertype:", usertype)
     # x = isinstance(5, int)
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-    token = cook_data['Token']
-    algorithms=['HS256']
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    bearerToken = tokenStr.split(' ')
+    token = bearerToken[1]
+    # algorithms=['HS256']
     print("token: ", token)
+    if bearerToken[0] != "Bearer":
+        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+    
+    try:
+        # payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=['HS256'])
+        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
+        # decodedPayload = jwt.decode(token,options={"verify_signature": False})
+        print("tokeni parsi: ", decoded_payload)
+        userType = decoded_payload['Usertype']
+        print("tokende usertype: ", userType)
+    except:
+        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+    if userType != '1':
+        return JsonResponse({'Warning': 'You have not permission to create cook!'}, status=status.HTTP_200_OK)    
+    # print("Cook create-da request.data", cook_data)
+    cook_serializer = ShortCookCreateSerializer(data=cook_data)
+    # print("Cook serializeri cap edirem", cook_serializer)
+    # raise_exception=True
+    if cook_serializer.is_valid():
+        cook_serializer.save()
+        # return JsonResponse({'Cook': cook_serializer}, status=status.HTTP_200_OK)
+        print("Ser Data id", cook_serializer.data['id'])
+        # return JsonResponse(cook_serializer.data)
+        return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
+        # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
+    else:
+        print(cook_serializer.errors)
+        return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
+        # return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
+        # return JsonResponse({'Warning': 'Request data is invalid'}, status=status.HTTP_200_OK)
+    
+    # except jwt.ExpiredSignatureError as e:
+    #     return JsonResponse({'error': 'Activations link expired'}, status=status.HTTP_400_BAD_REQUEST)
+    # except jwt.exceptions.DecodeError as e:
+    #     return JsonResponse({'error': f'Invalid Token {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
     # decodedPayload = jwt.decode(token,None,algorithms)
     
     
-    userFromToken = None
-    try:
-        decodedPayload = jwt.decode(token,options={"verify_signature": False})
-        print("decodedPayload", decodedPayload)
-        userFromToken = decodedPayload["user_username"]
-        userTypeFromToken = decodedPayload["user_usertype"]
-        print("userFromToken:", userFromToken)
-        if userFromToken != username or userTypeFromToken != 1:
-            return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
-        else:
-            try: 
-                cook = Cook.objects.get(username=username)
-                request.method = 'PUT'
+    # userFromToken = None
+    # try:
+    #     decodedPayload = jwt.decode(token,options={"verify_signature": False})
+    #     print("decodedPayload", decodedPayload)
+    #     userFromToken = decodedPayload["user_username"]
+    #     userTypeFromToken = decodedPayload["user_usertype"]
+    #     print("userFromToken:", userFromToken)
+    #     if userFromToken != username or userTypeFromToken != 1:
+    #         return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
+    #     else:
+    #         try: 
+    #             cook = Cook.objects.get(username=username)
+    #             request.method = 'PUT'
 
             
-            # cook_serializer = CookSerializer(cook, data=cook_data) 
+    #         # cook_serializer = CookSerializer(cook, data=cook_data) 
 
-                print("cook inside cook create: ", cook)
-                print("Cook create-da request.data", cook_data)
-                cook_serializer = CookCreateSerializer(cook, data=cook_data)
-                if cook_serializer.is_valid():
-                    cook_serializer.save()
+    #             print("cook inside cook create: ", cook)
+    #             print("Cook create-da request.data", cook_data)
+    #             cook_serializer = CookCreateSerializer(cook, data=cook_data)
+    #             if cook_serializer.is_valid():
+    #                 cook_serializer.save()
                     
-                    return JsonResponse({'Message': 'The cook successfully updated.'}, status=status.HTTP_200_OK)
-                else:
-                    print("Serializers error: ", cook_serializer.errors)
-                    return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
-            except Cook.DoesNotExist:
+    #                 return JsonResponse({'Message': 'The cook successfully updated.'}, status=status.HTTP_200_OK)
+    #             else:
+    #                 print("Serializers error: ", cook_serializer.errors)
+    #                 return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
+    #         except Cook.DoesNotExist:
             
-                request.method = 'POST'
-                print("Cook create-da request.data", cook_data)
-                cook_serializer = CookCreateSerializer(data=cook_data)
-                if cook_serializer.is_valid():
-                    cook_serializer.save()
-                    return JsonResponse({'Message': 'The cook successfully updated!'}, status=status.HTTP_200_OK)
-                else:
-                    mes = ""
-                    if "email" in cook_serializer.errors:
-                        mes = cook_serializer.errors['email'][0]
-                        print("Serializers error: ", cook_serializer.errors['email'][0])
-                        return JsonResponse({'Warning': mes}, status=status.HTTP_200_OK)
-                    else:
-                        return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
-    except:
-        return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
-    
+    #             request.method = 'POST'
+    #             print("Cook create-da request.data", cook_data)
+    #             cook_serializer = CookCreateSerializer(data=cook_data)
+    #             if cook_serializer.is_valid():
+    #                 cook_serializer.save()
+    #                 return JsonResponse({'Message': 'The cook successfully updated!'}, status=status.HTTP_200_OK)
+    #             else:
+    #                 mes = ""
+    #                 if "email" in cook_serializer.errors:
+    #                     mes = cook_serializer.errors['email'][0]
+    #                     print("Serializers error: ", cook_serializer.errors['email'][0])
+    #                     return JsonResponse({'Warning': mes}, status=status.HTTP_200_OK)
+    #                 else:
+    #                     return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
+    # except:
+    #     return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
+    # return JsonResponse({"message": "Terminala bax"})
         
         # hgOPTnRJiMPc5ovlSjQ
 

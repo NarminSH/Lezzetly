@@ -1,32 +1,36 @@
 
 from django.db.models.query import QuerySet
 from django.http.response import Http404, JsonResponse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+import jwt
 from rest_framework import filters
 from django_filters import rest_framework as djangofilters
+from rest_framework import generics
+from rest_framework import permissions
+from rest_framework.decorators import api_view, authentication_classes, parser_classes, permission_classes
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer
+from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer
 from orders.models import Order
+from django.conf import settings
 
-
-class CouriersAPIView(ListCreateAPIView):
+class CouriersAPIView(generics.ListAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     # queryset = Courier.objects.filter(is_available=True, transport__isnull=False, 
     #                         rating__isnull=False, work_experience__isnull=False, deliveryArea__isnull=False )
     
-    search_fields = ('delivery_areas__area__area_name',)
-    filter_backends = (djangofilters.DjangoFilterBackend, filters.SearchFilter)
-    queryset = Courier.objects.all()
+    # search_fields = ('delivery_areas__area__area_name',)
+    # filter_backends = (djangofilters.DjangoFilterBackend, filters.SearchFilter)
+    queryset = Courier.objects.filter(is_available=True)
     serializer_class = CourierSerializer
-
-
-
 
 
 class CourierOrdersAPIView(ListAPIView):
@@ -93,6 +97,56 @@ class CourierAreasAPIView(ListCreateAPIView):
         return JsonResponse (data="You do not have permissions to create delivery area for this courier!", status=403, safe=False)
 
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+@swagger_auto_schema(method = 'POST',request_body=ShortCourierCreateSerializer)
+@parser_classes([JSONParser, MultiPartParser])
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def courierCreate(request):
+    # token = request.data['Token']
+
+    # print("Token: ", token)
+    print("Daxil oldu CourierCreate-e")
+    # print("request******", request.user)
+    # print("cook-create usertype:", usertype)
+    # x = isinstance(5, int)
+    cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    bearerToken = tokenStr.split(' ')
+    token = bearerToken[1]
+    # algorithms=['HS256']
+    print("token: ", token)
+    if bearerToken[0] != "Bearer":
+        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+    
+    try:
+        # payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=['HS256'])
+        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
+        # decodedPayload = jwt.decode(token,options={"verify_signature": False})
+        print("tokeni parsi: ", decoded_payload)
+        userType = decoded_payload['Usertype']
+        print("tokende usertype: ", userType)
+    except:
+        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+    if userType != '2':
+        return JsonResponse({'Warning': 'You have not permission to create courier!'}, status=status.HTTP_200_OK)    
+    # print("Cook create-da request.data", cook_data)
+    courier_serializer = ShortCourierCreateSerializer(data=cook_data)
+    # print("Cook serializeri cap edirem", cook_serializer)
+    # raise_exception=True
+    if courier_serializer.is_valid():
+        courier_serializer.save()
+        # return JsonResponse({'Cook': cook_serializer}, status=status.HTTP_200_OK)
+        print("Ser Data id", courier_serializer.data['id'])
+        # return JsonResponse(cook_serializer.data)
+        return JsonResponse({'Message': f"Courier with id {courier_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
+        # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
+    else:
+        print(courier_serializer.errors)
+        return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK)
+        # return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
+        # return JsonResponse({'Warning': 'Request data is invalid'}, status=status.HTTP_200_OK)
 
 
 

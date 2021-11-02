@@ -12,49 +12,49 @@ import os
 from users.api.serializers import RegisterSerializer, LoginSerializer
 
 
-class AuthUserAPIView(GenericAPIView):
+# class AuthUserAPIView(GenericAPIView):
 
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = RegisterSerializer
+#     permission_classes = (permissions.IsAuthenticated,)
+#     serializer_class = RegisterSerializer
 
-    def get(self, request):
-        user = request.user
-        serializer = RegisterSerializer(user)
-        return Response({'user': serializer.data})
+#     def get(self, request):
+#         user = request.user
+#         serializer = RegisterSerializer(user)
+#         return Response({'user': serializer.data})
 
 
-class RegisterAPIView(CreateAPIView):
-    authentication_classes = []
-    permission_classes = [permissions.AllowAny]
+# class RegisterAPIView(CreateAPIView):
+#     authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
 
-    model = User
+#     model = User
     
-    serializer_class = RegisterSerializer
+#     serializer_class = RegisterSerializer
 
-    def post(self, *args, **kwargs):
-        register_data = self.request.data
-        serializer = RegisterSerializer(data=register_data, context={
-                                        'request': self.request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return JsonResponse(data=serializer.data, safe=False, status=201)
+#     def post(self, *args, **kwargs):
+#         register_data = self.request.data
+#         serializer = RegisterSerializer(data=register_data, context={
+#                                         'request': self.request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return JsonResponse(data=serializer.data, safe=False, status=201)
 
 
-class LoginAPIView(GenericAPIView):
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+# class LoginAPIView(GenericAPIView):
+#     permission_classes = [permissions.AllowAny]
+#     authentication_classes = []
 
-    serializer_class = LoginSerializer
+#     serializer_class = LoginSerializer
 
-    def post(self, request):
-        email = request.data.get('email', None)
-        password = request.data.get('password', None)
+#     def post(self, request):
+#         email = request.data.get('email', None)
+#         password = request.data.get('password', None)
 
-        user = authenticate(username=email, password=password)
+#         user = authenticate(username=email, password=password)
 
-        if user:
-            # print("user", user.token)
-            serializer = self.serializer_class(user)
+#         if user:
+#             # print("user", user.token)
+#             serializer = self.serializer_class(user)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_200_OK)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response({'message': "Invalid credentials, try again"}, status=status.HTTP_200_OK)

@@ -49,7 +49,19 @@ class CookCreateSerializer(serializers.ModelSerializer): # serializer for put, p
         )
         read_only_fields = ['rating', ]
 
-
+class ShortCookCreateSerializer(serializers.ModelSerializer):
+    class Meta:    
+        model = Cook
+        fields = (
+            'id',
+            'username',
+            'user_type',
+            'first_name',
+            'last_name',
+            'email',
+            'created_at',
+            'updated_at',
+        )
 
 
 class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods

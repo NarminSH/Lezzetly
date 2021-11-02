@@ -71,7 +71,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, MultiPartParser])
-def meal_list(request):
+def meal_create(request):
 
     # x = isinstance(5, int)
     if isinstance(request.user, Cook) == False:

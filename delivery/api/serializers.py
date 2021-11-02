@@ -31,6 +31,20 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
                 self.fields.pop(exclude_name)
 
 
+class ShortCourierCreateSerializer(serializers.ModelSerializer):
+    class Meta:    
+        model = Courier
+        fields = (
+            'id',
+            'username',
+            'user_type',
+            'first_name',
+            'last_name',
+            'email',
+            'created_at',
+            'updated_at',
+        )
+
 
 class DeliveryAreaSerializer(serializers.ModelSerializer):
     class Meta:
