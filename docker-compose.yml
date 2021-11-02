@@ -1,4 +1,4 @@
-version: '3.1'
+version: '2.4'
 
 services:
 
@@ -12,17 +12,18 @@ services:
       - ./static/:/code/static/
       - ./media/:/code/media/
 
-  postgres:
-    image: postgres:9.6.6
-    restart: always
-    volumes:
-        - ./pgdb/:/var/lib/postgresql/
-    ports:
-        - "5432:5432"
-    env_file: ./.env
+  # postgres:
+  #   image: postgres:9.6.6
+  #   restart: always
+  #   volumes:
+  #       - ./pgdb/:/var/lib/postgresql/
+  #   ports:
+  #       - "5432:5432"
+  #   env_file: ./.env
 
   web:
     container_name: lezzet
+    image: lezzetly_web
     build: .
     restart: "always"
     ports:
@@ -30,14 +31,16 @@ services:
     
     volumes:
         - .:/code/
-    depends_on:
-        - "postgres"
+    # depends_on:
+    #     - "postgres"
     env_file: ./.env
 
+networks:
+  default:
+    name: client_default
 
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
