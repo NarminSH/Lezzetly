@@ -95,67 +95,7 @@ def cookCreate(request):
     else:
         print(cook_serializer.errors)
         return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
-        # return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
-        # return JsonResponse({'Warning': 'Request data is invalid'}, status=status.HTTP_200_OK)
-    
-    # except jwt.ExpiredSignatureError as e:
-    #     return JsonResponse({'error': 'Activations link expired'}, status=status.HTTP_400_BAD_REQUEST)
-    # except jwt.exceptions.DecodeError as e:
-    #     return JsonResponse({'error': f'Invalid Token {e}'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # decodedPayload = jwt.decode(token,None,algorithms)
-    
-    
-    # userFromToken = None
-    # try:
-    #     decodedPayload = jwt.decode(token,options={"verify_signature": False})
-    #     print("decodedPayload", decodedPayload)
-    #     userFromToken = decodedPayload["user_username"]
-    #     userTypeFromToken = decodedPayload["user_usertype"]
-    #     print("userFromToken:", userFromToken)
-    #     if userFromToken != username or userTypeFromToken != 1:
-    #         return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
-    #     else:
-    #         try: 
-    #             cook = Cook.objects.get(username=username)
-    #             request.method = 'PUT'
-
-            
-    #         # cook_serializer = CookSerializer(cook, data=cook_data) 
-
-    #             print("cook inside cook create: ", cook)
-    #             print("Cook create-da request.data", cook_data)
-    #             cook_serializer = CookCreateSerializer(cook, data=cook_data)
-    #             if cook_serializer.is_valid():
-    #                 cook_serializer.save()
-                    
-    #                 return JsonResponse({'Message': 'The cook successfully updated.'}, status=status.HTTP_200_OK)
-    #             else:
-    #                 print("Serializers error: ", cook_serializer.errors)
-    #                 return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
-    #         except Cook.DoesNotExist:
-            
-    #             request.method = 'POST'
-    #             print("Cook create-da request.data", cook_data)
-    #             cook_serializer = CookCreateSerializer(data=cook_data)
-    #             if cook_serializer.is_valid():
-    #                 cook_serializer.save()
-    #                 return JsonResponse({'Message': 'The cook successfully updated!'}, status=status.HTTP_200_OK)
-    #             else:
-    #                 mes = ""
-    #                 if "email" in cook_serializer.errors:
-    #                     mes = cook_serializer.errors['email'][0]
-    #                     print("Serializers error: ", cook_serializer.errors['email'][0])
-    #                     return JsonResponse({'Warning': mes}, status=status.HTTP_200_OK)
-    #                 else:
-    #                     return JsonResponse({'Warning': 'Response data is invalid'}, status=status.HTTP_200_OK)
-    # except:
-    #     return JsonResponse({'Warning': 'Token is invalid!'}, status=status.HTTP_200_OK)
-    # return JsonResponse({"message": "Terminala bax"})
         
-        # hgOPTnRJiMPc5ovlSjQ
-
-
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
 user_response = openapi.Response('Get information about single cook with id', CookSerializer)
@@ -165,46 +105,69 @@ put_response = openapi.Response('Change information about single cook with id', 
 @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 # 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(methods=['put', 'PATCH', 'DELETE'], request_body=CookSerializer, responses={200: put_response})
+@parser_classes([JSONParser, MultiPartParser])
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
 # @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@authentication_classes([])
+@permission_classes([])
 def cook_detail(request, pk):
+    print("Daxil oldu cook_detail-a")
     try: 
         cook = Cook.objects.get(pk=pk) 
     except Cook.DoesNotExist: 
-        return JsonResponse({'message': 'The cook does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+        return JsonResponse({'Warning': 'The cook does not exist'}, status=status.HTTP_200_OK) 
 
+    cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+    print("Cook_data: ", cook_data)
+    
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    bearerToken = tokenStr.split(' ')
+    token = bearerToken[1]
+    print("token: ", token)
+    if bearerToken[0] != "Bearer":
+        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+    try:
+        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
+        print("tokeni parsi: ", decoded_payload)
+        userType = decoded_payload['Usertype']
+        username = decoded_payload['iss']
+        print("tokende usertype: ", userType)
+        print("tokende username: ", username)
+        print("cook.username: ", cook.username)
+    except:
+        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
     if request.method == 'GET':
-        if request.user.user_type == '2' or request.user.user_type == '1':  
+        if userType == '2' or userType == '1' or userType == '3':  
             cook_serializer = CookSerializer(cook)
             return JsonResponse(cook_serializer.data)
         cook_serializer = CookListSerializer(cook) 
         return JsonResponse(cook_serializer.data) 
 
     elif request.method == 'PUT': 
-        if request.user == cook:
-            cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+        if username == cook.username and userType == "1":
+            # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             cook_serializer = CookSerializer(cook, data=cook_data) 
             if cook_serializer.is_valid(raise_exception=True): 
                 cook_serializer.save() 
                 return JsonResponse(cook_serializer.data) 
-            return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-        return JsonResponse({'message': 'You have no rights to change this cook!'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
+        return JsonResponse({'warning': 'You have no rights to change this cook!'}, status=status.HTTP_200_OK)
 
 
     elif request.method == 'PATCH': 
-        if request.user == cook:
-            cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+        if username == cook.username and userType == "1":
+            # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
             if cook_serializer.is_valid(raise_exception=True): 
                 cook_serializer.save() 
                 return JsonResponse(cook_serializer.data) 
-            return JsonResponse(cook_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-        return JsonResponse({'message': 'You have no rights to change this cook!'}, status=status.HTTP_403_FORBIDDEN)
+            return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
+        return JsonResponse({'warning': 'You have no rights to change this cook!'}, status=status.HTTP_200_OK)
 
 
     elif request.method == 'DELETE':
-        if request.user == cook:
+        if username == cook.username and userType == "1":
             all_orders = cook.orders.all()
             ongoing_orders = 0
             if all_orders:
@@ -215,8 +178,8 @@ def cook_detail(request, pk):
                     cook.delete()   
                     return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_200_OK)
                 else:
-                    return JsonResponse({'message': 'You have ongoing order!'}, status=status.HTTP_403_FORBIDDEN)
-        return JsonResponse({'message': 'You have no rights to delete the cook!'}, status=status.HTTP_403_FORBIDDEN)   #changed status fromm 200 to 403
+                    return JsonResponse({'warning': 'You have ongoing order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'You have no rights to delete the cook!'}, status=status.HTTP_200_OK)   #changed status fromm 200 to 403
     
 
 @api_view(['GET'])

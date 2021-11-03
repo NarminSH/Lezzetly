@@ -148,6 +148,91 @@ def courierCreate(request):
         # return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
         # return JsonResponse({'Warning': 'Request data is invalid'}, status=status.HTTP_200_OK)
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
+user_response = openapi.Response('Get information about single cook with id', CourierSerializer)
+put_response = openapi.Response('Change information about single cook with id', CourierSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+@swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(methods=['put', 'PATCH', 'DELETE'], request_body=CourierSerializer, responses={200: put_response})
+@parser_classes([JSONParser, MultiPartParser])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
+# @authentication_classes([])  # if enable this decorator user will always be anonymous and without this decorator user has to login even for get method
+# @permission_classes([AllowAny])
+@authentication_classes([])
+@permission_classes([])
+def courier_detail(request, pk):
+    print("Daxil oldu courier_detail-a")
+    try: 
+        courier = Courier.objects.get(pk=pk) 
+    except Courier.DoesNotExist: 
+        return JsonResponse({'Warning': 'The courier does not exist'}, status=status.HTTP_200_OK) 
+
+    courier_data = JSONParser().parse(request) # don't forget you are able to send only json data
+    print("Courier_data: ", courier_data)
+    
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    bearerToken = tokenStr.split(' ')
+    token = bearerToken[1]
+    print("token: ", token)
+    if bearerToken[0] != "Bearer":
+        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+    try:
+        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
+        print("tokeni parsi: ", decoded_payload)
+        userType = decoded_payload['Usertype']
+        username = decoded_payload['iss']
+        print("tokende usertype: ", userType)
+        print("tokende username: ", username)
+        print("courier.username: ", courier.username)
+    except:
+        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        if userType == '2' or userType == '1':  
+            courier_serializer = CourierSerializer(courier)
+            return JsonResponse(courier_serializer.data)
+        # courier_serializer = CourierSerializer(courier) 
+        return JsonResponse({'Warning': 'Only courier and cook can get couriers data!'}, status=status.HTTP_200_OK) 
+
+    elif request.method == 'PUT': 
+        if username == courier.username and userType == "2":
+            # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            courier_serializer = CourierSerializer(courier, data=courier_data) 
+            if courier_serializer.is_valid(raise_exception=True): 
+                courier_serializer.save() 
+                return JsonResponse(courier_serializer.data) 
+            return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
+        return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
+
+
+    elif request.method == 'PATCH': 
+        if username == courier.username and userType == "2":
+            # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            courier_serializer = CourierSerializer(courier, data=courier_data, partial=True) 
+            if courier_serializer.is_valid(raise_exception=True): 
+                courier_serializer.save() 
+                return JsonResponse(courier_serializer.data) 
+            return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
+        return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
+
+
+    elif request.method == 'DELETE':
+        if username == courier.username and userType == "1":
+            all_orders = courier.orders.all()
+            ongoing_orders = 0
+            if all_orders:
+                for order in all_orders:
+                    if order.complete == False:
+                        ongoing_orders += 1
+                if ongoing_orders == 0:
+                    courier.delete()   
+                    return JsonResponse({'message': 'The cook was deleted successfully!'}, status=status.HTTP_200_OK)
+                else:
+                    return JsonResponse({'warning': 'You have ongoing order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'You have no rights to delete the courier!'}, status=status.HTTP_200_OK)   #changed status fromm 200 to 403
+    
+
 
 
 class CourierAPIView(RetrieveUpdateDestroyAPIView):

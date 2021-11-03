@@ -1,12 +1,13 @@
 from os import name
 from django.urls.conf import path
-from delivery.api.views import CourierAPIView, CourierActiveOrdersAPIView, CourierAreaAPIView, CourierAreasAPIView, CourierOrdersAPIView, CouriersAPIView, CouriersDeliveryAreasAPIView, DeliveryAreasAPIView, courierCreate
+from delivery.api.views import CourierAPIView, CourierActiveOrdersAPIView, CourierAreaAPIView, CourierAreasAPIView, CourierOrdersAPIView, CouriersAPIView, CouriersDeliveryAreasAPIView, DeliveryAreasAPIView, courier_detail, courierCreate
 
 
 urlpatterns = [
     path('couriers/', CouriersAPIView.as_view(), name='couriers'),
     path('courier-create/', courierCreate, name='courier-create'),
-    path('couriers/<int:pk>/', CourierAPIView.as_view(), name='courier'),
+    path('couriers/<int:pk>/', courier_detail, name='courier'),
+    # path('couriers/<int:pk>/', CourierAPIView.as_view(), name='courier'),
     path('couriers/<int:pk>/orders/', CourierOrdersAPIView.as_view(), name='courierorders'),
     path('couriers/<int:pk>/activeorders/', CourierActiveOrdersAPIView.as_view(), name='courier-activeorders'),
     path('deliveryareas/', DeliveryAreasAPIView.as_view(), name='deliveryareas'),
