@@ -177,7 +177,7 @@ def courier_detail(request, pk):
     token = bearerToken[1]
     print("token: ", token)
     if bearerToken[0] != "Bearer":
-        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
     try:
         decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
         print("tokeni parsi: ", decoded_payload)
@@ -187,7 +187,7 @@ def courier_detail(request, pk):
         print("tokende username: ", username)
         print("courier.username: ", courier.username)
     except:
-        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
     if request.method == 'GET':
         if userType == '2' or userType == '1':  
             courier_serializer = CourierSerializer(courier)

@@ -8,6 +8,7 @@ from cooks.models import Cook
 from users.api.jwt import JWTAuthentication
 from django.contrib.auth.models import Permission
 from users.models import User
+from utility.check_token import checkToken
 from .filters import MealFilter
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -69,13 +70,20 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(method = 'POST',request_body=MealCreatSerializer)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
+# @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, MultiPartParser])
 def meal_create(request):
 
-    # x = isinstance(5, int)
-    if isinstance(request.user, Cook) == False:
-        return JsonResponse({'message': 'Only cook can create meal!'}, status=status.HTTP_200_OK)
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
+    currentCook = Cook.objects.get(username = claimsOrMessage['iss'])
+    print("meal_create current cook: ", currentCook)
+    if claimsOrMessage['Usertype'] != "1":
+        return JsonResponse({'warning': 'Only cook can create meal!'}, status=status.HTTP_200_OK)
     else:
         # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
         #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
@@ -85,7 +93,7 @@ def meal_create(request):
         # print("meal create-da Data category", request.data['category'])
         print("//////////")
         is_full = False
-        if request.user.is_available is not None and request.user.service_place is not None and request.user.payment_address is not None and request.user.work_experience is not None:
+        if currentCook.is_available is not None and currentCook.service_place is not None and currentCook.payment_address is not None and currentCook.work_experience is not None:
             is_full = True
         queryset = Cook.objects.filter(is_available=True, service_place__isnull=False, 
                                 rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
@@ -96,37 +104,40 @@ def meal_create(request):
         # print("+++++get_user: ", request.user)
         # print("++++++++ get is_full:", is_full)
         # print("+++++get_queryset: ", queryset)
-        if request.method == 'POST' and not isinstance(request.user, Cook):
-            return JsonResponse({'message': 'Only Cook may create meal!'}, status=status.HTTP_403_FORBIDDEN)
+        if request.method == 'POST' and claimsOrMessage['Usertype'] != "1":
+            return JsonResponse({'warning': 'Only Cook may create meal!'}, status=status.HTTP_200_OK)
         if request.method == 'POST' and not is_full:
-            return JsonResponse({'message': 'Please fill in required information in your profile!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'Please fill in required information in your profile!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('category') and not request.data.get('ingredients') and not request.data.get('mealoption'):
-            return JsonResponse({'message': 'You have to add category, mealoption and ingredients!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add category, mealoption and ingredients!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('category') and not request.data.get('ingredients'):
-            return JsonResponse({'message': 'You have to add category and ingredients!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add category and ingredients!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('category') and not request.data.get('mealoption'):
-            return JsonResponse({'message': 'You have to add category and mealoption!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add category and mealoption!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('category'):
-            return JsonResponse({'message': 'You have to add category!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add category!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('ingredients') and not request.data.get('mealoption'):
-            return JsonResponse({'message': 'You have to add ingredients and mealoption!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add ingredients and mealoption!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('mealoption'):
-            return JsonResponse({'message': 'You have to add mealoption!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have to add mealoption!'}, status=status.HTTP_200_OK)
         elif request.method == 'POST' and not request.data.get('ingredients'):
-            return JsonResponse({'message': 'You have to add ingredients!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'ingredient': 'You have to add ingredients!'}, status=status.HTTP_200_OK)
         print("Category printine kimi geldi")
         # print("meap data", meal_data['category'])
-        print(request.user)
+        # print(request.user)
         # , safe=False
         meal_serializer = MealCreatSerializer(data=request.data)
         # print(meal_data, 'asdfghjkl')
         # print(meal_data['cook'], 'qwsdfgasdfghdefrgher')
         if meal_serializer.is_valid():
             # print("mealCreate ", isinstance(request.user, User))
-            meal_serializer.save(cook = request.user)
+            meal_serializer.save(cook = currentCook)
             # print(meal_serializer, 'jshckjdsbcfhjdx')
-            return JsonResponse(meal_serializer.data, safe=False, status=status.HTTP_201_CREATED) 
-        return JsonResponse(meal_serializer.errors, safe=False, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(meal_serializer.data, safe=False, status=status.HTTP_201_CREATED)
+        else:
+            print(meal_serializer.errors)
+            return JsonResponse(meal_serializer.errors, status=status.HTTP_200_OK) 
+        # return JsonResponse(meal_serializer.errors, safe=False, status=status.HTTP_400_BAD_REQUEST)
         
 
 
@@ -283,9 +294,16 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @swagger_auto_schema(method = 'POST',request_body=CategoryCustomSerializer)
 @api_view(['POST'])
 # @authentication_classes([])
-@permission_classes([IsAuthenticated,])
+# @permission_classes([IsAuthenticated,])
+@authentication_classes([])
+@permission_classes([])
 def category_list(request):
-    if isinstance(request.user, Cook) == False:
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
+    
+    if claimsOrMessage['Usertype'] != "1":
         return JsonResponse({'message': 'Only cook can get, create and update category!'}, status=status.HTTP_200_OK)
     else:
         # if request.method == 'GET':
@@ -302,10 +320,13 @@ def category_list(request):
         if request.method == 'POST':
             category_data = JSONParser().parse(request)
             category_serializer = CategoryCustomSerializer(data=category_data)
-            if category_serializer.is_valid():
+            if category_serializer.is_valid(raise_exception=True):
                 category_serializer.save()
                 return JsonResponse(category_serializer.data, status=status.HTTP_201_CREATED) 
-            return JsonResponse(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # return JsonResponse(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                print(category_serializer.errors)
+                return JsonResponse(category_serializer.errors, status=status.HTTP_200_OK)
         
     # elif request.method == 'DELETE':
     #     count = Category.objects.all().delete()
@@ -366,9 +387,15 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(method = 'POST',request_body=MealOptionSerializer)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
+# @permission_classes([IsAuthenticated])
 def mealoption_list(request):
-    if isinstance(request.user, Cook) == False:
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+    if claimsOrMessage['Usertype'] != "1": 
         return JsonResponse({'message': 'Only cook can get, create and update mealoption!'}, status=status.HTTP_200_OK)
     else:
         # if request.method == 'GET':
@@ -385,10 +412,10 @@ def mealoption_list(request):
         if request.method == 'POST':
             mealoption_data = JSONParser().parse(request)
             mealoption_serializer = MealOptionSerializer(data=mealoption_data)
-            if mealoption_serializer.is_valid():
+            if mealoption_serializer.is_valid(raise_exception=True):
                 mealoption_serializer.save()
                 return JsonResponse(mealoption_serializer.data, status=status.HTTP_201_CREATED) 
-            return JsonResponse(mealoption_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(mealoption_serializer.errors, status=status.HTTP_200_OK)
 
 # get single mealoption
 # update mealoption
@@ -446,9 +473,17 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(method = 'POST',request_body=IngredientCustomSerializer)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def ingredient_list(request):
-    if isinstance(request.user, Cook) == False:
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+    
+    if claimsOrMessage['Usertype'] != "1":
         return JsonResponse({'message': 'Only cook can get, create and update ingredients!'}, status=status.HTTP_200_OK)
     else:
         # if request.method == 'GET':
@@ -465,7 +500,7 @@ def ingredient_list(request):
         if request.method == 'POST':
             ingredient_data = JSONParser().parse(request)
             ingredient_serializer = IngredientCustomSerializer(data=ingredient_data)
-            if ingredient_serializer.is_valid():
+            if ingredient_serializer.is_valid(raise_exception=True):
                 ingredient_serializer.save()
                 return JsonResponse(ingredient_serializer.data, status=status.HTTP_201_CREATED) 
             return JsonResponse(ingredient_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
