@@ -171,7 +171,7 @@ def courier_detail(request, pk):
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in courier_data:
                 if courier_data['user_type'] != claimsOrMessage['Usertype']:
-                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'Warning': 'You can not change user_type!'}, status=status.HTTP_200_OK)
             courier_serializer = CourierSerializer(courier, data=courier_data)
             if courier_serializer.is_valid(): 
                 courier_serializer.save() 
@@ -191,7 +191,7 @@ def courier_detail(request, pk):
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in courier_data:
                 if courier_data['user_type'] != claimsOrMessage['Usertype']:
-                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'Warning': 'You can not change user_type!'}, status=status.HTTP_200_OK)
             courier_serializer = CourierSerializer(courier, data=courier_data, partial=True) 
             if courier_serializer.is_valid(): 
                 courier_serializer.save() 

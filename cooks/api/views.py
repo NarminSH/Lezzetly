@@ -126,7 +126,7 @@ def cook_detail(request, pk):
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in cook_data:
                 if cook_data['user_type'] != claimsOrMessage['Usertype']:
-                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'Warning': 'You can not change user_type!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data) 
             if cook_serializer.is_valid():
                 cook_serializer.save() 
@@ -146,7 +146,7 @@ def cook_detail(request, pk):
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in cook_data:
                 if cook_data['user_type'] != claimsOrMessage['Usertype']:
-                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+                    return JsonResponse({'Warning': 'You can not change user_type!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
             if cook_serializer.is_valid(): 
                 cook_serializer.save() 
