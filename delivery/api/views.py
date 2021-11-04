@@ -150,6 +150,7 @@ def courier_detail(request, pk):
     courier_data = JSONParser().parse(request) # don't forget you are able to send only json data
     
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
