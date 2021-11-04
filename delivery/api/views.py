@@ -165,8 +165,10 @@ def courier_detail(request, pk):
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-            if courier_data['username'] != claimsOrMessage['iss']:
-                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+            print("courier_data: ", courier_data)
+            if 'username' in courier_data:
+                if courier_data['username'] != claimsOrMessage['iss']:
+                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             courier_serializer = CourierSerializer(courier, data=courier_data)
             if courier_serializer.is_valid(): 
                 courier_serializer.save() 
@@ -181,8 +183,9 @@ def courier_detail(request, pk):
     elif request.method == 'PATCH': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-            if courier_data['username'] != claimsOrMessage['iss']:
-                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+            if 'username' in courier_data:
+                if courier_data['username'] != claimsOrMessage['iss']:
+                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             courier_serializer = CourierSerializer(courier, data=courier_data, partial=True) 
             if courier_serializer.is_valid(): 
                 courier_serializer.save() 

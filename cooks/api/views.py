@@ -121,8 +121,9 @@ def cook_detail(request, pk):
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-            if cook_data['username'] != claimsOrMessage['iss']:
-                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+            if 'username' in cook_data:
+                if cook_data['username'] != claimsOrMessage['iss']:
+                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data) 
             if cook_serializer.is_valid():
                 cook_serializer.save() 
@@ -137,8 +138,9 @@ def cook_detail(request, pk):
     elif request.method == 'PATCH': 
         if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-            if cook_data['username'] != claimsOrMessage['iss']:
-                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+            if 'username' in cook_data:
+                if cook_data['username'] != claimsOrMessage['iss']:
+                    return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
             if cook_serializer.is_valid(): 
                 cook_serializer.save() 
