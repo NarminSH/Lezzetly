@@ -21,24 +21,19 @@ from orders.api.serializers import OrderFullSerializer
 from orders.models import Order
 from django.conf import settings
 
+from utility.check_token import checkToken
+
 class CouriersAPIView(generics.ListAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
-    # queryset = Courier.objects.filter(is_available=True, transport__isnull=False, 
-    #                         rating__isnull=False, work_experience__isnull=False, deliveryArea__isnull=False )
-    
-    # search_fields = ('delivery_areas__area__area_name',)
-    # filter_backends = (djangofilters.DjangoFilterBackend, filters.SearchFilter)
     queryset = Courier.objects.filter(is_available=True)
     serializer_class = CourierSerializer
 
 
 class CourierOrdersAPIView(ListAPIView):
-    # authentication_classes = []
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
-
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
@@ -50,14 +45,11 @@ class CourierOrdersAPIView(ListAPIView):
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse (data="You do not have permissions to look at others !", status=403, safe=False)
 
-
-
 class CourierActiveOrdersAPIView(ListAPIView):
     # authentication_classes = []
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
-
 
     def get(self, *args, **kwargs):
             item = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
@@ -104,49 +96,35 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @authentication_classes([])
 @permission_classes([])
 def courierCreate(request):
-    # token = request.data['Token']
-
-    # print("Token: ", token)
-    print("Daxil oldu CourierCreate-e")
-    # print("request******", request.user)
-    # print("cook-create usertype:", usertype)
-    # x = isinstance(5, int)
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-    tokenStr = request.META.get('HTTP_AUTHORIZATION')
-    bearerToken = tokenStr.split(' ')
-    token = bearerToken[1]
-    # algorithms=['HS256']
-    print("token: ", token)
-    if bearerToken[0] != "Bearer":
-        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
     
-    try:
-        # payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=['HS256'])
-        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
-        # decodedPayload = jwt.decode(token,options={"verify_signature": False})
-        print("tokeni parsi: ", decoded_payload)
-        userType = decoded_payload['Usertype']
-        print("tokende usertype: ", userType)
-    except:
-        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
-    if userType != '2':
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+   
+    if claimsOrMessage['Usertype'] != '2':
         return JsonResponse({'Warning': 'You have not permission to create courier!'}, status=status.HTTP_200_OK)    
-    # print("Cook create-da request.data", cook_data)
     courier_serializer = ShortCourierCreateSerializer(data=cook_data)
-    # print("Cook serializeri cap edirem", cook_serializer)
-    # raise_exception=True
-    if courier_serializer.is_valid():
-        courier_serializer.save()
-        # return JsonResponse({'Cook': cook_serializer}, status=status.HTTP_200_OK)
-        print("Ser Data id", courier_serializer.data['id'])
-        # return JsonResponse(cook_serializer.data)
-        return JsonResponse({'Message': f"Courier with id {courier_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
-        # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
-    else:
-        print(courier_serializer.errors)
-        return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK)
-        # return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
-        # return JsonResponse({'Warning': 'Request data is invalid'}, status=status.HTTP_200_OK)
+    try:
+        currentCook = Courier.objects.get(username = claimsOrMessage['iss'])
+        return JsonResponse({'Warning': f'The courier with this username({currentCook.username}) already exists!'}, status=status.HTTP_200_OK)
+    except Courier.DoesNotExist:
+        if courier_serializer.is_valid():
+            courier_serializer.save(username = claimsOrMessage['iss'], user_type = claimsOrMessage['Usertype'])
+            return JsonResponse({'Message': f"Courier with id {courier_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
+        elif 'email' in courier_serializer.errors and 'username'in courier_serializer.errors:
+            print(courier_serializer.errors)
+            return JsonResponse({'warning': 'cook with this username and email already exists!'}, status=status.HTTP_200_OK)
+        elif 'email' in courier_serializer.errors:
+            return JsonResponse({'warning': 'cook with this email already exists!'}, status=status.HTTP_200_OK)
+        elif 'username' in courier_serializer.errors:
+            return JsonResponse({'warning': 'cook with this username already exists!'}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK)
+
+
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
 user_response = openapi.Response('Get information about single cook with id', CourierSerializer)
@@ -170,33 +148,21 @@ def courier_detail(request, pk):
         return JsonResponse({'Warning': 'The courier does not exist'}, status=status.HTTP_200_OK) 
 
     courier_data = JSONParser().parse(request) # don't forget you are able to send only json data
-    print("Courier_data: ", courier_data)
     
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
-    bearerToken = tokenStr.split(' ')
-    token = bearerToken[1]
-    print("token: ", token)
-    if bearerToken[0] != "Bearer":
-        return JsonResponse({'warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
-    try:
-        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
-        print("tokeni parsi: ", decoded_payload)
-        userType = decoded_payload['Usertype']
-        username = decoded_payload['iss']
-        print("tokende usertype: ", userType)
-        print("tokende username: ", username)
-        print("courier.username: ", courier.username)
-    except:
-        return JsonResponse({'warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+
     if request.method == 'GET':
-        if userType == '2' or userType == '1':  
+        if claimsOrMessage['Usertype'] == '2' or claimsOrMessage['Usertype'] == '1':  
             courier_serializer = CourierSerializer(courier)
             return JsonResponse(courier_serializer.data)
         # courier_serializer = CourierSerializer(courier) 
         return JsonResponse({'Warning': 'Only courier and cook can get couriers data!'}, status=status.HTTP_200_OK) 
 
     elif request.method == 'PUT': 
-        if username == courier.username and userType == "2":
+        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             courier_serializer = CourierSerializer(courier, data=courier_data) 
             if courier_serializer.is_valid(raise_exception=True): 
@@ -207,7 +173,7 @@ def courier_detail(request, pk):
 
 
     elif request.method == 'PATCH': 
-        if username == courier.username and userType == "2":
+        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             courier_serializer = CourierSerializer(courier, data=courier_data, partial=True) 
             if courier_serializer.is_valid(raise_exception=True): 
@@ -218,7 +184,7 @@ def courier_detail(request, pk):
 
 
     elif request.method == 'DELETE':
-        if username == courier.username and userType == "1":
+        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             all_orders = courier.orders.all()
             ongoing_orders = 0
             if all_orders:
@@ -233,50 +199,48 @@ def courier_detail(request, pk):
         return JsonResponse({'warning': 'You have no rights to delete the courier!'}, status=status.HTTP_200_OK)   #changed status fromm 200 to 403
     
 
+# class CourierAPIView(RetrieveUpdateDestroyAPIView):
+#     # authentication_classes = []
+#     permission_classes = (IsAuthenticatedOrReadOnly,)
+#     queryset = Courier.objects.all()
+#     lookup_url_kwarg = 'pk'
+#     serializer_class = CourierSerializer
 
+#     def put(self, *args, **kwargs):
+#         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
+#         if courier != self.request.user:
+#             return JsonResponse({'message': 'Only courier himself can update the courier!'}, status=status.HTTP_403_FORBIDDEN)
+#         if not courier:
+#             return JsonResponse (data=[], status=200, safe=False)
+#         serializer = CourierSerializer(data=self.request.data,
+#                                        instance=courier, context={'request': self.request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return JsonResponse(data=serializer.data, safe=False)
 
-class CourierAPIView(RetrieveUpdateDestroyAPIView):
-    # authentication_classes = []
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Courier.objects.all()
-    lookup_url_kwarg = 'pk'
-    serializer_class = CourierSerializer
+#     def delete(self, *args, **kwargs):
+#         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
+#         if courier != self.request.user:
+#             return JsonResponse({'message': 'Only courier himself can delete the courier!'}, status=status.HTTP_403_FORBIDDEN)
+#         if not courier:
+#             return JsonResponse (data=[], status=200, safe=False)
+#         serializer = CourierSerializer(courier)
+#         courier.delete()
+#         print('deleteddd')
+#         print(serializer.data)
+#         # return JsonResponse(data="Courier is deleted successfully!", safe=False)
+#         return JsonResponse({'message': 'Courier is deleted successfully!'}, status=status.HTTP_200_OK)
 
-    def put(self, *args, **kwargs):
-        courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
-        if courier != self.request.user:
-            return JsonResponse({'message': 'Only courier himself can update the courier!'}, status=status.HTTP_403_FORBIDDEN)
-        if not courier:
-            return JsonResponse (data=[], status=200, safe=False)
-        serializer = CourierSerializer(data=self.request.data,
-                                       instance=courier, context={'request': self.request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return JsonResponse(data=serializer.data, safe=False)
-
-    def delete(self, *args, **kwargs):
-        courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
-        if courier != self.request.user:
-            return JsonResponse({'message': 'Only courier himself can delete the courier!'}, status=status.HTTP_403_FORBIDDEN)
-        if not courier:
-            return JsonResponse (data=[], status=200, safe=False)
-        serializer = CourierSerializer(courier)
-        courier.delete()
-        print('deleteddd')
-        print(serializer.data)
-        # return JsonResponse(data="Courier is deleted successfully!", safe=False)
-        return JsonResponse({'message': 'Courier is deleted successfully!'}, status=status.HTTP_200_OK)
-
-    def patch(self, *args, **kwargs):
-        courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
-        if courier != self.request.user:
-            return JsonResponse({'message': 'Only courier himself can update the courier!!'}, status=status.HTTP_200_OK)
-        serializer = CourierSerializer(data=self.request.data, instance=courier, 
-                                    context={'request': self.request}, partial=True) # set partial=True to update a data partially
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return JsonResponse( data=serializer.data, safe=False)
-        return JsonResponse( data="Wrong parameters")
+#     def patch(self, *args, **kwargs):
+#         courier = Courier.objects.filter(pk=kwargs.get('pk')).first()
+#         if courier != self.request.user:
+#             return JsonResponse({'message': 'Only courier himself can update the courier!!'}, status=status.HTTP_200_OK)
+#         serializer = CourierSerializer(data=self.request.data, instance=courier, 
+#                                     context={'request': self.request}, partial=True) # set partial=True to update a data partially
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return JsonResponse( data=serializer.data, safe=False)
+#         return JsonResponse( data="Wrong parameters")
 
 
 

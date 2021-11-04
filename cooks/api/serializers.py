@@ -54,8 +54,8 @@ class ShortCookCreateSerializer(serializers.ModelSerializer):
         model = Cook
         fields = (
             'id',
-            'username',
-            'user_type',
+            # 'username',
+            # 'user_type',
             'first_name',
             'last_name',
             'email',

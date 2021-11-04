@@ -1,6 +1,5 @@
 
 from rest_framework import permissions
-# from rest_framework_jwt.utils import jwt_decode_handler
 from django.http.response import Http404, JsonResponse
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -22,6 +21,8 @@ from meals.api.serializers import MealSerializer
 from meals.models import Meal
 import jwt
 from django.conf import settings
+
+from utility.check_token import checkToken
 
 
 # class CooksAPIView(ListCreateAPIView):
@@ -54,48 +55,36 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @authentication_classes([])
 @permission_classes([])
 def cookCreate(request):
-    # token = request.data['Token']
-
-    # print("Token: ", token)
-    print("Daxil oldu CookCreate-e")
-    # print("request******", request.user)
-    # print("cook-create usertype:", usertype)
-    # x = isinstance(5, int)
+    
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
-    bearerToken = tokenStr.split(' ')
-    token = bearerToken[1]
-    # algorithms=['HS256']
-    print("token: ", token)
-    if bearerToken[0] != "Bearer":
-        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+    
+    if claimsOrMessage['Usertype'] != '1':
+        return JsonResponse({'Warning': 'You have not permission to create cook!'}, status=status.HTTP_200_OK)    
+    cook_serializer = ShortCookCreateSerializer(data=cook_data)
     
     try:
-        # payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=['HS256'])
-        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
-        # decodedPayload = jwt.decode(token,options={"verify_signature": False})
-        print("tokeni parsi: ", decoded_payload)
-        userType = decoded_payload['Usertype']
-        print("tokende usertype: ", userType)
-    except:
-        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
-    if userType != '1':
-        return JsonResponse({'Warning': 'You have not permission to create cook!'}, status=status.HTTP_200_OK)    
-    # print("Cook create-da request.data", cook_data)
-    cook_serializer = ShortCookCreateSerializer(data=cook_data)
-    # print("Cook serializeri cap edirem", cook_serializer)
-    # raise_exception=True
-    if cook_serializer.is_valid():
-        cook_serializer.save()
-        # return JsonResponse({'Cook': cook_serializer}, status=status.HTTP_200_OK)
-        print("Ser Data id", cook_serializer.data['id'])
-        # return JsonResponse(cook_serializer.data)
-        return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
-        # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
-    else:
-        print(cook_serializer.errors)
-        return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
-        
+        currentCook = Cook.objects.get(username = claimsOrMessage['iss'])
+        return JsonResponse({'Warning': f'The cook with this username({currentCook.username}) already exists!'}, status=status.HTTP_200_OK)
+    except Cook.DoesNotExist: 
+        if cook_serializer.is_valid():
+            cook_serializer.save(username = claimsOrMessage['iss'], user_type = claimsOrMessage['Usertype'])
+
+            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
+            # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
+        elif 'email' in cook_serializer.errors and 'username'in cook_serializer.errors:
+            print(cook_serializer.errors)
+            return JsonResponse({'warning': 'cook with this username and email already exists!'}, status=status.HTTP_200_OK)
+        elif 'email' in cook_serializer.errors:
+            return JsonResponse({'warning': 'cook with this email already exists!'}, status=status.HTTP_200_OK)
+        elif 'username' in cook_serializer.errors:
+            return JsonResponse({'warning': 'cook with this username already exists!'}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK)
+
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual parametrs", type=openapi.TYPE_BOOLEAN)
 user_response = openapi.Response('Get information about single cook with id', CookSerializer)
@@ -117,38 +106,23 @@ def cook_detail(request, pk):
         cook = Cook.objects.get(pk=pk) 
     except Cook.DoesNotExist: 
         return JsonResponse({'Warning': 'The cook does not exist'}, status=status.HTTP_200_OK) 
-
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-    print("Cook_data: ", cook_data)
-    
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
-    bearerToken = tokenStr.split(' ')
-    token = bearerToken[1]
-    print("token: ", token)
-    if bearerToken[0] != "Bearer":
-        return JsonResponse({'Warning': 'Token is invalid Berear!'}, status=status.HTTP_200_OK)
-    try:
-        decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
-        print("tokeni parsi: ", decoded_payload)
-        userType = decoded_payload['Usertype']
-        username = decoded_payload['iss']
-        print("tokende usertype: ", userType)
-        print("tokende username: ", username)
-        print("cook.username: ", cook.username)
-    except:
-        return JsonResponse({'Warning': 'Token is invalid! decode'}, status=status.HTTP_200_OK)
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
     if request.method == 'GET':
-        if userType == '2' or userType == '1' or userType == '3':  
+        if claimsOrMessage['Usertype'] == '2' or claimsOrMessage['Usertype'] == '1' or claimsOrMessage['Usertype'] == '3':  
             cook_serializer = CookSerializer(cook)
             return JsonResponse(cook_serializer.data)
         cook_serializer = CookListSerializer(cook) 
         return JsonResponse(cook_serializer.data) 
 
     elif request.method == 'PUT': 
-        if username == cook.username and userType == "1":
+        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             cook_serializer = CookSerializer(cook, data=cook_data) 
-            if cook_serializer.is_valid(raise_exception=True): 
+            if cook_serializer.is_valid(raise_exception=True):
                 cook_serializer.save() 
                 return JsonResponse(cook_serializer.data) 
             return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
@@ -156,7 +130,7 @@ def cook_detail(request, pk):
 
 
     elif request.method == 'PATCH': 
-        if username == cook.username and userType == "1":
+        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
             if cook_serializer.is_valid(raise_exception=True): 
@@ -167,7 +141,7 @@ def cook_detail(request, pk):
 
 
     elif request.method == 'DELETE':
-        if username == cook.username and userType == "1":
+        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             all_orders = cook.orders.all()
             ongoing_orders = 0
             if all_orders:
@@ -182,51 +156,12 @@ def cook_detail(request, pk):
         return JsonResponse({'warning': 'You have no rights to delete the cook!'}, status=status.HTTP_200_OK)   #changed status fromm 200 to 403
     
 
-@api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
-def getCookByUsername(request, username):
-    print("request.User: ", request.user) # bu ishlemir anonumus qaytarir
-    # token = request.GET.get('token')
-    # print("request.token", request.token)
-    try: 
-        cook = Cook.objects.get(username=username, is_available=True)
-        print("cook inside singe meal: ", cook)
-    except Cook.DoesNotExist:
-        return JsonResponse({'warning': 'The cook does not exist'}, status=status.HTTP_200_OK) 
-    if request.method == 'GET': 
-        cook_serializer = CookSerializer(cook) 
-        return JsonResponse(cook_serializer.data)
-
-@api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
-def getCookByUsernameBool(request, username):
-    # token = request.GET.get('token')
-    # print("request.token", request.token)
-    # is_cook = False
-    try: 
-        cook = Cook.objects.get(username=username, is_available=True)
-        # is_cook = True
-        print("cook inside singe meal: ", cook)
-        return JsonResponse({'Message': 'true'}, status=status.HTTP_200_OK) 
-    except Cook.DoesNotExist: 
-        return JsonResponse({'warning': 'false'}, status=status.HTTP_200_OK) 
-    
-    # if request.method == 'GET': 
-    #     cook_serializer = CookSerializer(cook) 
-    #     return JsonResponse(cook_serializer.data) 
- 
-
-
 class RecommendationsAPIView(ListAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     queryset = Recommendation.objects.all()
     serializer_class = RecommendationListSerializer
-
-
 
 
 class CookRecommendationsAPIView(ListCreateAPIView):
@@ -256,8 +191,6 @@ class CookRecommendationsAPIView(ListCreateAPIView):
         return JsonResponse (data="You do not have permissions to give recommendations to the cook!", status=403, safe=False) #changed status to 403
 
 
-
-
 class CookResumesAPIView(ListCreateAPIView):
     # authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -284,18 +217,11 @@ class CookResumesAPIView(ListCreateAPIView):
             return JsonResponse(data=serializer.data, safe=False, status=201)
         return JsonResponse (data="You do not have permissions to create a resume for the cook!", status=403, safe=False)
 
-
-
-
-
 class ResumesAPIView(ListAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
     queryset = Resume.objects.all()
     serializer_class = ResumeListSerializer
-
-
-
 
 class CookMealsAPIView(ListAPIView):
     authentication_classes = []

@@ -1,6 +1,6 @@
 from os import name
 from django.urls.conf import path
-from delivery.api.views import CourierAPIView, CourierActiveOrdersAPIView, CourierAreaAPIView, CourierAreasAPIView, CourierOrdersAPIView, CouriersAPIView, CouriersDeliveryAreasAPIView, DeliveryAreasAPIView, courier_detail, courierCreate
+from delivery.api.views import CourierActiveOrdersAPIView, CourierAreaAPIView, CourierAreasAPIView, CourierOrdersAPIView, CouriersAPIView, CouriersDeliveryAreasAPIView, DeliveryAreasAPIView, courier_detail, courierCreate
 
 
 urlpatterns = [

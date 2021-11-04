@@ -36,8 +36,8 @@ class ShortCourierCreateSerializer(serializers.ModelSerializer):
         model = Courier
         fields = (
             'id',
-            'username',
-            'user_type',
+            # 'username',
+            # 'user_type',
             'first_name',
             'last_name',
             'email',
@@ -94,8 +94,10 @@ class CourierSerializer(serializers.ModelSerializer):
         model = Courier
         fields = (
             'id',
+            'username',
             'first_name',
             'last_name',
+            'user_type',
             'patronymic',
             'phone',
             'email',
