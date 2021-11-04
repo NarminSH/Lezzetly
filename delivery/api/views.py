@@ -145,7 +145,7 @@ def courier_detail(request, pk):
     try: 
         courier = Courier.objects.get(pk=pk) 
     except Courier.DoesNotExist: 
-        return JsonResponse({'Warning': 'The courier does not exist'}, status=status.HTTP_200_OK) 
+        return JsonResponse({'Warning': 'The courier does not exists.'}, status=status.HTTP_200_OK) 
 
     courier_data = JSONParser().parse(request) # don't forget you are able to send only json data
     
@@ -165,24 +165,33 @@ def courier_detail(request, pk):
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
-            courier_serializer = CourierSerializer(courier, data=courier_data) 
-            if courier_serializer.is_valid(raise_exception=True): 
+            if courier_data['username'] != claimsOrMessage['iss']:
+                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
+            courier_serializer = CourierSerializer(courier, data=courier_data)
+            if courier_serializer.is_valid(): 
                 courier_serializer.save() 
-                return JsonResponse(courier_serializer.data) 
-            return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
+                return JsonResponse(courier_serializer.data)
+            
+            elif 'email' in courier_serializer.errors:
+                return JsonResponse({'warning': 'Courier with this email address already exists.'}, status=status.HTTP_200_OK)
+            else:
+                return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
         return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
-
 
     elif request.method == 'PATCH': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            if courier_data['username'] != claimsOrMessage['iss']:
+                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             courier_serializer = CourierSerializer(courier, data=courier_data, partial=True) 
-            if courier_serializer.is_valid(raise_exception=True): 
+            if courier_serializer.is_valid(): 
                 courier_serializer.save() 
-                return JsonResponse(courier_serializer.data) 
-            return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
+                return JsonResponse(courier_serializer.data)
+            elif 'email' in courier_serializer.errors:
+                return JsonResponse({'warning': 'Courier with this email address already exists.'}, status=status.HTTP_200_OK)
+            else:
+                return JsonResponse(courier_serializer.errors, status=status.HTTP_200_OK) 
         return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
-
 
     elif request.method == 'DELETE':
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":

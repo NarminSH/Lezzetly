@@ -121,22 +121,32 @@ def cook_detail(request, pk):
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            if cook_data['username'] != claimsOrMessage['iss']:
+                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data) 
-            if cook_serializer.is_valid(raise_exception=True):
+            if cook_serializer.is_valid():
                 cook_serializer.save() 
-                return JsonResponse(cook_serializer.data) 
-            return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
+                return JsonResponse(cook_serializer.data)
+            elif 'email' in cook_serializer.errors:
+                return JsonResponse({'warning': 'Courier with this email address already exists.'}, status=status.HTTP_200_OK)
+            else:
+                return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
         return JsonResponse({'warning': 'You have no rights to change this cook!'}, status=status.HTTP_200_OK)
 
 
     elif request.method == 'PATCH': 
         if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
+            if cook_data['username'] != claimsOrMessage['iss']:
+                 return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
-            if cook_serializer.is_valid(raise_exception=True): 
+            if cook_serializer.is_valid(): 
                 cook_serializer.save() 
-                return JsonResponse(cook_serializer.data) 
-            return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
+                return JsonResponse(cook_serializer.data)
+            elif 'email' in cook_serializer.errors:
+                return JsonResponse({'warning': 'Courier with this email address already exists.'}, status=status.HTTP_200_OK)
+            else:
+                return JsonResponse(cook_serializer.errors, status=status.HTTP_200_OK) 
         return JsonResponse({'warning': 'You have no rights to change this cook!'}, status=status.HTTP_200_OK)
 
 
