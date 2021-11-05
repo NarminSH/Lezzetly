@@ -161,7 +161,7 @@ def courier_detail(request, pk):
             return JsonResponse(courier_serializer.data)
         # courier_serializer = CourierSerializer(courier) 
         else:
-            return JsonResponse({'Warning': 'Only courier can get couriers data!'}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Warning': 'You have not permission to get this courier info!'}, status=status.HTTP_200_OK) 
 
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":

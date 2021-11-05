@@ -116,7 +116,7 @@ def cook_detail(request, pk):
             cook_serializer = CookSerializer(cook)
             return JsonResponse(cook_serializer.data)
         else:
-            return JsonResponse({'Warning': 'Only cook can get couriers data!'}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Warning': 'You have not permission to get this cook info!'}, status=status.HTTP_200_OK) 
         
 
     elif request.method == 'PUT': 
