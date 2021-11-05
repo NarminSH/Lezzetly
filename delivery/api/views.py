@@ -156,11 +156,12 @@ def courier_detail(request, pk):
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
 
     if request.method == 'GET':
-        if claimsOrMessage['Usertype'] == '2' or claimsOrMessage['Usertype'] == '1':  
+        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":  
             courier_serializer = CourierSerializer(courier)
             return JsonResponse(courier_serializer.data)
         # courier_serializer = CourierSerializer(courier) 
-        return JsonResponse({'Warning': 'Only courier and cook can get couriers data!'}, status=status.HTTP_200_OK) 
+        else:
+            return JsonResponse({'Warning': 'Only courier can get couriers data!'}, status=status.HTTP_200_OK) 
 
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":

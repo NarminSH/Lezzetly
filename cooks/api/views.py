@@ -112,11 +112,12 @@ def cook_detail(request, pk):
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
     if request.method == 'GET':
-        if claimsOrMessage['Usertype'] == '2' or claimsOrMessage['Usertype'] == '1' or claimsOrMessage['Usertype'] == '3':  
+        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":  
             cook_serializer = CookSerializer(cook)
             return JsonResponse(cook_serializer.data)
-        cook_serializer = CookListSerializer(cook) 
-        return JsonResponse(cook_serializer.data) 
+        else:
+            return JsonResponse({'Warning': 'Only cook can get couriers data!'}, status=status.HTTP_200_OK) 
+        
 
     elif request.method == 'PUT': 
         if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
@@ -149,7 +150,7 @@ def cook_detail(request, pk):
                     return JsonResponse({'Warning': 'You can not change user_type!'}, status=status.HTTP_200_OK)
             cook_serializer = CookSerializer(cook, data=cook_data, partial=True) 
             if cook_serializer.is_valid(): 
-                cook_serializer.save() 
+                cook_serializer.save()
                 return JsonResponse(cook_serializer.data)
             elif 'email' in cook_serializer.errors:
                 return JsonResponse({'warning': 'Courier with this email address already exists.'}, status=status.HTTP_200_OK)
