@@ -84,7 +84,7 @@ def meal_create(request):
     if claimsOrMessage['Usertype'] != "1":
         return JsonResponse({'warning': 'Only cook can create meal!'}, status=status.HTTP_200_OK)
     else:
-        currentCook = Cook.objects.get(username = claimsOrMessage['iss'])
+        currentCook = Cook.objects.get(username = claimsOrMessage['Username'])
         print("meal_create current cook: ", currentCook)
         # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
         #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)

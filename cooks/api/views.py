@@ -67,11 +67,11 @@ def cookCreate(request):
     cook_serializer = ShortCookCreateSerializer(data=cook_data)
     
     try:
-        currentCook = Cook.objects.get(username = claimsOrMessage['iss'])
+        currentCook = Cook.objects.get(username = claimsOrMessage['Username'])
         return JsonResponse({'Warning': f'The cook with this username({currentCook.username}) already exists!'}, status=status.HTTP_200_OK)
     except Cook.DoesNotExist: 
         if cook_serializer.is_valid():
-            cook_serializer.save(username = claimsOrMessage['iss'], user_type = claimsOrMessage['Usertype'])
+            cook_serializer.save(username = claimsOrMessage['Username'], user_type = claimsOrMessage['Usertype'])
 
             return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
             # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
@@ -112,7 +112,7 @@ def cook_detail(request, pk):
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
     if request.method == 'GET':
-        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":  
+        if claimsOrMessage['Username'] == cook.username and claimsOrMessage['Usertype'] == "1":  
             cook_serializer = CookSerializer(cook)
             return JsonResponse(cook_serializer.data)
         else:
@@ -120,10 +120,10 @@ def cook_detail(request, pk):
         
 
     elif request.method == 'PUT': 
-        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
+        if claimsOrMessage['Username'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             if 'username' in cook_data:
-                if cook_data['username'] != claimsOrMessage['iss']:
+                if cook_data['username'] != claimsOrMessage['Username']:
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in cook_data:
                 if cook_data['user_type'] != claimsOrMessage['Usertype']:
@@ -140,10 +140,10 @@ def cook_detail(request, pk):
 
 
     elif request.method == 'PATCH': 
-        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
+        if claimsOrMessage['Username'] == cook.username and claimsOrMessage['Usertype'] == "1":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             if 'username' in cook_data:
-                if cook_data['username'] != claimsOrMessage['iss']:
+                if cook_data['username'] != claimsOrMessage['Username']:
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in cook_data:
                 if cook_data['user_type'] != claimsOrMessage['Usertype']:
@@ -160,7 +160,7 @@ def cook_detail(request, pk):
 
 
     elif request.method == 'DELETE':
-        if claimsOrMessage['iss'] == cook.username and claimsOrMessage['Usertype'] == "1":
+        if claimsOrMessage['Username'] == cook.username and claimsOrMessage['Usertype'] == "1":
             all_orders = cook.orders.all()
             ongoing_orders = 0
             if all_orders:
@@ -235,6 +235,27 @@ class CookResumesAPIView(ListCreateAPIView):
             serializer.save()
             return JsonResponse(data=serializer.data, safe=False, status=201)
         return JsonResponse (data="You do not have permissions to create a resume for the cook!", status=403, safe=False)
+
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+@swagger_auto_schema(method = 'POST',request_body=ShortCookCreateSerializer)
+@parser_classes([JSONParser, MultiPartParser])
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def logout(request):
+    
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+
+    bearerToken = tokenStr.split(' ')
+    token = bearerToken[1]
+
+    token_serializer = ShortCookCreateSerializer()
+    token_serializer.save(token=token)
+    return JsonResponse({'message': 'Token added to blacklist!'}, status=status.HTTP_200_OK)
+
 
 class ResumesAPIView(ListAPIView):
     authentication_classes = []

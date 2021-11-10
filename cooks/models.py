@@ -1,7 +1,6 @@
 from django.core.validators import RegexValidator
 from django.db import models
 
-
 class Cook(models.Model):
     # information
     patronymic = models.CharField(max_length=60, blank=True, null=True)

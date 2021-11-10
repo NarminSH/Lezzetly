@@ -108,11 +108,11 @@ def courierCreate(request):
         return JsonResponse({'Warning': 'You have not permission to create courier!'}, status=status.HTTP_200_OK)    
     courier_serializer = ShortCourierCreateSerializer(data=cook_data)
     try:
-        currentCook = Courier.objects.get(username = claimsOrMessage['iss'])
+        currentCook = Courier.objects.get(username = claimsOrMessage['Username'])
         return JsonResponse({'Warning': f'The courier with this username({currentCook.username}) already exists!'}, status=status.HTTP_200_OK)
     except Courier.DoesNotExist:
         if courier_serializer.is_valid():
-            courier_serializer.save(username = claimsOrMessage['iss'], user_type = claimsOrMessage['Usertype'])
+            courier_serializer.save(username = claimsOrMessage['Username'], user_type = claimsOrMessage['Usertype'])
             return JsonResponse({'Message': f"Courier with id {courier_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
         elif 'email' in courier_serializer.errors and 'username'in courier_serializer.errors:
             print(courier_serializer.errors)
@@ -156,7 +156,7 @@ def courier_detail(request, pk):
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
 
     if request.method == 'GET':
-        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":  
+        if claimsOrMessage['Username'] == courier.username and claimsOrMessage['Usertype'] == "2":  
             courier_serializer = CourierSerializer(courier)
             return JsonResponse(courier_serializer.data)
         # courier_serializer = CourierSerializer(courier) 
@@ -164,11 +164,11 @@ def courier_detail(request, pk):
             return JsonResponse({'Warning': 'You have not permission to get this courier info!'}, status=status.HTTP_200_OK) 
 
     elif request.method == 'PUT': 
-        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
+        if claimsOrMessage['Username'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             print("courier_data: ", courier_data)
             if 'username' in courier_data:
-                if courier_data['username'] != claimsOrMessage['iss']:
+                if courier_data['username'] != claimsOrMessage['Username']:
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in courier_data:
                 if courier_data['user_type'] != claimsOrMessage['Usertype']:
@@ -185,10 +185,10 @@ def courier_detail(request, pk):
         return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
 
     elif request.method == 'PATCH': 
-        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
+        if claimsOrMessage['Username'] == courier.username and claimsOrMessage['Usertype'] == "2":
             # cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
             if 'username' in courier_data:
-                if courier_data['username'] != claimsOrMessage['iss']:
+                if courier_data['username'] != claimsOrMessage['Username']:
                     return JsonResponse({'Warning': 'You can not change username!'}, status=status.HTTP_200_OK)
             if 'user_type' in courier_data:
                 if courier_data['user_type'] != claimsOrMessage['Usertype']:
@@ -204,7 +204,7 @@ def courier_detail(request, pk):
         return JsonResponse({'warning': 'You have no rights to change this courier!'}, status=status.HTTP_200_OK)
 
     elif request.method == 'DELETE':
-        if claimsOrMessage['iss'] == courier.username and claimsOrMessage['Usertype'] == "2":
+        if claimsOrMessage['Username'] == courier.username and claimsOrMessage['Usertype'] == "2":
             all_orders = courier.orders.all()
             ongoing_orders = 0
             if all_orders:
