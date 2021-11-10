@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from cooks.models import Blacklist, Cook, Recommendation, Resume
+from cooks.models import Cook, Recommendation, Resume
 
 # valid_characters = 
 
@@ -48,15 +48,6 @@ class CookCreateSerializer(serializers.ModelSerializer): # serializer for put, p
             'updated_at',
         )
         read_only_fields = ['rating', ]
-
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:    
-        model = Blacklist
-        fields = (
-            'id',
-            'token',
-            'created_at',
-        )
 
 class ShortCookCreateSerializer(serializers.ModelSerializer):
     class Meta:    
