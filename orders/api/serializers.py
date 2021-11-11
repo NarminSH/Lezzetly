@@ -14,11 +14,6 @@ class OrderCreatSerializer(serializers.ModelSerializer):
         model = Order
         fields = (
             'id',
-            'customer_first_name',
-            'customer_last_name',
-            'customer_phone',
-            'customer_email',
-            'customer_location',
             'complete',
             'created_at',
             'updated_at',
@@ -130,11 +125,6 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         model = Order
         fields = (
             'id',
-            'customer_first_name',
-            'customer_last_name',
-            'customer_phone',
-            'customer_email',
-            'customer_location',
             'cook',
             'complete',
             'cook',
@@ -218,11 +208,6 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'is_rejected',
             'reject_reason',
             'order_total',
-            'customer_first_name',
-            'customer_last_name',
-            'customer_phone',
-            'customer_email',
-            'customer_location',
             'cook',
             'courier',
             'delivery_information',
