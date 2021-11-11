@@ -27,13 +27,13 @@ class Order(models.Model):
     ]
 
     # about customer
-    customer_first_name = models.CharField('first name', max_length=150)
-    customer_last_name = models.CharField('last name', max_length=150)
-    customer_phone_regex = RegexValidator(regex = r"^994(?:50|51|55|70|77|99|10|60)[0-9]{7}$", message="Phone number must be entered in the format: '994709616969'. Up to 12 digits")
-    customer_phone = models.CharField(validators=[customer_phone_regex], max_length=12)
-    customer_location = models.CharField('location', max_length=150)
+    # customer_first_name = models.CharField('first name', max_length=150)
+    # customer_last_name = models.CharField('last name', max_length=150)
+    # customer_phone_regex = RegexValidator(regex = r"^994(?:50|51|55|70|77|99|10|60)[0-9]{7}$", message="Phone number must be entered in the format: '994709616969'. Up to 12 digits")
+    # customer_phone = models.CharField(validators=[customer_phone_regex], max_length=12)
+    # customer_location = models.CharField('location', max_length=150)
 
-    customer_email = models.EmailField(('email address'), max_length=254) 
+    # customer_email = models.EmailField(('email address'), max_length=254) 
     # status = models.CharField(max_length=2, choices=STATUS_CHOICES, blank=True, null=True)
     complete = models.BooleanField(default=False)
     is_rejected = models.BooleanField(null=True, blank=True, default=False)
