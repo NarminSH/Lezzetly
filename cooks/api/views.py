@@ -57,10 +57,12 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def cookCreate(request):
     print("****************")
     print("cook create-e daxil oldu")
-    try: 
-        client1 = Client.objects.get(id = 1) 
-    except Client.DoesNotExist: 
-        return JsonResponse({'Warning': 'You have not permission to create cook with this token!'}, status=status.HTTP_200_OK)
+    client1 = Client.objects.get(id = 1)
+    # try: 
+    #     client1 = Client.objects.get(id = 1) 
+    # except: 
+    #     client1 = None
+        # return JsonResponse({'Warning': 'You have not permission to create cook with this token!'}, status=status.HTTP_200_OK)
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
