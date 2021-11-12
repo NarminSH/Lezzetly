@@ -57,7 +57,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def cookCreate(request):
     
     try: 
-        client1 = Client.objects.get(id = 3) 
+        client1 = Client.objects.get(id = 1) 
     except Cook.DoesNotExist: 
         client1 = None
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
