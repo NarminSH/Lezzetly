@@ -28,7 +28,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @permission_classes([AllowAny])
 def order_create(request):
     order_data = JSONParser().parse(request)
-    # create empty order with out orderItems, with customer data and add cook
+    # create empty order without orderItems, with customer data and add cook
     order_item_data = order_data['order_items']
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
