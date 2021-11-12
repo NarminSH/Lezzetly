@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.views import APIView
 from django.http.response import Http404, JsonResponse
-from cooks.models import Cook
+from cooks.models import Client, Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier, DeliveryPrice
 from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer, RejectOrderSerializer
@@ -15,6 +15,7 @@ from meals.models import Meal
 from rest_framework import filters
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from utility.check_token import checkToken
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
 # user_response = openapi.Response('response description', MealCreatSerializer)
@@ -24,10 +25,22 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(method = 'POST',request_body=OrderFullSerializer)
 @api_view(['POST'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
 @authentication_classes([])
-@permission_classes([AllowAny])
+@permission_classes([])
 def order_create(request):
     order_data = JSONParser().parse(request)
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+
+    try: 
+        client1 = Client.objects.get(username = claimsOrMessage['Username']) 
+    except Cook.DoesNotExist: 
+        return JsonResponse({'Warning': 'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
     order_item_data = order_data['order_items']
     if not order_item_data:
@@ -55,7 +68,7 @@ def order_create(request):
                     is_same_cook = False
             print("****** is_same_cook", is_same_cook)
             if is_same_cook:
-                order_serializer.save(cook = cook1)
+                order_serializer.save(cook = cook1, client = client1)
             else:
                 return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
         
