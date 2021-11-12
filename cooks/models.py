@@ -1,6 +1,24 @@
 from django.core.validators import RegexValidator
 from django.db import models
 
+class Client(models.Model):
+    id = models.IntegerField(primary_key=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    patronymic = models.CharField(max_length=70, null=True)
+    username = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=20, null=True)
+    email = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+       managed = False
+       db_table = 'clients'
+    
+    def __str__(self):
+        return self.username
+
 class Cook(models.Model):
     # information
     patronymic = models.CharField(max_length=60, blank=True, null=True)
