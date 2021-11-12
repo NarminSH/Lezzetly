@@ -81,7 +81,7 @@ def cookCreate(request):
         if cook_serializer.is_valid():
             cook_serializer.save(username = claimsOrMessage['Username'], user_type = claimsOrMessage['Usertype'])
 
-            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created! and Client: {client1}"}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created! and Client: "}, status=status.HTTP_200_OK) 
             # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
         elif 'email' in cook_serializer.errors and 'username'in cook_serializer.errors:
             print(cook_serializer.errors)
