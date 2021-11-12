@@ -59,7 +59,7 @@ def cookCreate(request):
     print("cook create-e daxil oldu")
     try: 
         client1 = Client.objects.get(id = 1) 
-    except Cook.DoesNotExist: 
+    except Client.DoesNotExist: 
         return JsonResponse({'Warning': 'You have not permission to create cook with this token!'}, status=status.HTTP_200_OK)
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
