@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 from drf_yasg import openapi
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
 from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
-from cooks.models import Cook, Recommendation, Resume
+from cooks.models import Cook, Recommendation, Resume, Client
 from users.api.serializers import RegisterSerializer
 from orders.api.serializers import OrderFullSerializer
 from orders.models import Order
@@ -56,6 +56,10 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @permission_classes([])
 def cookCreate(request):
     
+    try: 
+        client1 = Client.objects.get(id = 1) 
+    except Cook.DoesNotExist: 
+        client1 = None
     cook_data = JSONParser().parse(request) # don't forget you are able to send only json data
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
@@ -73,7 +77,7 @@ def cookCreate(request):
         if cook_serializer.is_valid():
             cook_serializer.save(username = claimsOrMessage['Username'], user_type = claimsOrMessage['Usertype'])
 
-            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created! and Client: {client1}"}, status=status.HTTP_200_OK) 
             # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
         elif 'email' in cook_serializer.errors and 'username'in cook_serializer.errors:
             print(cook_serializer.errors)
