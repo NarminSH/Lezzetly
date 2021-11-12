@@ -7,6 +7,7 @@ class Client(models.Model):
     last_name = models.CharField(max_length=50)
     patronymic = models.CharField(max_length=70, null=True)
     username = models.CharField(max_length=50)
+    username = models.CharField(max_length=4)
     phone_number = models.CharField(max_length=20, null=True)
     email = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
