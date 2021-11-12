@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from rest_framework.fields import JSONField
+from rest_framework.fields import CharField, JSONField
 from delivery.api.serializers import CourierSerializer, DeliveryAreaOrderForAddCourierSerializer, DeliveryAreaOrderSerializer
 from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal
@@ -200,6 +200,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
     courier = CourierForOrderSerializer(required=False)
     items = OrderItemForOrderSerializer(read_only=True, many=True)
     delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    client_username = serializers.CharField(max_length=50, required=False)
     class Meta:
         model = Order
         fields = (
@@ -212,6 +213,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'courier',
             'delivery_information',
             'items',
+            'client_username',
             'created_at',
             'updated_at',   
         )
