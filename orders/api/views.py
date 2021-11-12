@@ -30,6 +30,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @authentication_classes([])
 @permission_classes([])
 def order_create(request):
+    print("Order create girdi")
     order_data = JSONParser().parse(request)
 
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
