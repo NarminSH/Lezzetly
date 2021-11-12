@@ -5,7 +5,7 @@ from delivery.api.serializers import CourierSerializer, DeliveryAreaOrderForAddC
 from meals.api.serializers import MealOrderItemSerializer, MealSerializer
 from meals.models import Meal
 from orders.models import Order, OrderItem
-from cooks.models import Cook
+from cooks.models import Client, Cook
 from delivery.models import Courier
 from cooks.api.serializers import CookListSerializer, CookSerializer
 
@@ -194,12 +194,23 @@ class RejectOrderSerializer(DynamicFieldsModelSerializer):
             'reject_reason',   
         )
 
+class ClientForOrderSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Client
+        fields = (
+            'id',
+            'username',
+            # 'firstname',
+            # 'lastname',
+            # 'phone_number',
+        )
 
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
     cook = CookForOrderSerializer(required=False)
     courier = CourierForOrderSerializer(required=False)
     items = OrderItemForOrderSerializer(read_only=True, many=True)
     delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    client = ClientForOrderSerializer(read_only=True, required=False)
     class Meta:
         model = Order
         fields = (
@@ -212,6 +223,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'courier',
             'delivery_information',
             'items',
+            'client',
             'created_at',
             'updated_at',   
         )

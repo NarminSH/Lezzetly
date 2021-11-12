@@ -1,5 +1,5 @@
 from django.db import models
-from cooks.models import Cook
+from cooks.models import Cook, Client
 from delivery.models import Courier, DeliveryPrice
 from meals.models import Meal
 from django.core.validators import RegexValidator
@@ -12,7 +12,7 @@ class Order(models.Model):
     cook = models.ForeignKey(Cook, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
     courier = models.ForeignKey(Courier, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
     delivery_information = models.ForeignKey(DeliveryPrice, db_index=True, on_delete=models.CASCADE, blank=True, null=True, related_name='orders')
-    # client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders' )
+    client = models.ForeignKey(Client,db_index=True, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
     #information
 
     # customer info
