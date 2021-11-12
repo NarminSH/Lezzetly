@@ -57,7 +57,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def cookCreate(request):
     print("****************")
     print("cook create-e daxil oldu")
-    client1 = Client.objects.filter(id = 1).first()
+    client1 = Client.objects.get(id = 1)
     # print(client1, "cleint 1")
     # try: 
     #     client1 = Client.objects.get(id = 1) 
