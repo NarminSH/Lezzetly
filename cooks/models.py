@@ -3,7 +3,7 @@ from django.db import models
 
 class Client(models.Model):
     id = models.IntegerField(primary_key=True)
-    firs_tname = models.CharField(max_length=50)
+    first_tname = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     patronymic = models.CharField(max_length=70, null=True)
     username = models.CharField(max_length=50)
