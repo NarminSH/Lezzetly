@@ -75,7 +75,8 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, MultiPartParser])
 def meal_create(request):
-
+    print("***************")
+    print("Entered to meal create")
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:
