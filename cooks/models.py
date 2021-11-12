@@ -3,11 +3,11 @@ from django.db import models
 
 class Client(models.Model):
     id = models.IntegerField(primary_key=True)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
+    firs_tname = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     patronymic = models.CharField(max_length=70, null=True)
     username = models.CharField(max_length=50)
-    usertype = models.CharField(max_length=4)
+    user_type = models.CharField(max_length=4)
     phone_number = models.CharField(max_length=20, null=True)
     email = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
