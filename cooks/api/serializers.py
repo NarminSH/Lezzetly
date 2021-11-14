@@ -156,6 +156,17 @@ class ResumeSerializer(DynamicFieldsModelSerializer):
         )
         read_only_fields = ["cook", ]
 
+class ResumeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resume
+        fields = (
+            'id',
+            # 'cook',
+            'description',
+            'created_at',
+            'updated_at',
+        )
+
         # def save(self, attrs):
         #     request = self.context.get('request')
         #     print(request, 'requesttttttt')

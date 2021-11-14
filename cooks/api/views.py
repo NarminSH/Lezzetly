@@ -12,7 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
 from drf_yasg import openapi
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
-from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
+from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeCreateSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
 from cooks.models import Cook, Recommendation, Resume, Client
 from users.api.serializers import RegisterSerializer
 from orders.api.serializers import OrderFullSerializer
@@ -217,32 +217,82 @@ class CookRecommendationsAPIView(ListCreateAPIView):
             return JsonResponse(data=serializer.data, safe=False, status=201)
         return JsonResponse (data="You do not have permissions to give recommendations to the cook!", status=403, safe=False) #changed status to 403
 
-
-class CookResumesAPIView(ListCreateAPIView):
-    # authentication_classes = []
+class CookResumesAPIView(ListAPIView):
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = ResumeSerializer
+    serializer_class = MealSerializer
     queryset = Resume.objects.all()
+
 
     def get(self, *args, **kwargs):
             item = Resume.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 return JsonResponse (data=[], status=200, safe=False)
             serializer = ResumeSerializer(
-                item, many=True, context={'request': self.request}, exclude=['cook'])
+                item, many=True, context={'request': self.request}, exclude=["cook", ])
             return JsonResponse(data=serializer.data, safe=False)
 
+# create new category,
+# delete all categories, now in comment
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+# user_response = openapi.Response('response description', MealCreatSerializer)
+
+# 'method' can be used to customize a single HTTP method of a view
+# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method = 'POST',request_body=ResumeCreateSerializer)
+@api_view(['POST'])
+# @authentication_classes([])
+# @permission_classes([IsAuthenticated,])
+@authentication_classes([])
+@permission_classes([])
+def resume_create(request):
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
-    def post(self, *args, **kwargs):
-        resume_data = self.request.data
-        if self.request.user.id == kwargs.get('pk'): 
-            serializer = ResumeSerializer(data=resume_data, context={
-                                            'request': self.request})
-            serializer.is_valid(raise_exception=True)
-            serializer.validated_data['cook']= self.request.user
-            serializer.save()
-            return JsonResponse(data=serializer.data, safe=False, status=201)
-        return JsonResponse (data="You do not have permissions to create a resume for the cook!", status=403, safe=False)
+    if claimsOrMessage['Usertype'] != "1":
+        return JsonResponse({'message': 'Only cook can create resume!'}, status=status.HTTP_200_OK)
+    else:
+        cook = Cook.objects.get(username = claimsOrMessage['Username'])
+        if request.method == 'POST':
+            resume_data = JSONParser().parse(request)
+            resume_serializer = ResumeCreateSerializer(data=resume_data)
+            if resume_serializer.is_valid(raise_exception=True):
+                resume_serializer.save(cook = cook)
+                return JsonResponse(resume_serializer.data, status=status.HTTP_201_CREATED) 
+            # return JsonResponse(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # print(resume_serializer.errors)
+                return JsonResponse(resume_serializer.errors, status=status.HTTP_200_OK)
+
+# class CookResumesAPIView(ListCreateAPIView):
+#     # authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+#     serializer_class = ResumeSerializer
+#     queryset = Resume.objects.all()
+
+#     def get(self, *args, **kwargs):
+#             item = Resume.objects.filter(cook=kwargs.get('pk'))
+#             if not item:
+#                 return JsonResponse (data=[], status=200, safe=False)
+#             serializer = ResumeSerializer(
+#                 item, many=True, context={'request': self.request}, exclude=['cook'])
+#             return JsonResponse(data=serializer.data, safe=False)
+
+    
+#     def post(self, *args, **kwargs):
+#         resume_data = self.request.data
+#         if self.request.user.id == kwargs.get('pk'): 
+#             serializer = ResumeSerializer(data=resume_data, context={
+#                                             'request': self.request})
+#             serializer.is_valid(raise_exception=True)
+#             serializer.validated_data['cook']= self.request.user
+#             serializer.save()
+#             return JsonResponse(data=serializer.data, safe=False, status=201)
+#         return JsonResponse (data="You do not have permissions to create a resume for the cook!", status=403, safe=False)
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
 @swagger_auto_schema(method = 'POST',request_body=ShortCookCreateSerializer)
