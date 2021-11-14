@@ -167,6 +167,18 @@ class ResumeCreateSerializer(serializers.ModelSerializer):
             'updated_at',
         )
 
+class RecommendCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recommendation
+        fields = (
+            'id',
+            # 'cook',
+            'recommended_by',
+            'description',
+            'created_at',
+            'updated_at',
+        )
+
         # def save(self, attrs):
         #     request = self.context.get('request')
         #     print(request, 'requesttttttt')

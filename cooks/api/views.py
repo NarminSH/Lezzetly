@@ -12,7 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
 from drf_yasg import openapi
 from rest_framework.generics import  ListAPIView, ListCreateAPIView
-from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeCreateSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
+from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendCreateSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeCreateSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
 from cooks.models import Cook, Recommendation, Resume, Client
 from users.api.serializers import RegisterSerializer
 from orders.api.serializers import OrderFullSerializer
@@ -183,44 +183,87 @@ def cook_detail(request, pk):
         return JsonResponse({'warning': 'You have no rights to delete the cook!'}, status=status.HTTP_200_OK)   #changed status fromm 200 to 403
     
 
-class RecommendationsAPIView(ListAPIView):
+# class RecommendationsAPIView(ListAPIView):
+#     authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+
+#     queryset = Recommendation.objects.all()
+#     serializer_class = RecommendationListSerializer
+
+class CookRecommendationsAPIView(ListAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-
-    queryset = Recommendation.objects.all()
     serializer_class = RecommendationListSerializer
-
-
-class CookRecommendationsAPIView(ListCreateAPIView):
-    # authentication_classes = []
-    permission_classes = [permissions.AllowAny]
-
-    serializer_class = RecommendationSerializer
     queryset = Recommendation.objects.all()
+
 
     def get(self, *args, **kwargs):
             item = Recommendation.objects.filter(cook=kwargs.get('pk'))
             if not item:
                 return JsonResponse (data=[], status=200, safe=False)
-            serializer = RecommendationSerializer(
-                item, many=True, context={'request': self.request}, exclude=['cook'])
+            serializer = RecommendationListSerializer(
+                item, many=True, context={'request': self.request}, exclude=["cook", ])
             return JsonResponse(data=serializer.data, safe=False)
 
-    def post(self, *args, **kwargs):
-        recommendation_data = self.request.data
-        if self.request.user.id == kwargs.get('pk'): 
-            serializer = RecommendationSerializer(data=recommendation_data, context={
-                                            'request': self.request})
-            serializer.is_valid(raise_exception=True)
-            serializer.validated_data['cook']= self.request.user
-            serializer.save()
-            return JsonResponse(data=serializer.data, safe=False, status=201)
-        return JsonResponse (data="You do not have permissions to give recommendations to the cook!", status=403, safe=False) #changed status to 403
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+@swagger_auto_schema(method = 'POST',request_body=RecommendCreateSerializer)
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def recommend_create(request):
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
+    
+    if claimsOrMessage['Usertype'] != "1":
+        return JsonResponse({'message': 'Only cook can create recomendation!'}, status=status.HTTP_200_OK)
+    else:
+        cook = Cook.objects.get(username = claimsOrMessage['Username'])
+        if request.method == 'POST':
+            recommend_data = JSONParser().parse(request)
+            recommend_serializer = RecommendCreateSerializer(data=recommend_data)
+            if recommend_serializer.is_valid(raise_exception=True):
+                recommend_serializer.save(cook = cook)
+                return JsonResponse(recommend_serializer.data, status=status.HTTP_201_CREATED) 
+            # return JsonResponse(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # print(resume_serializer.errors)
+                return JsonResponse(recommend_serializer.errors, status=status.HTTP_200_OK)
+
+
+
+# class CookRecommendationsAPIView(ListCreateAPIView):
+#     # authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+
+#     serializer_class = RecommendationSerializer
+#     queryset = Recommendation.objects.all()
+
+#     def get(self, *args, **kwargs):
+#             item = Recommendation.objects.filter(cook=kwargs.get('pk'))
+#             if not item:
+#                 return JsonResponse (data=[], status=200, safe=False)
+#             serializer = RecommendationSerializer(
+#                 item, many=True, context={'request': self.request}, exclude=['cook'])
+#             return JsonResponse(data=serializer.data, safe=False)
+
+#     def post(self, *args, **kwargs):
+#         recommendation_data = self.request.data
+#         if self.request.user.id == kwargs.get('pk'): 
+#             serializer = RecommendationSerializer(data=recommendation_data, context={
+#                                             'request': self.request})
+#             serializer.is_valid(raise_exception=True)
+#             serializer.validated_data['cook']= self.request.user
+#             serializer.save()
+#             return JsonResponse(data=serializer.data, safe=False, status=201)
+#         return JsonResponse (data="You do not have permissions to give recommendations to the cook!", status=403, safe=False) #changed status to 403
 
 class CookResumesAPIView(ListAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = MealSerializer
+    serializer_class = ResumeSerializer
     queryset = Resume.objects.all()
 
 
@@ -232,18 +275,10 @@ class CookResumesAPIView(ListAPIView):
                 item, many=True, context={'request': self.request}, exclude=["cook", ])
             return JsonResponse(data=serializer.data, safe=False)
 
-# create new category,
-# delete all categories, now in comment
-test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
-# user_response = openapi.Response('response description', MealCreatSerializer)
 
-# 'method' can be used to customize a single HTTP method of a view
-# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
-# 'methods' can be used to apply the same modification to multiple methods
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
 @swagger_auto_schema(method = 'POST',request_body=ResumeCreateSerializer)
 @api_view(['POST'])
-# @authentication_classes([])
-# @permission_classes([IsAuthenticated,])
 @authentication_classes([])
 @permission_classes([])
 def resume_create(request):
