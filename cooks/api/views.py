@@ -55,9 +55,9 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @authentication_classes([])
 @permission_classes([])
 def cookCreate(request):
-    print("****************")
-    print("cook create-e daxil oldu")
-    client1 = Client.objects.get(id = 1)
+    # print("****************")
+    # print("cook create-e daxil oldu")
+    # client1 = Client.objects.get(id = 1)
     # print(client1, "cleint 1")
     # try: 
     #     client1 = Client.objects.get(id = 1) 
@@ -81,7 +81,7 @@ def cookCreate(request):
         if cook_serializer.is_valid():
             cook_serializer.save(username = claimsOrMessage['Username'], user_type = claimsOrMessage['Usertype'])
 
-            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created! and Client: {client1}"}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Message': f"Cook with id {cook_serializer.data['id']} is successfully created!"}, status=status.HTTP_200_OK) 
             # return JsonResponse({'Message': 'The cook is successfully created!'}, status=status.HTTP_200_OK)
         elif 'email' in cook_serializer.errors and 'username'in cook_serializer.errors:
             print(cook_serializer.errors)

@@ -15,6 +15,9 @@ def checkToken(tokenStr):
             respMessage = {'warning': 'Token is not Berear token!'}
         try:
             decoded_payload = jwt.decode(token, settings.SECRET_KEY_TOKEN, algorithms=["HS256"])
+            secureIss = "go-auth-system"
+            if "iss" not in decoded_payload or decoded_payload["iss"] != secureIss:
+                respMessage = {'warning': 'You have not permission, not secure token!'}
         except jwt.ExpiredSignatureError:
             respMessage = {'warning': 'Token is expired. Please login again!'}
         except jwt.InvalidTokenError:
