@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from meals.models import Category, Ingredient, Meal, MealOption
-from cooks.api.serializers import CookSerializer
+from cooks.api.serializers import CookPublicSerializer, CookSerializer
 
 
 class CategoryCustomSerializer(serializers.ModelSerializer):
@@ -109,7 +109,7 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 
 # when I show meals
 class MealSerializer(DynamicFieldsModelSerializer):
-    cook = CookSerializer()
+    cook = CookPublicSerializer()
     mealoption = MealOptionSerializer(read_only=True, required=False, many=True)
     ingredients = IngredientSerializer(read_only=True, required=False, many=True)
     category = CategorySerializer(read_only=True, required=False, many=True)

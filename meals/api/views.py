@@ -61,13 +61,8 @@ class MealAPIView(generics.ListAPIView):
     queryset = Meal.objects.filter(is_active=True)
     serializer_class = MealSerializer
 
-# create new meals,
-# delete all meals, now in comment
+
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
-# user_response = openapi.Response('response description', MealCreatSerializer)
-# 'method' can be used to customize a single HTTP method of a view
-# @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
-# 'methods' can be used to apply the same modification to multiple methods
 @swagger_auto_schema(method = 'POST',request_body=MealCreatSerializer)
 @api_view(['POST'])
 @authentication_classes([])
@@ -75,8 +70,8 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 # @permission_classes([IsAuthenticated])
 @parser_classes([JSONParser, MultiPartParser])
 def meal_create(request):
-    print("***************")
-    print("Entered to meal create")
+    # print("***************")
+    # print("Entered to meal create")
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:

@@ -66,7 +66,6 @@ class ShortCookCreateSerializer(serializers.ModelSerializer):
 
 class CookSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
 
-    
     class Meta:
         model = Cook
         fields = (
@@ -86,6 +85,33 @@ class CookSerializer(serializers.ModelSerializer): # serializer for put, patch a
             'work_experience',
             'rating',
             'is_available',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = ['rating', ]
+
+
+class CookPublicSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+
+    class Meta:
+        model = Cook
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            # 'email',
+            # 'user_type',
+            'patronymic',
+            # 'phone',
+            'city',
+            # 'service_place',  
+            # 'payment_address',
+            'birth_place',
+            'city',
+            'work_experience',
+            'rating',
+            # 'is_available',
             'created_at',
             'updated_at',
         )
