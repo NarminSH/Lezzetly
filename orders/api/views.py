@@ -263,24 +263,35 @@ def add_courier_to_order(request, pk):
 @api_view(['PATCH'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([])
 def complete_order(request, pk):
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
+    
+    if claimsOrMessage['Usertype'] != "1":
+        return JsonResponse({'warning': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
-    cookId = None
+    currentCookUsername = None
     for i in order_items:
-        cookId = i.meal.cook.id
+        currentCookUsername = i.meal.cook.username
     
-    userInRequestId = request.user.id
-    if isinstance(request.user, Cook) == False:
-        return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
-    elif isinstance(request.user, Cook) == True and cookId != userInRequestId:
+    cookInToken = claimsOrMessage['Username']
+    # if isinstance(request.user, Cook) == False:
+    #     return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
+    if currentCookUsername != cookInToken:
         return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
-    elif isinstance(request.user, Cook) == True and cookId == userInRequestId:
+    elif currentCookUsername != cookInToken:
         if order.is_rejected:
             return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
         elif not order.courier:
@@ -288,22 +299,22 @@ def complete_order(request, pk):
         elif order.complete:
             return JsonResponse({'message': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
         else:
-            print("couriers id", order.courier.id)
-            print("order.courier", order.courier)
+            # print("couriers id", order.courier.id)
+            # print("order.courier", order.courier)
             courierId = order.courier.id
-            print(courierId)
+            # print(courierId)
             likedCourier = Courier.objects.get(pk=courierId)
-            print("**************************")
-            print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
-            print("Evvelce complete-de Orderin statusu", order.complete)
-            print("**************************")
+            # print("**************************")
+            # print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
+            # print("Evvelce complete-de Orderin statusu", order.complete)
+            # print("**************************")
             likedCourier.is_available = True
             order.complete = True
             likedCourier.save()
             order.save()
-            print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
-            print("Sonra complete-de Orderin statusu", order.complete)
-            print("**************************")
+            # print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
+            # print("Sonra complete-de Orderin statusu", order.complete)
+            # print("**************************")
             return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
             # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
