@@ -200,11 +200,11 @@ class ClientForOrderSerializer(serializers.ModelSerializer): # serializer for pu
         fields = (
             'id',
             'username',
-            # 'firstname',
-            # 'lastname',
-            # 'patronymic',
-            # 'phone_number',
-            # 'email',
+            'first_name',
+            'last_name',
+            'patronymic',
+            'phone_number',
+            'email',
         )
 
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
