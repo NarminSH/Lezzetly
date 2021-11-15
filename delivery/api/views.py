@@ -65,28 +65,48 @@ class CourierActiveOrdersAPIView(ListAPIView):
 
 class CourierAreasAPIView(ListCreateAPIView):
     # authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     serializer_class = DeliveryAreaPriceSerializer
     queryset = DeliveryPrice.objects.all()
 
     def get(self, *args, **kwargs):
-            item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
-            if not item:
-                return JsonResponse (data=[], status=200, safe=False)
-            serializer = DeliveryAreaPriceListSerializer(
-                item, many=True, context={'request': self.request}, exclude =['courier'])
-            return JsonResponse(data=serializer.data, safe=False)
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '2' and claimsOrMessage['Usertype'] != '1':
+            return JsonResponse({'Warning': 'You have not permission to get courier delivery areas!'}, status=status.HTTP_200_OK)
+
+        item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
+        if not item:
+            return JsonResponse ({'Warning': 'You have not any delivery area!'}, status=status.HTTP_200_OK, safe=False)
+        serializer = DeliveryAreaPriceListSerializer(
+            item, many=True, context={'request': self.request})
+        return JsonResponse(data=serializer.data, safe=False)
 
     def post(self, *args, **kwargs):
         delivery_data = self.request.data
-        if self.request.user.id == kwargs.get('pk'): 
+
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '2':
+            return JsonResponse({'Warning': 'You have not permission to create delivery areas!'}, status=status.HTTP_200_OK)
+        currentCourier = Courier.objects.get(id = kwargs.get('pk'))
+        courierFromToken = claimsOrMessage['Username']
+        if currentCourier.username == courierFromToken:
             serializer = DeliveryAreaPriceSerializer(data=delivery_data, context={
                                             'request': self.request})
             serializer.is_valid(raise_exception=True)
-            serializer.validated_data['courier']= self.request.user
-            serializer.save()
+            # serializer.validated_data['courier']= currentCourier
+            serializer.save(courier = currentCourier)
             return JsonResponse(data=serializer.data, safe=False, status=201)
-        return JsonResponse (data="You do not have permissions to create delivery area for this courier!", status=403, safe=False)
+        return JsonResponse ({'Warning': 'You have not permission to create delivery area for other courier!'}, status=status.HTTP_200_OK, safe=False)
 
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
@@ -264,7 +284,7 @@ def courier_detail(request, pk):
 
 
 
-class DeliveryAreasAPIView(ListAPIView):
+class DeliveryAreasAPIView(ListCreateAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     queryset = DeliveryArea.objects.all()
