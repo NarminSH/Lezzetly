@@ -104,7 +104,7 @@ class CourierAreasAPIView(ListCreateAPIView):
                                             'request': self.request})
             serializer.is_valid(raise_exception=True)
             # serializer.validated_data['courier']= currentCourier
-            serializer.save(Courier = currentCourier)
+            serializer.save(courier = currentCourier)
             return JsonResponse(data=serializer.data, safe=False, status=201)
         return JsonResponse ({'Warning': 'You have not permission to create delivery area for other courier!'}, status=status.HTTP_200_OK, safe=False)
 
