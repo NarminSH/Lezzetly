@@ -92,7 +92,7 @@ class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic one
 #                 return JsonResponse(data=serializer.data, safe=False)
 #             return JsonResponse (data="You do not have permissions to look at others orders!", status=403, safe=False)
 
-class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
+class CourierActiveOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
     # authentication_classes = []
     # permission_classes = [IsAuthenticatedOrReadOnly]
     authentication_classes = []
