@@ -30,37 +30,95 @@ class CouriersAPIView(generics.ListAPIView):
     serializer_class = CourierSerializer
 
 
-class CourierOrdersAPIView(ListAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    serializer_class = OrderFullSerializer
-    queryset = Order.objects.all()
+# class CourierOrdersAPIView(ListAPIView):
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#     serializer_class = OrderFullSerializer
+#     queryset = Order.objects.all()
 
-    def get(self, *args, **kwargs):
-            item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
-            if self.request.user.id == kwargs.get('pk'): 
-                if not item:
-                    return JsonResponse (data=[], status=200, safe=False)
-                serializer = OrderFullSerializer(
-                    item, many=True, context={'request': self.request}, exclude=["courier"])
-                return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse (data="You do not have permissions to look at others !", status=403, safe=False)
+#     def get(self, *args, **kwargs):
+#             item = Order.objects.filter(courier=kwargs.get('pk'), complete=True)
+#             if self.request.user.id == kwargs.get('pk'): 
+#                 if not item:
+#                     return JsonResponse (data=[], status=200, safe=False)
+#                 serializer = OrderFullSerializer(
+#                     item, many=True, context={'request': self.request}, exclude=["courier"])
+#                 return JsonResponse(data=serializer.data, safe=False)
+#             return JsonResponse (data="You do not have permissions to look at others !", status=403, safe=False)
 
-class CourierActiveOrdersAPIView(ListAPIView):
+
+class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
     # authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
 
     def get(self, *args, **kwargs):
-            item = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
-            print(self.request.user)
-            if self.request.user.id == kwargs.get('pk'): 
-                if not item:
-                    return JsonResponse (data=[], status=200, safe=False)
-                serializer = OrderFullSerializer(
-                    item, many=True, context={'request': self.request}, exclude=["courier"])
-                return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse (data="You do not have permissions to look at others orders!", status=403, safe=False)
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '2':
+            return JsonResponse({'Warning': 'You have not permission to get couriers orders!'}, status=status.HTTP_200_OK)    
+
+        orders = Order.objects.filter(courier=kwargs.get('pk'))
+        cookFromReqParam = Courier.objects.get(id = kwargs.get('pk')).username
+        cookFromToken = claimsOrMessage['Username']
+        if cookFromReqParam == cookFromToken:
+            if not orders:
+                return JsonResponse ({'Warning': 'This courier have not any orders!'}, status=status.HTTP_200_OK, safe=False)
+            serializer = OrderFullSerializer(
+                orders, many=True, context={'request': self.request}, exclude=['courier'])
+            return JsonResponse(data=serializer.data, safe=False)
+        return JsonResponse({'Warning': 'You have not permission to get other couriers orders!'}, safe=False, status=status.HTTP_200_OK)
+
+
+# class CourierActiveOrdersAPIView(ListAPIView):
+#     # authentication_classes = []
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#     serializer_class = OrderFullSerializer
+#     queryset = Order.objects.all()
+
+#     def get(self, *args, **kwargs):
+#             item = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+#             print(self.request.user)
+#             if self.request.user.id == kwargs.get('pk'): 
+#                 if not item:
+#                     return JsonResponse (data=[], status=200, safe=False)
+#                 serializer = OrderFullSerializer(
+#                     item, many=True, context={'request': self.request}, exclude=["courier"])
+#                 return JsonResponse(data=serializer.data, safe=False)
+#             return JsonResponse (data="You do not have permissions to look at others orders!", status=403, safe=False)
+
+class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
+    # authentication_classes = []
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    serializer_class = OrderFullSerializer
+    queryset = Order.objects.all()
+
+    def get(self, *args, **kwargs):
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '2':
+            return JsonResponse({'Warning': 'You have not permission to get couriers orders!'}, status=status.HTTP_200_OK)    
+
+        orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+        cookFromReqParam = Courier.objects.get(id = kwargs.get('pk')).username
+        cookFromToken = claimsOrMessage['Username']
+        if cookFromReqParam == cookFromToken:
+            if not orders:
+                return JsonResponse ({'Warning': 'This courier have not any orders!'}, status=status.HTTP_200_OK, safe=False)
+            serializer = OrderFullSerializer(
+                orders, many=True, context={'request': self.request}, exclude=['courier'])
+            return JsonResponse(data=serializer.data, safe=False)
+        return JsonResponse({'Warning': 'You have not permission to get other couriers orders!'}, safe=False, status=status.HTTP_200_OK)
 
 
 class CourierAreasAPIView(ListCreateAPIView):
