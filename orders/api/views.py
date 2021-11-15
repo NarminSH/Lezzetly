@@ -163,18 +163,32 @@ test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description=
 @api_view(['PATCH'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
-@permission_classes([IsAuthenticated]) #!
+
+# @permission_classes([IsAuthenticated]) #!
+@authentication_classes([])
+@permission_classes([])
 def add_courier_to_order(request, pk):
+
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+
+    if claimsOrMessage['Usertype'] != "1":
+        return JsonResponse({'warning': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
+    
+    cookFromToken = Cook.objects.get(username = claimsOrMessage['Username'])
+
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
-    orderId = order.cook.id
-    requestUserId = request.user.id
+    cookInOrder = order.cook.id
+    # requestUserId = request.user.id
     request_data = JSONParser().parse(request)
-    if isinstance(request.user, Cook) == False: #!
-        return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
-    elif isinstance(request.user, Cook) != False and orderId != requestUserId:
+    # if isinstance(request.user, Cook) == False: #!
+    #     return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
+    if cookFromToken != cookInOrder:
         return JsonResponse({'message': 'You have not permission add courier to this order!'}, status=status.HTTP_200_OK)
     else:
         if order.is_rejected:
@@ -188,14 +202,18 @@ def add_courier_to_order(request, pk):
     
         # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
+        likedCourier = Courier.objects.filter(pk=courierId).first()
+
+        # ******************** interesting not delete **********************
         delivery_id = request_data['delivery_information']
         
-        likedCourier = Courier.objects.filter(pk=courierId).first()
+        
         choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
         
         if choosen_delivery not in likedCourier.delivery_areas.all():
             return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
+        # ******************** interesting not delete **********************
         if likedCourier is None:
             return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
 
@@ -205,7 +223,6 @@ def add_courier_to_order(request, pk):
         elif likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
             return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
 
-        
         else:
             for i in order.items.all():
                 # meal_id = i['meal']
@@ -231,7 +248,7 @@ def add_courier_to_order(request, pk):
             likedCourier.save()
             order.save()
 
-            print("Sonra Curyerin statusu", likedCourier.is_available)
+            # print("Sonra Curyerin statusu", likedCourier.is_available)
             
             # curier_serializer = CourierSerializer(likedCourier, )
             # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
