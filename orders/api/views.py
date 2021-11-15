@@ -40,7 +40,7 @@ def order_create(request):
 
     try: 
         client1 = Client.objects.get(username = claimsOrMessage['Username']) 
-    except Cook.DoesNotExist: 
+    except: 
         return JsonResponse({'Warning': 'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
     order_item_data = order_data['order_items']
