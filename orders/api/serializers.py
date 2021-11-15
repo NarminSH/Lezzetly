@@ -223,7 +223,7 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
             'order_total',
             'cook',
             'courier',
-            'delivery_information',
+            # 'delivery_information',
             'items',
             'client',
             'created_at',
