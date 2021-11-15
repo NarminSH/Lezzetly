@@ -63,7 +63,7 @@ class OrderItem(models.Model):
     #relation
     meal = models.ForeignKey(Meal, db_index=True, on_delete=models.CASCADE, related_name='ordered_items' )
     order = models.ForeignKey(Order, db_index=True, on_delete=models.CASCADE, related_name='items' )
-    quantity = models.PositiveSmallIntegerField(default=1)
+    quantity = models.IntegerField(default=1)
     
     @property
     def meal_title(self):
