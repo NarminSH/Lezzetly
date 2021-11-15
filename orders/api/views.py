@@ -279,7 +279,7 @@ def complete_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
     currentCookUsername = None
