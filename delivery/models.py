@@ -37,7 +37,7 @@ class Courier(models.Model):
 
 
     def __str__(self):
-        return self.first_name
+        return self.username
 
 
 
