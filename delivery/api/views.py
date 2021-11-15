@@ -284,7 +284,7 @@ def courier_detail(request, pk):
 
 
 
-class DeliveryAreasAPIView(ListAPIView):
+class DeliveryAreasAPIView(ListCreateAPIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     queryset = DeliveryArea.objects.all()
