@@ -56,8 +56,13 @@ class DeliveryAreaSerializer(serializers.ModelSerializer):
 class DeliveryAreaPriceSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = DeliveryPrice
-        fields = ('id', 'area', 'delivery_price', 'courier')
-        read_only_fields = ['courier']
+        fields = (
+            'id',
+            'area',
+            'delivery_price',
+            # 'courier'
+            )
+        # read_only_fields = ['courier']
 
 
 
