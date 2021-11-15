@@ -283,11 +283,11 @@ def complete_order(request, pk):
     
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
-    return JsonResponse({'warning': 'order items-i goturduk!'}, status=status.HTTP_200_OK)
+    
     currentCookUsername = None
     for i in order_items:
         currentCookUsername = i.meal.cook.username
-    
+    return JsonResponse({'warning': f'currentCookUsername: {currentCookUsername}!'}, status=status.HTTP_200_OK)
     cookInToken = claimsOrMessage['Username']
     # if isinstance(request.user, Cook) == False:
     #     return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
