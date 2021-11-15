@@ -374,20 +374,30 @@ class CookMealsAPIView(ListAPIView):
 
 class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones bcz of swagger documentation
     # authentication_classes = []
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     serializer_class = OrderFullSerializer
     queryset = Order.objects.all()
     
 
     def get(self, *args, **kwargs):
-            item = Order.objects.filter(cook=kwargs.get('pk'))
-            if self.request.user.id == kwargs.get('pk'):
-                if not item:
-                    return JsonResponse (data=[], status=200, safe=False)
-                serializer = OrderFullSerializer(
-                    item, many=True, context={'request': self.request}, exclude=['cook'])
-                return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse(data="You don't own permissions for this action", safe=False, status=403)
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '1':
+            return JsonResponse({'Warning': 'You have not permission to get cooks orders!'}, status=status.HTTP_200_OK)    
+
+        orders = Order.objects.filter(cook=kwargs.get('pk'))
+        if self.request.user.id == kwargs.get('pk'):
+            if not orders:
+                return JsonResponse (data=[], status=200, safe=False)
+            serializer = OrderFullSerializer(
+                orders, many=True, context={'request': self.request}, exclude=['cook'])
+            return JsonResponse(data=serializer.data, safe=False)
+        return JsonResponse(data="You don't own permissions for this action", safe=False, status=403)
 
 
 
