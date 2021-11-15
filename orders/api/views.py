@@ -289,12 +289,12 @@ def complete_order(request, pk):
         currentCookUsername = i.meal.cook.username
     
     cookInToken = claimsOrMessage['Username']
-    return JsonResponse({'warning': f'currentCookUsername: {currentCookUsername}! cookInToken: {cookInToken}'}, status=status.HTTP_200_OK)
+    # return JsonResponse({'warning': f'currentCookUsername: {currentCookUsername}! cookInToken: {cookInToken}'}, status=status.HTTP_200_OK)
     # if isinstance(request.user, Cook) == False:
     #     return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
     if currentCookUsername != cookInToken:
         return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
-    elif currentCookUsername != cookInToken:
+    elif currentCookUsername == cookInToken:
         if order.is_rejected:
             return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
         elif not order.courier:
