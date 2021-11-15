@@ -280,9 +280,10 @@ def complete_order(request, pk):
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
-    return JsonResponse({'warning': 'orderi goturdum Order.objects!'}, status=status.HTTP_200_OK)
+    
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
+    return JsonResponse({'warning': 'order items-i goturduk!'}, status=status.HTTP_200_OK)
     currentCookUsername = None
     for i in order_items:
         currentCookUsername = i.meal.cook.username
