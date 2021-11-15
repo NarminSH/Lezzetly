@@ -77,7 +77,7 @@ class CourierAreasAPIView(ListCreateAPIView):
         if 'warning' in claimsOrMessage:
             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
-        if claimsOrMessage['Usertype'] != '2' or claimsOrMessage['Usertype'] != '1':
+        if claimsOrMessage['Usertype'] != '2' and claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': 'You have not permission to get courier delivery areas!'}, status=status.HTTP_200_OK)
 
         item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
