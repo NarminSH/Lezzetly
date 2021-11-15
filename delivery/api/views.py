@@ -97,13 +97,13 @@ class CourierAreasAPIView(ListCreateAPIView):
         
         if claimsOrMessage['Usertype'] != '2':
             return JsonResponse({'Warning': 'You have not permission to create delivery areas!'}, status=status.HTTP_200_OK)
-        currentCourier = Courier.objects.get(id = kwargs.get('pk')).username
+        currentCourier = Courier.objects.get(id = kwargs.get('pk'))
         courierFromToken = claimsOrMessage['Username']
-        if currentCourier == courierFromToken:
+        if currentCourier == courierFromToken.username:
             serializer = DeliveryAreaPriceSerializer(data=delivery_data, context={
                                             'request': self.request})
             serializer.is_valid(raise_exception=True)
-            serializer.validated_data['courier']= self.request.user
+            serializer.validated_data['courier']= currentCourier
             serializer.save()
             return JsonResponse(data=serializer.data, safe=False, status=201)
         return JsonResponse ({'Warning': 'You have not permission to create delivery area for other courier!'}, status=status.HTTP_200_OK, safe=False)
