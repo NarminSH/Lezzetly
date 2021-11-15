@@ -275,7 +275,7 @@ def complete_order(request, pk):
     
     if claimsOrMessage['Usertype'] != "1":
         return JsonResponse({'warning': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
-
+    return JsonResponse({'warning': 'claims Usertype yoxladim en son!'}, status=status.HTTP_200_OK)
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
@@ -342,7 +342,7 @@ def reject_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
     currentCookUsername = None
