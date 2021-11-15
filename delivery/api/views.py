@@ -84,7 +84,7 @@ class CourierAreasAPIView(ListCreateAPIView):
         if not item:
             return JsonResponse ({'Warning': 'You have not any delivery area!'}, status=status.HTTP_200_OK, safe=False)
         serializer = DeliveryAreaPriceListSerializer(
-            item, many=True, context={'request': self.request}, exclude =['courier'])
+            item, many=True, context={'request': self.request})
         return JsonResponse(data=serializer.data, safe=False)
 
     def post(self, *args, **kwargs):
