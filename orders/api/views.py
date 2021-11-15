@@ -177,13 +177,13 @@ def add_courier_to_order(request, pk):
     if claimsOrMessage['Usertype'] != "1":
         return JsonResponse({'warning': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
     
-    cookFromToken = Cook.objects.get(username = claimsOrMessage['Username'])
+    cookFromToken = claimsOrMessage['Username']
 
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist:
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
-    cookInOrder = order.cook.id
+    cookInOrder = order.cook.username
     # requestUserId = request.user.id
     request_data = JSONParser().parse(request)
     # if isinstance(request.user, Cook) == False: #!
