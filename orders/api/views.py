@@ -287,8 +287,9 @@ def complete_order(request, pk):
     currentCookUsername = None
     for i in order_items:
         currentCookUsername = i.meal.cook.username
-    return JsonResponse({'warning': f'currentCookUsername: {currentCookUsername}!'}, status=status.HTTP_200_OK)
+    
     cookInToken = claimsOrMessage['Username']
+    return JsonResponse({'warning': f'currentCookUsername: {currentCookUsername}! cookInToken: {cookInToken}'}, status=status.HTTP_200_OK)
     # if isinstance(request.user, Cook) == False:
     #     return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
     if currentCookUsername != cookInToken:
