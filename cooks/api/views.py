@@ -391,13 +391,15 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
             return JsonResponse({'Warning': 'You have not permission to get cooks orders!'}, status=status.HTTP_200_OK)    
 
         orders = Order.objects.filter(cook=kwargs.get('pk'))
-        if self.request.user.id == kwargs.get('pk'):
+        cookFromReqParam = Cook.objects.get(id = kwargs.get('pk')).username
+        cookFromToken = claimsOrMessage['Username']
+        if cookFromReqParam == cookFromToken:
             if not orders:
-                return JsonResponse (data=[], status=200, safe=False)
+                return JsonResponse ({'Warning': 'This cook have not any orders!'}, status=status.HTTP_200_OK, safe=False)
             serializer = OrderFullSerializer(
                 orders, many=True, context={'request': self.request}, exclude=['cook'])
             return JsonResponse(data=serializer.data, safe=False)
-        return JsonResponse(data="You don't own permissions for this action", safe=False, status=403)
+        return JsonResponse({'Warning': 'You have not permission to get other cook orders!'}, safe=False, status=status.HTTP_200_OK)
 
 
 
