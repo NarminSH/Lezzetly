@@ -267,14 +267,14 @@ def add_courier_to_order(request, pk):
 @authentication_classes([])
 @permission_classes([])
 def complete_order(request, pk):
-
+    print("entered to order complete!")
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
     if claimsOrMessage['Usertype'] != "1":
-        return JsonResponse({'warning': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
 
     try: 
         order = Order.objects.get(pk=pk) 
