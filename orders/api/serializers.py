@@ -240,6 +240,7 @@ class ClientForOrderSerializer(serializers.ModelSerializer): # serializer for pu
             'patronymic',
             'phone_number',
             'email',
+            'location',
         )
 
 class ClientSimpleSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
