@@ -392,16 +392,16 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     queryset = DeliveryPrice.objects.all()
-    # serializer_class = DeliveryAreaPriceListSerializer
+    serializer_class = DeliveryAreaPriceListSerializer
 
-    def get(self, *args, **kwargs):
-        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
-        claimsOrMessage = checkToken(tokenStr)
-        if 'warning' in claimsOrMessage:
-            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+    # def get(self, *args, **kwargs):
+    #     tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+    #     claimsOrMessage = checkToken(tokenStr)
+    #     if 'warning' in claimsOrMessage:
+    #         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
-        if claimsOrMessage['Usertype'] != '1':
-            return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
+    #     if claimsOrMessage['Usertype'] != '1':
+    #         return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
 
-        serializer = DeliveryAreaPriceListSerializer(context={'request': self.request}, many=True)
-        return JsonResponse(data=serializer.data)
+    #     serializer = DeliveryAreaPriceListSerializer(context={'request': self.request}, many=True)
+    #     return JsonResponse(data=serializer.data)
