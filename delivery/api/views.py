@@ -405,4 +405,4 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
 
         queryset = DeliveryPrice.objects.all()
         serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        return JsonResponse(data=serializer.data)
+        return JsonResponse({"data": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
