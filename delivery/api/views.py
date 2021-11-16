@@ -389,7 +389,19 @@ class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change 
 class CouriersDeliveryAreasAPIView(ListAPIView):
 
     authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     queryset = DeliveryPrice.objects.all()
     serializer_class = DeliveryAreaPriceListSerializer
+
+    def get(self, *args, **kwargs):
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '1':
+            return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
+
+        serializer = DeliveryAreaPriceListSerializer(many=True)
+        return JsonResponse(data=serializer.data, safe=False)
