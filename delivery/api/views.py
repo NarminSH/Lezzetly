@@ -403,5 +403,5 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
 
-        serializer = DeliveryAreaPriceListSerializer()
+        serializer = DeliveryAreaPriceListSerializer(context={'request': self.request})
         return JsonResponse(data=serializer.data)
