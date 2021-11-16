@@ -418,7 +418,7 @@ class CookActiveOrdersAPIView(ListAPIView):   #changed all api views to generic 
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': 'You have not permission to get cooks orders!'}, status=status.HTTP_200_OK)    
 
-        orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+        orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False, is_rejected=False)
         cookFromReqParam = Cook.objects.get(id = kwargs.get('pk')).username
         cookFromToken = claimsOrMessage['Username']
         if cookFromReqParam == cookFromToken:

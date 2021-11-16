@@ -109,7 +109,7 @@ class CourierActiveOrdersAPIView(ListAPIView):   #changed all api views to gener
         if claimsOrMessage['Usertype'] != '2':
             return JsonResponse({'Warning': 'You have not permission to get couriers orders!'}, status=status.HTTP_200_OK)    
 
-        orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+        orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False, is_rejected=False)
         cookFromReqParam = Courier.objects.get(id = kwargs.get('pk')).username
         cookFromToken = claimsOrMessage['Username']
         if cookFromReqParam == cookFromToken:
