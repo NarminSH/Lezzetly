@@ -139,11 +139,13 @@ class CookForOrderSerializer(serializers.ModelSerializer): # serializer for put,
         model = Cook
         fields = (
             'id',
+            'username',
             'first_name',
+            'last_name',
             'phone',
             'service_place',  
             'payment_address',
-            'is_available',
+            # 'is_available',
             
         )
         # read_only_fields = ['rating', ]
@@ -163,11 +165,13 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
         model = Courier
         fields = (
             'id',
+            'username',
             'first_name',
+            'last_name',
             'phone',
             'transport',
             # 'deliveryArea',
-            'is_available',
+            # 'is_available',
             'location',
         )
         # extra_kwargs = {'transport': {'required': True}, 'work_experience': {'required': True}, 
