@@ -150,6 +150,22 @@ class CookForOrderSerializer(serializers.ModelSerializer): # serializer for put,
         )
         # read_only_fields = ['rating', ]
 
+class CookSimpleSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Cook
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            # 'phone',
+            # 'service_place',  
+            # 'payment_address',
+            # 'is_available',
+            
+        )
+        # read_only_fields = ['rating', ]
+
 class CourierForAddCourierSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     class Meta:
@@ -178,6 +194,21 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
         #                                                         'location': {'required': True}}
             
         # read_only_fields = ['rating'] 
+
+class CourierSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Courier
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            # 'phone',
+            # 'transport',
+            # 'deliveryArea',
+            # 'is_available',
+            # 'location',
+        )
 
 class AddCourierSerializer(DynamicFieldsModelSerializer):
     courier = CourierForAddCourierSerializer(read_only=True)
@@ -210,6 +241,44 @@ class ClientForOrderSerializer(serializers.ModelSerializer): # serializer for pu
             'phone_number',
             'email',
         )
+
+class ClientSimpleSerializer(serializers.ModelSerializer): # serializer for put, patch and delete methods
+    class Meta:
+        model = Client
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'patronymic',
+            # 'phone_number',
+            # 'email',
+        )
+
+class OrderSimpleSerializer(DynamicFieldsModelSerializer):    #this one is changed
+    cook = CookSimpleSerializer(required=False)
+    courier = CourierSimpleSerializer(required=False)
+    items = OrderItemForOrderSerializer(read_only=True, many=True)
+    delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    client = ClientSimpleSerializer(read_only=True, required=False)
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'complete',
+            'is_rejected',
+            'reject_reason',
+            'order_total',
+            'cook',
+            'courier',
+            'delivery_information',
+            'items',
+            'client',
+            'created_at',
+            'updated_at',   
+        )
+
+
 
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
     cook = CookForOrderSerializer(required=False)

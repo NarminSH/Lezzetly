@@ -15,7 +15,7 @@ from rest_framework.generics import  ListAPIView, ListCreateAPIView
 from cooks.api.serializers import CookCreateSerializer, CookListSerializer, CookSerializer, RecommendCreateSerializer, RecommendationListSerializer, RecommendationSerializer, ResumeCreateSerializer, ResumeListSerializer, ResumeSerializer, ShortCookCreateSerializer
 from cooks.models import Cook, Recommendation, Resume, Client
 from users.api.serializers import RegisterSerializer
-from orders.api.serializers import OrderFullSerializer
+from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
 from orders.models import Order
 from meals.api.serializers import MealSerializer
 from meals.models import Meal
@@ -377,7 +377,7 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
     # permission_classes = [IsAuthenticatedOrReadOnly]
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = OrderFullSerializer
+    serializer_class = OrderSimpleSerializer
     queryset = Order.objects.all()
 
     def get(self, *args, **kwargs):
@@ -395,7 +395,7 @@ class CookOrdersAPIView(ListAPIView):   #changed all api views to generic ones b
         if cookFromReqParam == cookFromToken:
             if not orders:
                 return JsonResponse ({'Warning': 'This cook have not any orders!'}, status=status.HTTP_200_OK, safe=False)
-            serializer = OrderFullSerializer(
+            serializer = OrderSimpleSerializer(
                 orders, many=True, context={'request': self.request}, exclude=['cook'])
             return JsonResponse(data=serializer.data, safe=False)
         return JsonResponse({'Warning': 'You have not permission to get other cook orders!'}, safe=False, status=status.HTTP_200_OK)

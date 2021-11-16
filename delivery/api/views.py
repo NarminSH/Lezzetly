@@ -17,7 +17,7 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpda
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
-from orders.api.serializers import OrderFullSerializer
+from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
 from orders.models import Order
 from django.conf import settings
 
@@ -51,7 +51,7 @@ class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic one
     # permission_classes = [IsAuthenticatedOrReadOnly]
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = OrderFullSerializer
+    serializer_class = OrderSimpleSerializer
     queryset = Order.objects.all()
 
     def get(self, *args, **kwargs):
@@ -69,7 +69,7 @@ class CourierOrdersAPIView(ListAPIView):   #changed all api views to generic one
         if cookFromReqParam == cookFromToken:
             if not orders:
                 return JsonResponse ({'Warning': 'This courier have not any orders!'}, status=status.HTTP_200_OK, safe=False)
-            serializer = OrderFullSerializer(
+            serializer = OrderSimpleSerializer(
                 orders, many=True, context={'request': self.request}, exclude=['courier'])
             return JsonResponse(data=serializer.data, safe=False)
         return JsonResponse({'Warning': 'You have not permission to get other couriers orders!'}, safe=False, status=status.HTTP_200_OK)
