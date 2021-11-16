@@ -392,7 +392,7 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     queryset = DeliveryPrice.objects.all()
-    serializer_class = DeliveryAreaPriceListSerializer
+    # serializer_class = DeliveryAreaPriceListSerializer
 
     def get(self, *args, **kwargs):
         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
