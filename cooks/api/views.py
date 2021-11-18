@@ -415,18 +415,16 @@ class CookActiveOrdersAPIView(ListAPIView):   #changed all api views to generic 
         if 'warning' in claimsOrMessage:
             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
-        if claimsOrMessage['Usertype'] != '1':
-            return JsonResponse({'Warning': 'You have not permission to get cooks orders!'}, status=status.HTTP_200_OK)    
-
-        orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
-        cookFromReqParam = Cook.objects.get(id = kwargs.get('pk')).username
-        cookFromToken = claimsOrMessage['Username']
-        if cookFromReqParam == cookFromToken:
-            if not orders:
-                return JsonResponse ({'Warning': 'This cook have not any orders!'}, status=status.HTTP_200_OK, safe=False)
-            serializer = OrderFullSerializer(
-                orders, many=True, context={'request': self.request}, exclude=['cook'])
-            return JsonResponse(data=serializer.data, safe=False)
+        if claimsOrMessage['Usertype'] == '1':
+            orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+            cookFromReqParam = Cook.objects.get(id = kwargs.get('pk')).username
+            cookFromToken = claimsOrMessage['Username']
+            if cookFromReqParam == cookFromToken:
+                if not orders:
+                    return JsonResponse ({'Warning': 'This cook have not any orders!'}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['cook'])
+                return JsonResponse(data=serializer.data, safe=False)
         return JsonResponse({'Warning': 'You have not permission to get other cook orders!'}, safe=False, status=status.HTTP_200_OK)
 
 
