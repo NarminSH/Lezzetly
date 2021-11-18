@@ -527,6 +527,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse ({"Warning": "You can not look at others' profile"})
 
         elif claimsOrMessage['Usertype'] == '2':
             orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
@@ -538,6 +539,8 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
                 return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse ({"Warning": "You can not look at others' profile"})
+
         else:
             orders = Order.objects.filter(client=kwargs.get('pk'), complete=False)
             request_client = Client.objects.get(id = kwargs.get('pk')).username
@@ -548,4 +551,5 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
                 return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse ({"Warning": "You can not look at others' profile"})
 
