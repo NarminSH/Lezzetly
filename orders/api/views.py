@@ -1,5 +1,7 @@
+from django.http import request
 from rest_framework import status
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -469,4 +471,56 @@ def reject_order(request, pk):
 #         serializer = OrderSerializer(
 #             order, context={'request': self.request})
 #         return JsonResponse(data=serializer.data, safe=False)
+
+
+
+
+
+
+class ActiveOrdersAPIView(ListCreateAPIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    serializer_class = OrderFullSerializer
+    queryset = Order.objects.all()
+
+
+    def get(self, *args, **kwargs):
+
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        
+        if claimsOrMessage['Usertype'] == '1':
+            orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+            request_cook = Cook.objects.get(id = kwargs.get('pk')).username
+            token_cook = claimsOrMessage['Username']
+            if request_cook == token_cook:
+                if not orders:
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['cook'])
+                return JsonResponse(data=serializer.data, safe=False)
+
+        elif claimsOrMessage['Usertype'] == '2':
+            orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+            request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            token_courier = claimsOrMessage['Username']
+            if request_courier == token_courier:
+                if not orders:
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['courier'])
+                return JsonResponse(data=serializer.data, safe=False)
+        else:
+            orders = Order.objects.filter(client=kwargs.get('pk'), complete=False)
+            request_client = Client.objects.get(id = kwargs.get('pk')).username
+            token_client = claimsOrMessage['Username']
+            if request_client == token_client:
+                if not orders:
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['client'])
+                return JsonResponse(data=serializer.data, safe=False)
 
