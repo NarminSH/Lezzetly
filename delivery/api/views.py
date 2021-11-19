@@ -13,7 +13,7 @@ from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
-from delivery.api.serializers import (CourierSerializer, DeliveryAreaCouriersSerializer, DeliveryAreaPriceListSerializer,
+from delivery.api.serializers import (CourierSerializer, DeliveryAreaPriceListSerializer,
                  DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer)
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
