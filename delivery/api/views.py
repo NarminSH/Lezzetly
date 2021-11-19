@@ -426,7 +426,7 @@ class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific 
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk'))
+        couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk')).first()
         print(couriers)
         serializer = DeliveryAreaCouriersSerializer(
                     couriers, many=True, context={'request': self.request})

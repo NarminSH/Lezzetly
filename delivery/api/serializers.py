@@ -142,6 +142,7 @@ class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
             'id',
             'courier',
             'delivery_price',
+            'area'
         )
 
 
