@@ -15,7 +15,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer
+from delivery.api.serializers import (CourierSerializer, DeliveryAreaCouriersSerializer, DeliveryAreaPriceListSerializer,
+                 DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer)
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
 from orders.models import Order
@@ -406,3 +407,27 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         queryset = DeliveryPrice.objects.all()
         serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+
+
+class DeliveryAreaCouriersAPIView(ListAPIView):
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    queryset = DeliveryPrice.objects.all()
+    serializer_class = DeliveryAreaCouriersSerializer
+
+    def get(self, *args, **kwargs):
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '1':
+            return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
+        # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
+        couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk'))
+        serializer = DeliveryAreaCouriersSerializer(
+                    couriers, many=True, context={'request': self.request})
+        return JsonResponse(data=serializer.data)
+        # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
