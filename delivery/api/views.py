@@ -425,18 +425,18 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         try: 
             print("entered try sectionss")
-            courier = DeliveryPrice.objects.get(courier_id=kwargs.get('pk'))
+            courier = DeliveryPrice.objects.get(id=kwargs.get('pk'))
             # couriers = Courier.objects.filter()
             print(courier)
         except DeliveryPrice.DoesNotExist: 
             return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
 
-        if courier :
-            return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
-        return JsonResponse({"Warning": "Could not find couriers"})   
+        # if courier :
+        #     return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
+        # return JsonResponse({"Warning": "Could not find couriers"})   
         
 
         serializer = DeliveryAreaCouriersSerializer(
-                    couriers, many=True, context={'request': self.request})
+                    courier, many=True, context={'request': self.request})
         return JsonResponse(data=serializer.data, safe=False)
         # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
