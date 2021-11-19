@@ -409,7 +409,7 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
 
 
-class DeliveryAreaCouriersAPIView(ListAPIView):
+class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -427,7 +427,8 @@ class DeliveryAreaCouriersAPIView(ListAPIView):
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk'))
+        print(couriers)
         serializer = DeliveryAreaCouriersSerializer(
                     couriers, many=True, context={'request': self.request})
-        return JsonResponse(data=serializer.data)
+        return JsonResponse(data=serializer.data, safe=False)
         # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
