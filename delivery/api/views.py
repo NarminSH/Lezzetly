@@ -406,13 +406,13 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
 
 
-class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
+class DeliveryAreaCouriersAPIView(APIView):
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     queryset = DeliveryPrice.objects.all()
-    serializer_class = DeliveryAreaCouriersSerializer
+    serializer_class = DeliveryAreaPriceListSerializer
 
     def get(self, *args, **kwargs):
         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
@@ -421,19 +421,45 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
         if claimsOrMessage['Usertype'] != '1':
-            return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
-        # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        try: 
-            print("entered try sectionss")
-            courier = DeliveryPrice.objects.filter(id=kwargs.get('id')).first()
-            # couriers = Courier.objects.filter()
-            print(courier)
-        except DeliveryPrice.DoesNotExist: 
-            return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
+            return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
 
-        if courier :
-            return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
-        return JsonResponse({"Warning": "Could not find couriers"})   
+        queryset = DeliveryPrice.objects.filter(area=kwargs.get('id')).first()
+        serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
+        return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+
+
+
+
+# class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
+
+#     authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+
+#     queryset = DeliveryPrice.objects.all()
+#     serializer_class = DeliveryAreaCouriersSerializer
+
+    
+
+#     def get(self, *args, **kwargs):
+#         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+#         claimsOrMessage = checkToken(tokenStr)
+#         if 'warning' in claimsOrMessage:
+#             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+#         if claimsOrMessage['Usertype'] != '1':
+#             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
+#         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
+#         try: 
+#             print("entered try sectionss")
+#             courier = DeliveryPrice.objects.filter(id=kwargs.get('id')).first()
+#             # couriers = Courier.objects.filter()
+#             print(courier)
+#         except DeliveryPrice.DoesNotExist: 
+#             return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
+
+#         if courier :
+#             return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
+#         return JsonResponse({"Warning": "Could not find couriers"})   
         
 
         # serializer = DeliveryAreaCouriersSerializer(
