@@ -12,6 +12,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.views import APIView
 from delivery.api.serializers import (CourierSerializer, DeliveryAreaCouriersSerializer, DeliveryAreaPriceListSerializer,
                  DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer)
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
@@ -405,7 +406,7 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
 
 
-class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
+class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -424,13 +425,14 @@ class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific 
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         try: 
             print("entered try sectionss")
-            area = DeliveryPrice.objects.get(area=kwargs.get('pk'))
-            print(area)
+            courier = DeliveryPrice.objects.get(courier=kwargs.get('pk'))
+            # couriers = Courier.objects.filter()
+            print(courier)
         except DeliveryPrice.DoesNotExist: 
             return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
 
-        if area :
-            return JsonResponse({'Warning': f"{area} couriers are here"}, status=status.HTTP_200_OK) 
+        if courier :
+            return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
         return JsonResponse({"Warning": "Could not find couriers"})   
         
 
