@@ -1,6 +1,5 @@
 
-from django.db.models.query import QuerySet
-from django.http.response import Http404, JsonResponse
+from django.http.response import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 import jwt
@@ -10,8 +9,6 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.decorators import api_view, authentication_classes, parser_classes, permission_classes
 from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -20,7 +17,6 @@ from delivery.api.serializers import (CourierSerializer, DeliveryAreaCouriersSer
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
 from orders.models import Order
-from django.conf import settings
 
 from utility.check_token import checkToken
 
@@ -426,8 +422,12 @@ class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific 
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk')).first()
-        print(couriers)
+        courier = DeliveryPrice.objects.filter(area=kwargs.get('pk')).first()
+        if courier :
+            return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
+        return JsonResponse({"Warning": "Could not find couriers"})   
+        
+
         serializer = DeliveryAreaCouriersSerializer(
                     couriers, many=True, context={'request': self.request})
         return JsonResponse(data=serializer.data, safe=False)
