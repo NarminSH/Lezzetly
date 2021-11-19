@@ -423,7 +423,7 @@ class DeliveryAreaCouriersAPIView(ListAPIView): #show all couriers for specific 
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         try: 
-            courier = DeliveryPrice.objects.filter(area=kwargs.get('pk')).first()
+            courier = DeliveryPrice.objects.get(area=kwargs.get('pk'))
         except Courier.DoesNotExist: 
             return JsonResponse({'Warning': 'The courier does not exists.'}, status=status.HTTP_200_OK) 
 
