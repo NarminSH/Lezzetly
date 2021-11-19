@@ -431,12 +431,12 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
         except DeliveryPrice.DoesNotExist: 
             return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
 
-        # if courier :
-        #     return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
-        # return JsonResponse({"Warning": "Could not find couriers"})   
+        if courier :
+            return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
+        return JsonResponse({"Warning": "Could not find couriers"})   
         
 
-        serializer = DeliveryAreaCouriersSerializer(
-                    courier, many=True, context={'request': self.request})
-        return JsonResponse(data=serializer.data, safe=False)
+        # serializer = DeliveryAreaCouriersSerializer(
+        #             courier, many=True, context={'request': self.request})
+        # return JsonResponse(data=serializer.data, safe=False)
         # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
