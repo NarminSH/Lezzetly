@@ -526,14 +526,16 @@ class ActiveOrdersAPIView(ListCreateAPIView):
 
 
     def get(self, *args, **kwargs):
+        logger.info("just check logger")
 
         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
         claimsOrMessage = checkToken(tokenStr)
         if 'warning' in claimsOrMessage:
             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
-        
+        print("In general active oreders api")
         if claimsOrMessage['Usertype'] == '1':
+            print("kwargs.get('pk'): ", kwargs.get('pk'))
             orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
             request_cook = Cook.objects.get(id = kwargs.get('pk')).username
             token_cook = claimsOrMessage['Username']
