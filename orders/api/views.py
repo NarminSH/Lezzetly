@@ -537,20 +537,22 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         if claimsOrMessage['Usertype'] == '1':
             print("kwargs.get('pk'): ", kwargs.get('pk'))
             # adminer de baxdim yaranan orderde complete false yox bos gorunur
-            orders = Order.objects.filter(cook=kwargs.get('pk'))
-            print("orders without false:", orders)
+            # orders = Order.objects.filter(cook=kwargs.get('pk'))
+            # print("orders without false:", orders)
             orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
             print("orders with false:", orders)
             
             request_cook = Cook.objects.get(id = kwargs.get('pk')).username
             token_cook = claimsOrMessage['Username']
+            print("request_cook:", request_cook)
+            print("token_cook:", token_cook)
             if request_cook == token_cook:
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse ({"Warning": "You can not look at others' profile"})
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         elif claimsOrMessage['Usertype'] == '2':
             orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
