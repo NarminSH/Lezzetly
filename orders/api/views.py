@@ -536,7 +536,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         print("In general active oreders api")
         if claimsOrMessage['Usertype'] == '1':
             print("kwargs.get('pk'): ", kwargs.get('pk'))
-            orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+            orders = Order.objects.filter(cook=kwargs.get('pk'))
             request_cook = Cook.objects.get(id = kwargs.get('pk')).username
             token_cook = claimsOrMessage['Username']
             if request_cook == token_cook:
