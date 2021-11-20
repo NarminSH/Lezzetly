@@ -55,9 +55,9 @@ def order_create(request):
     # create empty order with out orderItems, with customer data and add cook
     
     order_item_data = order_data['order_items']
-    # logger.info("just check logger")
+    logger.info("just check logger")
     print("order_item_data: ", order_item_data)
-    return JsonResponse({'message': f'biraz da derine, order_item_data: {order_item_data}'}, status=status.HTTP_200_OK)
+    
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
     else:
@@ -66,10 +66,14 @@ def order_create(request):
             order_item_data = order_data['order_items']
             meal_id = None
             meal_quantity = None
+            meal = None
             # get cook from meal
             for i in order_item_data:
                 meal_id = i['meal']
-            meal = Meal.objects.get(pk=meal_id)
+                try:
+                    meal = Meal.objects.get(pk=meal_id)
+                except: 
+                    return JsonResponse({'Warning': 'You try to order a not existing meal!'}, status=status.HTTP_200_OK)
             cook1 = meal.cook
             is_same_cook = True
             oneCookId = cook1.id
