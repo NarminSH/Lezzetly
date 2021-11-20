@@ -34,7 +34,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def order_create(request):
     print("Order create girdi")
     order_data = JSONParser().parse(request)
-    return JsonResponse({'message': 'bura kimi ishleyir'}, status=status.HTTP_200_OK)
+    
 
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
@@ -46,6 +46,7 @@ def order_create(request):
     except: 
         return JsonResponse({'Warning': 'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
+    return JsonResponse({'message': 'token check hissesini kecdik'}, status=status.HTTP_200_OK)
     order_item_data = order_data['order_items']
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
