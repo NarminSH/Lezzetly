@@ -1,6 +1,5 @@
 
-from django.db.models.query import QuerySet
-from django.http.response import Http404, JsonResponse
+from django.http.response import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 import jwt
@@ -10,16 +9,15 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.decorators import api_view, authentication_classes, parser_classes, permission_classes
 from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import  status
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from delivery.api.serializers import CourierSerializer, DeliveryAreaPriceListSerializer, DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer
+from rest_framework.views import APIView
+from delivery.api.serializers import (CourierSerializer, DeliveryAreaPriceListSerializer,
+                 DeliveryAreaPriceSerializer, DeliveryAreaSerializer, ShortCourierCreateSerializer)
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
 from orders.api.serializers import OrderFullSerializer, OrderSimpleSerializer
 from orders.models import Order
-from django.conf import settings
 
 from utility.check_token import checkToken
 
@@ -406,3 +404,65 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
         queryset = DeliveryPrice.objects.all()
         serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+
+
+class DeliveryAreaCouriersAPIView(APIView):
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    queryset = DeliveryPrice.objects.all()
+    serializer_class = DeliveryAreaPriceListSerializer
+
+    def get(self, *args, **kwargs):
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '1':
+            return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
+
+        queryset = DeliveryPrice.objects.filter(area=kwargs.get('id')).first()
+        serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
+        return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+
+
+
+
+# class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
+
+#     authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+
+#     queryset = DeliveryPrice.objects.all()
+#     serializer_class = DeliveryAreaCouriersSerializer
+
+    
+
+#     def get(self, *args, **kwargs):
+#         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+#         claimsOrMessage = checkToken(tokenStr)
+#         if 'warning' in claimsOrMessage:
+#             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+#         if claimsOrMessage['Usertype'] != '1':
+#             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
+#         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
+#         try: 
+#             print("entered try sectionss")
+#             courier = DeliveryPrice.objects.filter(id=kwargs.get('id')).first()
+#             # couriers = Courier.objects.filter()
+#             print(courier)
+#         except DeliveryPrice.DoesNotExist: 
+#             return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
+
+#         if courier :
+#             return JsonResponse({'Warning': f"{courier} couriers are here"}, status=status.HTTP_200_OK) 
+#         return JsonResponse({"Warning": "Could not find couriers"})   
+        
+
+        # serializer = DeliveryAreaCouriersSerializer(
+        #             courier, many=True, context={'request': self.request})
+        # return JsonResponse(data=serializer.data, safe=False)
+        # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')

@@ -1,5 +1,5 @@
 from orders.models import OrderItem
-from orders.api.views import ActiveOrdersAPIView, order_create
+from orders.api.views import ActiveOrdersAPIView, UserOrders, order_create
 from django.urls import path
 from . import views
 app_name = 'orders_api'
@@ -17,4 +17,5 @@ urlpatterns = [
     path("reject-order/<str:pk>/", views.reject_order),
     path("orderitems/", views.OrderItemAPIView.as_view()),
     path('orders/<int:pk>/active-orders', ActiveOrdersAPIView.as_view(), name='active-orders'),
+    path("orders/users/<int:pk>", UserOrders.as_view(), name="users-order")
 ]
