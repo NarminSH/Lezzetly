@@ -42,7 +42,8 @@ def order_create(request):
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
 
     try: 
-        client1 = Client.objects.get(username = claimsOrMessage['Username']) 
+        # client1 = Client.objects.get(username = claimsOrMessage['Username']) 
+        client1 = Client.objects.get(id=2) 
     except: 
         return JsonResponse({'Warning': 'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
