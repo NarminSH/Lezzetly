@@ -18,6 +18,9 @@ from rest_framework import filters
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from utility.check_token import checkToken
+import logging
+
+logger = logging.getLogger(__name__)
 
 test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
 # user_response = openapi.Response('response description', MealCreatSerializer)
@@ -40,7 +43,7 @@ def order_create(request):
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
-
+    logger.info("just check logger")
     try: 
         # client1 = Client.objects.get(username = claimsOrMessage['Username']) 
         client1 = Courier.objects.get(id=4) 
