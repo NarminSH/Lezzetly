@@ -5,14 +5,14 @@ class Client(models.Model):
     id = models.IntegerField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    patronymic = models.CharField(max_length=70, null=True)
+    patronymic = models.CharField(max_length=50, null=True)
     username = models.CharField(max_length=50)
     user_type = models.CharField(max_length=4, null=True)
     phone_number = models.CharField(max_length=20, null=True)
-    location = models.CharField(max_length=250, null=True)
     email = models.CharField(max_length=50)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    location = models.CharField(max_length=250, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
        managed = False
