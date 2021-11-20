@@ -548,6 +548,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             print("token_cook:", token_cook)
             if request_cook == token_cook:
                 if not orders:
+                    print("Bura girmedi")
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
