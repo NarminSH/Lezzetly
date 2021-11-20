@@ -46,7 +46,7 @@ def order_create(request):
     except: 
         return JsonResponse({'Warning': 'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
-    return JsonResponse({'message': 'token check hissesini kecdik'}, status=status.HTTP_200_OK)
+    return JsonResponse({'message': f'clienti goturmeye calisdiq, username: {client1.usename}'}, status=status.HTTP_200_OK)
     order_item_data = order_data['order_items']
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
@@ -76,7 +76,7 @@ def order_create(request):
                 order_serializer.save(cook = cook1, client = client1)
             else:
                 return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
-        
+
         # get current order id for assigning to orderItem
         current_order_id = order_serializer.data['id']
         curren_order = Order.objects.get(pk=current_order_id)
