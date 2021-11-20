@@ -6,7 +6,7 @@ class Client(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     patronymic = models.CharField(max_length=50, null=True)
-    username = models.CharField(max_length=50)
+    username = models.CharField(max_length=50, unique=True)
     user_type = models.CharField(max_length=4, null=True)
     phone_number = models.CharField(max_length=20, null=True)
     email = models.CharField(max_length=50)
