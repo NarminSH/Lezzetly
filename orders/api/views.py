@@ -48,8 +48,8 @@ def order_create(request):
     print("courier username", Client.objects.get(id=2).username)
     print("next some print")
     try: 
-        # client1 = Client.objects.get(username = claimsOrMessage['Username']) 
-        client1 = Courier.objects.get(id=4) 
+        client1 = Client.objects.get(username = claimsOrMessage['Username']) 
+        # client1 = Courier.objects.get(id=4) 
     except: 
         return JsonResponse({'Warning': f'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
