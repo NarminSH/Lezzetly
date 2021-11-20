@@ -44,6 +44,7 @@ def order_create(request):
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
     logger.info("just check logger")
+    print("courier username", Courier.objects.get(id=4).username)
     try: 
         # client1 = Client.objects.get(username = claimsOrMessage['Username']) 
         client1 = Courier.objects.get(id=4) 
