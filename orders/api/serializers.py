@@ -182,8 +182,8 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'first_name',
-            'last_name',
+            'firstname',
+            'lastname',
             'phone',
             'transport',
             # 'deliveryArea',
@@ -201,8 +201,8 @@ class CourierSimpleSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'first_name',
-            'last_name',
+            'firstname',
+            'lastname',
             # 'phone',
             # 'transport',
             # 'deliveryArea',
