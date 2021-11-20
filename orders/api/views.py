@@ -53,7 +53,7 @@ def order_create(request):
     except: 
         return JsonResponse({'Warning': f'You have not permission to create order with this token!'}, status=status.HTTP_200_OK)
     # create empty order with out orderItems, with customer data and add cook
-    return JsonResponse({'message': f'clienti goturmeye calisdiq, username: {client1.username}'}, status=status.HTTP_200_OK)
+    # return JsonResponse({'message': f'clienti goturmeye calisdiq, username: {client1.username}'}, status=status.HTTP_200_OK)
     order_item_data = order_data['order_items']
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
