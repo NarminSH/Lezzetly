@@ -50,7 +50,7 @@ class Courier(models.Model):
     patronymic = models.CharField(max_length=50, null=True)
     phone = models.CharField(max_length=12, null=True)
     transport = models.CharField(max_length=150, null=True)
-    work_expirence = models.IntegerField()
+    work_experience = models.IntegerField()
     rating = models.DecimalField(max_digits=2, decimal_places=1, null=True) # belke burda digiti 1 ele
     location = models.CharField(max_length=255, null=True)
     is_available = models.BooleanField(blank=True, null=True, default=False)
