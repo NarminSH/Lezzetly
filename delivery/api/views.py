@@ -115,7 +115,7 @@ class CourierActiveOrdersAPIView(ListAPIView):   #changed all api views to gener
                 return JsonResponse ({'Warning': 'This courier have not any orders!'}, status=status.HTTP_200_OK, safe=False)
             serializer = OrderFullSerializer(
                 orders, many=True, context={'request': self.request}, exclude=['courier'])
-            return JsonResponse(data=serializer.data, safe=False)
+            return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
         return JsonResponse({'Warning': 'You have not permission to get other couriers orders!'}, safe=False, status=status.HTTP_200_OK)
 
 

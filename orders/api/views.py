@@ -552,7 +552,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
-                return JsonResponse(data=serializer.data)
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         elif claimsOrMessage['Usertype'] == '2':
@@ -564,8 +564,8 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
-                return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse ({"Warning": "You can not look at others' profile"})
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         else:
             orders = Order.objects.filter(client=kwargs.get('pk'), complete=False)
@@ -576,8 +576,8 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
-                return JsonResponse(data=serializer.data, safe=False)
-            return JsonResponse ({"Warning": "You can not look at others' profile"})
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
 
 
