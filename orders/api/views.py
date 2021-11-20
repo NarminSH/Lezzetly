@@ -34,6 +34,7 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 def order_create(request):
     print("Order create girdi")
     order_data = JSONParser().parse(request)
+    return JsonResponse({'message': 'bura kimi ishleyir'}, status=status.HTTP_200_OK)
 
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
