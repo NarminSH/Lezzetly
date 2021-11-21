@@ -285,7 +285,7 @@ def add_courier_to_order(request, pk):
         # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
         try:
-            likedCourier = Courier.objects.filter(pk=courierId).first()
+            likedCourier = Courier.objects.get(pk=courierId)
         except Courier.DoesNotExist:
             return JsonResponse({'message': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
