@@ -421,44 +421,60 @@ def reject_order(request, pk):
     if 'warning' in claimsOrMessage:
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
-    if claimsOrMessage['Usertype'] != "1":
-        return JsonResponse({'warning': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+    if claimsOrMessage['Usertype'] == "3":
+        return JsonResponse({'warning': 'Client can not reject order!'}, status=status.HTTP_200_OK)
 
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
-    order_items = order.items.all()
-    currentCookUsername = None
-    cookInToken = claimsOrMessage['Username']
-    for i in order_items:
-        currentCookUsername = i.meal.cook.username
-    # if isinstance(request.user, Cook) == False:
-    #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
-    if currentCookUsername != cookInToken:
-        return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
-    elif currentCookUsername == cookInToken and order.complete:
-        return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
-    elif order.courier:
-        return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
-    else:
-        print("**************")
-        print("rejectde request_data", request_data)
-        print("is rejected", request_data['is_rejected'])
-        print("is rejected=True", request_data['is_rejected']==True)
-        print("**************")
-        if order.is_rejected:
-            return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
-        elif order.complete:
+    if claimsOrMessage['Usertype'] == "1":
+        order_items = order.items.all()
+        currentCookUsername = None
+        cookInToken = claimsOrMessage['Username']
+        for i in order_items:
+            currentCookUsername = i.meal.cook.username
+        # if isinstance(request.user, Cook) == False:
+        #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+        if currentCookUsername != cookInToken:
+            return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
+        elif currentCookUsername == cookInToken and order.complete:
             return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
-        elif request_data['is_rejected'] == True and not request_data['reject_reason']:
-            return JsonResponse({'message': 'You can not reject with out reject reason information!'}, status=status.HTTP_200_OK)    
+        elif order.courier:
+            return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
         else:
-            order.is_rejected = True
-            order.reject_reason = request_data['is_rejected']
-            order.save()
-            return JsonResponse({'message': f"Order with {order.id} id is rejected!"}, status=status.HTTP_200_OK)
+            print("**************")
+            print("rejectde request_data", request_data)
+            print("is rejected", request_data['is_rejected'])
+            print("is rejected=True", request_data['is_rejected']==True)
+            print("**************")
+            if order.status == "cook rejected order":
+                return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+            elif order.is_active:
+                return JsonResponse({'message': 'You can not reject active order!'}, status=status.HTTP_200_OK)
+            elif not request_data['reject_reason']:
+                return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)    
+            else:
+                order.status = "cook rejected order"
+                order.reject_reason = request_data['is_rejected']
+                order.save()
+                return JsonResponse({'message': f"Order with {order.id} id is rejected, resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
+    elif claimsOrMessage['Usertype'] == "1":
+        courierUsernameInToken = claimsOrMessage['Username']
+        try:
+            currentCourier = Courier.objects.get(username=courierUsernameInToken)
+        except Courier.DoesNotExist: 
+            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        if order.courier.username != courierUsernameInToken:
+            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        if not request_data['reject_reason']:
+            return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
+        order.courier = None
+        order.reject_reason = request_data['is_rejected']
+        order.courier_status = "courier reject order"
+        order.save()
+        return JsonResponse({'message': f"Order with {order.id} id is rejected by Courier({currentCourier.username}), resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
     # if not order.courier:
     #     return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
     # else:
