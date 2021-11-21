@@ -14,7 +14,7 @@ urlpatterns = [
     path("orders/<str:pk>/", views.order_detail),
     path("add-courier/<str:pk>/", views.add_courier_to_order),
     path("complete-order/<str:pk>/", views.complete_order),
-    path("reject-order/<str:pk>/", views.reject_order),
+    path("orders/<int:pk>/reject", views.reject_order),
     path("orderitems/", views.OrderItemAPIView.as_view()),
     path('orders/<int:pk>/active', ActiveOrdersAPIView.as_view(), name='active-orders'),
     path("orders/users/<int:pk>", UserOrders.as_view(), name="users-order")
