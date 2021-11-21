@@ -63,6 +63,7 @@ def order_create(request):
     else:
         print("order_data", order_data)
         order_serializer = OrderFullSerializer(data=order_data)
+        print("order_serializer: ", order_serializer)
         if order_serializer.is_valid():
             order_item_data = order_data['order_items']
             meal_id = None
