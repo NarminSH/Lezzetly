@@ -273,9 +273,9 @@ def add_courier_to_order(request, pk):
     if cookFromToken != cookInOrder:
         return JsonResponse({'message': 'You have not permission add courier to this order!'}, status=status.HTTP_200_OK)
     else:
-        if order.is_rejected:
-            return JsonResponse({'message': 'This order already rejected, You can not add couries to this order!'}, status=status.HTTP_200_OK)
-        elif order.complete == True:
+        if order.status == "cook rejected order":
+            return JsonResponse({'message': 'This order already rejected by cook, You can not add couries to this order!'}, status=status.HTTP_200_OK)
+        elif order.status == "order completed":
             return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
         elif order.courier != None:
             return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
@@ -284,7 +284,10 @@ def add_courier_to_order(request, pk):
     
         # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
-        likedCourier = Courier.objects.filter(pk=courierId).first()
+        try:
+            likedCourier = Courier.objects.filter(pk=courierId).first()
+        except Courier.DoesNotExist:
+            return JsonResponse({'message': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # ******************** interesting not delete **********************
         # delivery_id = request_data['delivery_information']
@@ -296,29 +299,26 @@ def add_courier_to_order(request, pk):
         #     return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
         # ******************** interesting not delete **********************
-        if likedCourier is None:
-            return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
+        # if likedCourier is None:
+        #     return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
 
-        elif likedCourier.is_available != True:
+        if likedCourier.is_available != True:
             return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
 
         elif likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
             return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
-
+        # stock-dan cixma courierin accept hissesinde olmalidi
         else:
-            for i in order.items.all():
-                # meal_id = i['meal']
-                # meal = Meal.objects.get(pk=meal_id)
-                # meal_quantity = i['quantity']
-                difference = i.meal.stock_quantity - i.quantity
-                print("////// stock difference: ", difference)
-                if difference > 0:
-                    i.meal.stock_quantity = difference
-                    i.meal.save()
-                else:
-                    print("girdi else stok dif sohbeti")
-                    i.meal.stock_quantity = 0
-                    i.meal.save()
+            # for i in order.items.all():
+            #     difference = i.meal.stock_quantity - i.quantity
+            #     print("////// stock difference: ", difference)
+            #     if difference > 0:
+            #         i.meal.stock_quantity = difference
+            #         i.meal.save()
+            #     else:
+            #         print("girdi else stok dif sohbeti")
+            #         i.meal.stock_quantity = 0
+            #         i.meal.save()
             print("Evvelce Curyerin statusu", likedCourier.is_available) 
             order.courier = likedCourier
             # order.delivery_information = choosen_delivery
@@ -326,8 +326,10 @@ def add_courier_to_order(request, pk):
             # meal-in stokunu burda azaldiriq
 
             # likedCourier.is_available = False
-            order.courier.is_available = False
-            likedCourier.save()
+            
+            # false etme courierin accept hissesinde olmalidi
+            # order.courier.is_available = False
+            # likedCourier.save()
             order.save()
 
             # print("Sonra Curyerin statusu", likedCourier.is_available)
@@ -444,11 +446,11 @@ def reject_order(request, pk):
         elif order.courier:
             return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
         else:
-            print("**************")
-            print("rejectde request_data", request_data)
-            print("is rejected", request_data['is_rejected'])
-            print("is rejected=True", request_data['is_rejected']==True)
-            print("**************")
+            # print("**************")
+            # print("rejectde request_data", request_data)
+            # print("is rejected", request_data['is_rejected'])
+            # print("is rejected=True", request_data['is_rejected']==True)
+            # print("**************")
             if order.status == "cook rejected order":
                 return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
             elif order.is_active:

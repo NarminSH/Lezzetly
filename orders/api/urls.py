@@ -12,7 +12,7 @@ urlpatterns = [
     path('order-create/', order_create, name='create-order'),
     path('orders/<int:pk>', views.OrderAPIView.as_view(), name='order-list'),
     path("orders/<str:pk>/", views.order_detail),
-    path("add-courier/<str:pk>/", views.add_courier_to_order),
+    path("orders/<int:pk>/add-courier", views.add_courier_to_order),
     path("complete-order/<str:pk>/", views.complete_order),
     path("orders/<int:pk>/reject", views.reject_order),
     path("orderitems/", views.OrderItemAPIView.as_view()),
