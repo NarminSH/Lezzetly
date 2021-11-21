@@ -291,8 +291,9 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
         model = Order
         fields = (
             'id',
+            'is_active',
             'status',
-            'courier_status'
+            'courier_status',
             'reject_reason',
             'order_total',
             'cook',
