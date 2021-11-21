@@ -61,6 +61,7 @@ def order_create(request):
     if not order_item_data:
         return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
     else:
+        print("order_data", order_data)
         order_serializer = OrderFullSerializer(data=order_data)
         if order_serializer.is_valid():
             order_item_data = order_data['order_items']
