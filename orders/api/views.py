@@ -125,14 +125,76 @@ def order_create(request):
         return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully"}, status=status.HTTP_201_CREATED)
         # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
-class OrderAPIView(generics.ListAPIView):
+# class OrderAPIView(generics.ListAPIView):
     
+#     authentication_classes = []
+#     permission_classes = []
+#     # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
+#     # filter_backends = (filters.SearchFilter,)
+#     queryset = Order.objects.all()
+#     serializer_class = OrderFullSerializer
+
+class OrderAPIView(ListCreateAPIView):
     authentication_classes = []
-    permission_classes = []
-    # search_fields = ['title', 'price', 'category__title', 'ingredients__title', 'mealoption__title', 'cook__first_name']
-    # filter_backends = (filters.SearchFilter,)
-    queryset = Order.objects.all()
+    permission_classes = [permissions.AllowAny]
     serializer_class = OrderFullSerializer
+    queryset = Order.objects.all()
+
+    def get(self, *args, **kwargs):
+        logger.info("just check logger")
+
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        print("In general active oreders api")
+        if claimsOrMessage['Usertype'] == '1':
+            print("kwargs.get('pk'): ", kwargs.get('pk'))
+            # adminer de baxdim yaranan orderde complete false yox bos gorunur
+            # orders = Order.objects.filter(cook=kwargs.get('pk'))
+            # print("orders without false:", orders)
+            orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=False)
+            print("orders with false:", orders)
+            
+            request_cook = Cook.objects.get(id = kwargs.get('pk')).username
+            token_cook = claimsOrMessage['Username']
+            print("request_cook:", request_cook)
+            print("token_cook:", token_cook)
+            if request_cook == token_cook:
+                if not orders:
+                    print("Bura girmedi")
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['cook'])
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
+
+        elif claimsOrMessage['Usertype'] == '2':
+            orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=False)
+            request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            token_courier = claimsOrMessage['Username']
+            if request_courier == token_courier:
+                if not orders:
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['courier'])
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
+
+        else:
+            orders = Order.objects.filter(client=kwargs.get('pk'), is_active=False)
+            request_client = Client.objects.get(id = kwargs.get('pk')).username
+            token_client = claimsOrMessage['Username']
+            if request_client == token_client:
+                if not orders:
+                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                serializer = OrderFullSerializer(
+                    orders, many=True, context={'request': self.request}, exclude=['client'])
+                return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
+
+
 
 class OrderItemAPIView(generics.ListAPIView):
     
@@ -541,7 +603,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             # adminer de baxdim yaranan orderde complete false yox bos gorunur
             # orders = Order.objects.filter(cook=kwargs.get('pk'))
             # print("orders without false:", orders)
-            orders = Order.objects.filter(cook=kwargs.get('pk'), complete=False)
+            orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=True)
             print("orders with false:", orders)
             
             request_cook = Cook.objects.get(id = kwargs.get('pk')).username
@@ -558,7 +620,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         elif claimsOrMessage['Usertype'] == '2':
-            orders = Order.objects.filter(courier=kwargs.get('pk'), complete=False)
+            orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=True)
             request_courier = Courier.objects.get(id = kwargs.get('pk')).username
             token_courier = claimsOrMessage['Username']
             if request_courier == token_courier:
@@ -570,7 +632,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         else:
-            orders = Order.objects.filter(client=kwargs.get('pk'), complete=False)
+            orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
             request_client = Client.objects.get(id = kwargs.get('pk')).username
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
