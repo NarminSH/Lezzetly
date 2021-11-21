@@ -321,6 +321,7 @@ def add_courier_to_order(request, pk):
             #         i.meal.save()
             print("Evvelce Curyerin statusu", likedCourier.is_available) 
             order.courier = likedCourier
+            order.courier_status = "cook sent request to courier"
             # order.delivery_information = choosen_delivery
 
             # meal-in stokunu burda azaldiriq
