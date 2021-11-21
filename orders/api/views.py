@@ -461,7 +461,7 @@ def reject_order(request, pk):
                 return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)    
             else:
                 order.status = "cook rejected order"
-                order.reject_reason = request_data['is_rejected']
+                order.reject_reason = request_data['reject_reason']
                 order.save()
                 return JsonResponse({'message': f"Order with {order.id} id is rejected, resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
     elif claimsOrMessage['Usertype'] == "2":
@@ -480,7 +480,7 @@ def reject_order(request, pk):
         print("order.courier", order.courier)
         order.courier = None
         print("order.reject_reason", order.reject_reason)
-        order.reject_reason = request_data['is_rejected']
+        order.reject_reason = request_data['reject_reason']
         print("order.courier_status", order.courier_status)
         order.courier_status = "courier reject order"
         order.save()
