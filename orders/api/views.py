@@ -468,6 +468,7 @@ def reject_order(request, pk):
         courierUsernameInToken = claimsOrMessage['Username']
         try:
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
+            print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
             return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
         if order.courier.username != courierUsernameInToken:
