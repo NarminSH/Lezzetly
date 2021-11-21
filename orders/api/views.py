@@ -484,6 +484,7 @@ def reject_order(request, pk):
         print("order.courier_status", order.courier_status)
         order.courier_status = "courier reject order"
         order.save()
+        print("sonra order.courier", order.courier)
         return JsonResponse({'message': f"Order with {order.id} id is rejected by Courier({currentCourier}), resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
     # if not order.courier:
     #     return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
