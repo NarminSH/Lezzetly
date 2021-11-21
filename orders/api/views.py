@@ -474,10 +474,14 @@ def reject_order(request, pk):
         print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        print("request_data['reject_reason']", request_data['reject_reason'])
         if not request_data['reject_reason']:
             return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
+        print("order.courier", order.courier)
         order.courier = None
+        print("order.reject_reason", order.reject_reason)
         order.reject_reason = request_data['is_rejected']
+        print("order.courier_status", order.courier_status)
         order.courier_status = "courier reject order"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is rejected by Courier({currentCourier.username}), resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
