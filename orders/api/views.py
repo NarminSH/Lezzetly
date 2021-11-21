@@ -464,7 +464,7 @@ def reject_order(request, pk):
                 order.reject_reason = request_data['is_rejected']
                 order.save()
                 return JsonResponse({'message': f"Order with {order.id} id is rejected, resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
-    elif claimsOrMessage['Usertype'] == "1":
+    elif claimsOrMessage['Usertype'] == "2":
         courierUsernameInToken = claimsOrMessage['Username']
         try:
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
