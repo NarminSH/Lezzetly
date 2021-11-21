@@ -418,7 +418,7 @@ test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description=
 @permission_classes([])
 # @permission_classes([IsAuthenticated])
 def reject_order(request, pk):
-
+    logger.info("just check logger")
     tokenStr = request.META.get('HTTP_AUTHORIZATION')
     claimsOrMessage = checkToken(tokenStr)
     if 'warning' in claimsOrMessage:
@@ -428,7 +428,8 @@ def reject_order(request, pk):
         return JsonResponse({'warning': 'Client can not reject order!'}, status=status.HTTP_200_OK)
 
     try: 
-        order = Order.objects.get(pk=pk) 
+        order = Order.objects.get(pk=pk)
+        print("order", order)
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
