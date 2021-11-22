@@ -736,7 +736,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                 orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=True)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderFullForClientSerializer(
+                serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
                 return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
@@ -751,7 +751,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
                 orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderFullSerializer(
+                serializer = OrderFullForClientSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
                 return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
