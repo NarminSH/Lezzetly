@@ -286,7 +286,7 @@ class OrderSimpleForClientSerializer(DynamicFieldsModelSerializer):    #this one
     cook = CookSimpleSerializer(required=False)
     courier = CourierSimpleSerializer(required=False)
     items = OrderItemForOrderSerializer(read_only=True, many=True)
-    delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    # delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
     client = ClientSimpleSerializer(read_only=True, required=False)
     class Meta:
         model = Order
