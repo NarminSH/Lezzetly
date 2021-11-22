@@ -453,6 +453,7 @@ def reject_order(request, pk):
             return JsonResponse({'message': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
         # elif order.courier and not order.is_active:
         else:
+            print("order reject by cook third step")
             # print("**************")
             # print("rejectde request_data", request_data)
             # print("is rejected", request_data['is_rejected'])
