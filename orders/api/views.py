@@ -320,7 +320,7 @@ def add_courier_to_order(request, pk):
             order.courier = likedCourier
             order.courier_status = "cook sent request to courier"
             order.reject_reason = None
-            # order.delivery_information = choosen_delivery
+            order.delivery_information = choosen_delivery
 
             # meal-in stokunu burda azaldiriq
 
