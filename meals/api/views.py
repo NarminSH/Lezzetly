@@ -83,7 +83,7 @@ def meal_create(request):
         try:
             currentCook = Cook.objects.get(username = claimsOrMessage['Username'])
         except Cook.DoesNotExist: 
-            return JsonResponse({'warning': 'Invalid token, this cook not exists!'}, status=status.HTTP_200_OKD)
+            return JsonResponse({'warning': 'Invalid token, this cook not exists!'}, status=status.HTTP_200_OK)
         print("meal_create current cook: ", currentCook)
         # custom_queryset = request.user.filter(is_available=True, service_place__isnull=False, 
         #                         rating__isnull=False, payment_address__isnull=False, work_experience__isnull=False)
