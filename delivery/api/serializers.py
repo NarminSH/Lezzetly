@@ -152,7 +152,7 @@ class CourierDeliverySerializer(serializers.ModelSerializer):
         )
 
 class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
-    courier = CourierDeliverySerializer(many=True, read_only=True)
+    courier = CourierDeliverySerializer( read_only=True)
 
     class Meta:
         model = DeliveryPrice
