@@ -79,7 +79,7 @@ class DeliveryPrice(models.Model):
     delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return f"Price for {self.area.area_name} is {self.delivery_price } ,  for {  self.courier.first_name}"
+        return f"Price for {self.area.area_name} is {self.delivery_price }"
 
 
 
