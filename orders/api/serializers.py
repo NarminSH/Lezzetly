@@ -182,8 +182,8 @@ class CourierForOrderSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'first_name',
-            'last_name',
+            'firstname',
+            'lastname',
             'phone',
             'transport',
             # 'deliveryArea',
@@ -201,8 +201,8 @@ class CourierSimpleSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'first_name',
-            'last_name',
+            'firstname',
+            'lastname',
             # 'phone',
             # 'transport',
             # 'deliveryArea',
@@ -291,8 +291,9 @@ class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed
         model = Order
         fields = (
             'id',
-            'complete',
-            'is_rejected',
+            'is_active',
+            'status',
+            'courier_status',
             'reject_reason',
             'order_total',
             'cook',

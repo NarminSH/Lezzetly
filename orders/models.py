@@ -17,15 +17,14 @@ class Order(models.Model):
 
     # customer info
 
-    STATUS_CHOICES = [
-        ('1', 'Order was placed!'),
-        ('2', 'Cook rejected your order!'),
-        ('3', 'Cook is preparing your order'),
-        ('4', 'Courier is on the way to order'),
-        ('5', 'Courier took order'),
-        ('6', 'Courier is on the way to you'),
-        ('7', 'Order arrived!'),
-    ]
+    # STATUS_CHOICES = [
+    #     ('1', 'Order is confirmed by cook'),
+    #     ('2', 'Preparing order'),
+    #     ('3', 'Order is ready'),
+    #     ('4', 'Courier took order'),
+    #     ('5', 'Courier is on the way to you'),
+    #     ('6', 'Order is here!'),
+    # ]
 
     # about customer
     # customer_first_name = models.CharField('first name', max_length=150)
@@ -35,9 +34,11 @@ class Order(models.Model):
     # customer_location = models.CharField('location', max_length=150)
 
     # customer_email = models.EmailField(('email address'), max_length=254) 
-    # status = models.CharField(max_length=2, choices=STATUS_CHOICES, blank=True, null=True)
-    complete = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(null=True, blank=True, default=False)
+    status = models.CharField(max_length=50, default="order was placed", blank=True, null=True)
+    courier_status = models.CharField(max_length=50, default="no courier", blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    # is_rejected = models.BooleanField(null=True, blank=True, default=False)
+    
     reject_reason = models.CharField('reject reason', max_length=250, null=True, blank=True, default=None)
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
