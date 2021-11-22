@@ -252,6 +252,7 @@ class ClientSimpleSerializer(serializers.ModelSerializer): # serializer for put,
             'first_name',
             'last_name',
             'patronymic',
+            'location',
             # 'phone_number',
             # 'email',
         )
