@@ -434,6 +434,7 @@ def reject_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
+    print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
         print("order reject by cook firts stem")
         order_items = order.items.all()
