@@ -266,8 +266,9 @@ class OrderSimpleSerializer(DynamicFieldsModelSerializer):    #this one is chang
         model = Order
         fields = (
             'id',
-            'complete',
-            'is_rejected',
+            'is_active',
+            'status',
+            'courier_status',
             'reject_reason',
             'order_total',
             'cook',
@@ -276,7 +277,7 @@ class OrderSimpleSerializer(DynamicFieldsModelSerializer):    #this one is chang
             'items',
             'client',
             'created_at',
-            'updated_at',   
+            'updated_at',
         )
 
 
