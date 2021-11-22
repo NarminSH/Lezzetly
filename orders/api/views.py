@@ -520,7 +520,7 @@ def accept_order(request, pk):
         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
     if claimsOrMessage['Usertype'] == "3":
-        return JsonResponse({'warning': 'Client can not reject order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'Client can not accept order!'}, status=status.HTTP_200_OK)
 
     try: 
         order = Order.objects.get(pk=pk)
