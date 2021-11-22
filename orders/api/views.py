@@ -280,8 +280,6 @@ def add_courier_to_order(request, pk):
         elif order.courier != None:
             return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
 
-
-    
         # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
         try:
@@ -290,13 +288,12 @@ def add_courier_to_order(request, pk):
             return JsonResponse({'message': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # ******************** interesting not delete **********************
-        # delivery_id = request_data['delivery_information']
+        delivery_id = request_data['delivery_information']
         
+        choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
         
-        # choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
-        
-        # if choosen_delivery not in likedCourier.delivery_areas.all():
-        #     return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
+        if choosen_delivery not in likedCourier.delivery_areas.all():
+            return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
         # ******************** interesting not delete **********************
         # if likedCourier is None:
