@@ -326,14 +326,14 @@ def add_courier_to_order(request, pk):
 
             # meal-in stokunu burda azaldiriq
 
-            likedCourier.is_available = False
+            # likedCourier.is_available = False
             
             # false etme courierin accept hissesinde olmalidi
-            # order.courier.is_available = False
+            order.courier.is_available = False
             likedCourier.save()
             order.save()
 
-            print("Sonra Curyerin statusu", likedCourier.is_available)
+            # print("Sonra Curyerin statusu", likedCourier.is_available)
             
             # curier_serializer = CourierSerializer(likedCourier, )
             # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
@@ -445,8 +445,9 @@ def reject_order(request, pk):
             return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
         elif currentCookUsername == cookInToken and order.complete:
             return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
-        elif order.courier:
-            return JsonResponse({'message': 'You can not reject order after assigning courier!'}, status=status.HTTP_200_OK)
+        elif order.courier and order.is_active:
+            return JsonResponse({'message': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
+        # elif order.courier and not order.is_active:
         else:
             # print("**************")
             # print("rejectde request_data", request_data)
@@ -458,8 +459,11 @@ def reject_order(request, pk):
             elif order.is_active:
                 return JsonResponse({'message': 'You can not reject active order!'}, status=status.HTTP_200_OK)
             elif not request_data['reject_reason']:
-                return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)    
+                return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK) 
             else:
+                if order.courier:
+                    order.courier.is_available = True
+                    order.courier_status = "cook rejected order"
                 order.status = "cook rejected order"
                 order.reject_reason = request_data['reject_reason']
                 order.save()
