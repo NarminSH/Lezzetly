@@ -451,7 +451,8 @@ class DeliveryAreaCouriersAPIView(RetrieveAPIView): #show all couriers for speci
         #     print("entered try sections")
         if DeliveryPrice.objects.filter(area=kwargs.get('area_id')).exists():
             # couriers = Courier.objects.filter()
-            return JsonResponse({"Message": " find couriers"})     
+            print(DeliveryPrice.objects.filter(area=kwargs.get('area_id')))  
+            return JsonResponse({"Message": " find couriers"})
         return JsonResponse({"Warning": "Could not find couriers"})  
         # except DeliveryPrice.DoesNotExist: 
         #     return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
