@@ -10,7 +10,7 @@ from django.http.response import Http404, JsonResponse
 from cooks.models import Client, Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier, DeliveryPrice
-from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderSimpleSerializer, OrderUpdateSerializer, RejectOrderSerializer
+from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderSimpleForClientSerializer, OrderSimpleSerializer, OrderUpdateSerializer, RejectOrderSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order, OrderItem
 from meals.models import Meal
@@ -810,7 +810,7 @@ class UserOrders(ListAPIView):
                 orders = Order.objects.filter(client=kwargs.get('pk'))
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderSimpleSerializer(
+                serializer = OrderSimpleForClientSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse ({"Warning": "You can not look at others' profile"})

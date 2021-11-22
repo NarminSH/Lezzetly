@@ -269,9 +269,10 @@ class OrderSimpleSerializer(DynamicFieldsModelSerializer):    #this one is chang
             'id',
             'is_active',
             'status',
+            'order_total',
             'courier_status',
             'reject_reason',
-            'order_total',
+            'reject_reason_courier',
             'cook',
             'courier',
             'delivery_information',
@@ -281,6 +282,30 @@ class OrderSimpleSerializer(DynamicFieldsModelSerializer):    #this one is chang
             'updated_at',
         )
 
+class OrderSimpleForClientSerializer(DynamicFieldsModelSerializer):    #this one is changed
+    cook = CookSimpleSerializer(required=False)
+    courier = CourierSimpleSerializer(required=False)
+    items = OrderItemForOrderSerializer(read_only=True, many=True)
+    delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    client = ClientSimpleSerializer(read_only=True, required=False)
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'is_active',
+            'status',
+            'order_total',
+            # 'courier_status',
+            'reject_reason',
+            # 'reject_reason_courier',
+            'cook',
+            'courier',
+            # 'delivery_information',
+            'items',
+            'client',
+            'created_at',
+            'updated_at',
+        )
 
 
 class OrderFullSerializer(DynamicFieldsModelSerializer):    #this one is changed

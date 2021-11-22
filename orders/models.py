@@ -40,6 +40,7 @@ class Order(models.Model):
     # is_rejected = models.BooleanField(null=True, blank=True, default=False)
     
     reject_reason = models.CharField('reject reason', max_length=250, null=True, blank=True, default=None)
+    reject_reason_courier = models.CharField('reject reason courier', max_length=250, null=True, blank=True, default=None)
     # moderations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
