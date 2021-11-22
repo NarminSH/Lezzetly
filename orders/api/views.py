@@ -436,10 +436,11 @@ def reject_order(request, pk):
     request_data = JSONParser().parse(request)
     print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
-        print("order reject by cook firts stem")
+        print("order reject by cook firts step")
         order_items = order.items.all()
         currentCookUsername = None
         cookInToken = claimsOrMessage['Username']
+        print("order reject by cook second step")
         for i in order_items:
             currentCookUsername = i.meal.cook.username
         # if isinstance(request.user, Cook) == False:
