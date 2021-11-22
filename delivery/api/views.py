@@ -10,7 +10,7 @@ from rest_framework import permissions
 from rest_framework.decorators import api_view, authentication_classes, parser_classes, permission_classes
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework import  status
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from delivery.api.serializers import (CourierSerializer, DeliveryAreaCouriersSerializer, DeliveryAreaPriceListSerializer,
@@ -430,7 +430,7 @@ class CouriersDeliveryAreasAPIView(ListAPIView):
 
 
 
-class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
+class DeliveryAreaCouriersAPIView(RetrieveAPIView): #show all couriers for specific area, For ex:show all couriers working in Sebayil
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -447,23 +447,24 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        try: 
-            print("entered try sections")
-            couriers = DeliveryPrice.objects.filter(area=kwargs.get('area')).first()
+        # try: 
+        #     print("entered try sections")
+        if DeliveryPrice.objects.filter(area=kwargs.get('area_id')).exists():
             # couriers = Courier.objects.filter()
-            print(couriers, "couriers")
-        except DeliveryPrice.DoesNotExist: 
-            return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
+            print(DeliveryPrice.objects.filter(area=kwargs.get('area_id')))  
+            return JsonResponse({"Message": " find couriers"})
+        return JsonResponse({"Warning": "Could not find couriers"})  
+        # except DeliveryPrice.DoesNotExist: 
+        #     return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
 
-        if couriers :
-            serializer = DeliveryAreaCouriersSerializer(
-                    couriers, many=True, context={'request': self.request})
-            print(serializer, "serializer" )
-            return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
+        # if couriers :
+        #     serializer = DeliveryAreaCouriersSerializer(
+        #             couriers, many=True, context={'request': self.request})
+        #     print(serializer, "serializer" )
+        #     return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
             # return JsonResponse(data=serializer.data, safe=False)
             # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json') 
-        return JsonResponse({"Warning": "Could not find couriers"})  
-        item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
+        # return JsonResponse({"Warning": "Could not find couriers"})  
 
         
 
