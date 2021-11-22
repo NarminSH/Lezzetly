@@ -378,30 +378,30 @@ def complete_order(request, pk):
     if currentCookUsername != cookInToken:
         return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
     elif currentCookUsername == cookInToken:
-        if order.is_rejected:
-            return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+        if order.is_active:
+            return JsonResponse({'message': 'This order already not active!'}, status=status.HTTP_200_OK)
         elif not order.courier:
             return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
-        elif order.complete:
+        elif order.status == "order completed":
             return JsonResponse({'message': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
         else:
             # print("couriers id", order.courier.id)
             # print("order.courier", order.courier)
             courierId = order.courier.id
             # print(courierId)
-            likedCourier = Courier.objects.get(pk=courierId)
+            currentCourier = Courier.objects.get(pk=courierId)
             # print("**************************")
             # print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
             # print("Evvelce complete-de Orderin statusu", order.complete)
             # print("**************************")
-            likedCourier.is_available = True
-            order.complete = True
-            likedCourier.save()
+            currentCourier.is_available = True
+            order.status = "order completed"
+            currentCourier.save()
             order.save()
             # print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
             # print("Sonra complete-de Orderin statusu", order.complete)
             # print("**************************")
-            return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
+            return JsonResponse({'message': 'Order is completed, order is not active!'}, status=status.HTTP_202_ACCEPTED)
             # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
 
@@ -574,7 +574,7 @@ def accept_order(request, pk):
                         i.meal.stock_quantity = 0
                         zero_meal = True
                         i.meal.save()
-                order.courier_status = "cook wait courier"
+                order.courier_status = "cook accept courier"
                 if zero_meal:
                     order.status = "cook is preparing your order"
                 else:
