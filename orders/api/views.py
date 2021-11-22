@@ -543,7 +543,7 @@ def accept_order(request, pk):
         #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
         # print("order reject by cook 2.5 step")
         if currentCookUsername != cookInToken:
-            print("order reject by cook 2.6 step")
+            # print("order reject by cook 2.6 step")
             return JsonResponse({'message': 'You have not permission accept this order!'}, status=status.HTTP_200_OK)
         # elif currentCookUsername == cookInToken and order.status == "":
         #     return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
@@ -557,7 +557,9 @@ def accept_order(request, pk):
             # print("is rejected", request_data['is_rejected'])
             # print("is rejected=True", request_data['is_rejected']==True)
             # print("**************")
-            if order.courier_status != "courier accept order" or order.courier_status != "cook wait courier":
+            if order.reject_reason is not None:
+                return JsonResponse({'message': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
+            elif order.courier_status != "courier accept order" or order.courier_status != "cook wait courier":
                 return JsonResponse({'message': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
