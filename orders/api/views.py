@@ -648,10 +648,10 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         else:
-            orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
             request_client = Client.objects.get(id = kwargs.get('pk')).username
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
+                orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
