@@ -648,7 +648,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         else:
-            request_client = Client.objects.get(id = kwargs.get('pk')).username
+            request_client = Client.objects.filter(id = kwargs.get('pk')).first().username
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
                 orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
