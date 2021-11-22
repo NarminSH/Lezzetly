@@ -204,9 +204,9 @@ class CourierSimpleSerializer(serializers.ModelSerializer):
             'firstname',
             'lastname',
             # 'phone',
-            # 'transport',
+            'transport',
             # 'deliveryArea',
-            # 'is_available',
+            'is_available',
             # 'location',
         )
 

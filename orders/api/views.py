@@ -10,7 +10,7 @@ from django.http.response import Http404, JsonResponse
 from cooks.models import Client, Cook
 from delivery.api.serializers import CourierSerializer
 from delivery.models import Courier, DeliveryPrice
-from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderUpdateSerializer, RejectOrderSerializer
+from orders.api.serializers import AddCourierSerializer, OrderCreatSerializer, OrderFullSerializer, OrderItemCreateSerializer, OrderItemSerializer, OrderListSerializer, OrderSerializer, OrderSimpleSerializer, OrderUpdateSerializer, RejectOrderSerializer
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from orders.models import Order, OrderItem
 from meals.models import Meal
@@ -758,7 +758,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
 class UserOrders(ListAPIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
-    serializer_class = OrderFullSerializer
+    serializer_class = OrderSimpleSerializer
     queryset = Order.objects.all()
 
 
@@ -780,7 +780,7 @@ class UserOrders(ListAPIView):
             if request_cook == token_cook:
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderFullSerializer(
+                serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse ({"Warning": "You can not look at others' profile"})
@@ -795,7 +795,7 @@ class UserOrders(ListAPIView):
                 orders = Order.objects.filter(courier=kwargs.get('pk'))
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderFullSerializer(
+                serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse ({"Warning": "You can not look at others' profile"})
@@ -810,7 +810,7 @@ class UserOrders(ListAPIView):
                 orders = Order.objects.filter(client=kwargs.get('pk'))
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
-                serializer = OrderFullSerializer(
+                serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse ({"Warning": "You can not look at others' profile"})
