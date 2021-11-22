@@ -447,22 +447,18 @@ class DeliveryAreaCouriersAPIView(RetrieveAPIView): #show all couriers for speci
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
-        try: 
-            print("entered try sections")
-            couriers = DeliveryPrice.objects.filter(area=kwargs.get('area_id'))
-            # couriers = Courier.objects.filter()
-            print(couriers, "couriers")
-        except DeliveryPrice.DoesNotExist: 
-            return JsonResponse({'Warning': 'The area does not exist.'}, status=status.HTTP_200_OK) 
-
-        if couriers :
-            serializer = DeliveryAreaCouriersSerializer(
-                    couriers, many=True, context={'request': self.request})
-            print(serializer, "serializer" )
-            return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
-            # return JsonResponse(data=serializer.data, safe=False)
-            # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json') 
-        return JsonResponse({"Warning": "Could not find couriers"})  
+        
+        queryset = DeliveryPrice.objects.filter(area=kwargs.get('area_id'))
+        
+        serializer = DeliveryAreaCouriersSerializer(queryset, many=True)
+        return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+        # couriers = DeliveryPrice.objects.get(area=kwargs.get('area_id'))
+        #     # couriers = Courier.objects.filter()
+        # serializer = DeliveryAreaCouriersSerializer(
+        #         couriers, many=True, context={'request': self.request})
+        # # return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
+        # return JsonResponse(data=serializer.data, safe=False)
+        # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json') 
 
         
 

@@ -143,7 +143,7 @@ class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
         model = DeliveryPrice
         fields = (
             'id',
-            # 'courier',
+            'courier',
             'delivery_price',
             'area',
         )
