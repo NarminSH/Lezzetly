@@ -395,6 +395,7 @@ def complete_order(request, pk):
             # print("Evvelce complete-de Orderin statusu", order.complete)
             # print("**************************")
             currentCourier.is_available = True
+            order.is_active = False
             order.status = "order completed"
             currentCourier.save()
             order.save()
