@@ -336,7 +336,7 @@ class OrderFullForClientSerializer(DynamicFieldsModelSerializer):    #this one i
     cook = CookForOrderSerializer(required=False)
     courier = CourierForOrderSerializer(required=False)
     items = OrderItemForOrderSerializer(read_only=True, many=True)
-    delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
+    # delivery_information = DeliveryAreaOrderSerializer(read_only=True, required=False)
     client = ClientForOrderSerializer(read_only=True, required=False)
     class Meta:
         model = Order
@@ -349,7 +349,7 @@ class OrderFullForClientSerializer(DynamicFieldsModelSerializer):    #this one i
             'order_total',
             'cook',
             'courier',
-            'delivery_information',
+            # 'delivery_information',
             'items',
             'client',
             'created_at',
