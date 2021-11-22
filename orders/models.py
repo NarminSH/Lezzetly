@@ -18,12 +18,13 @@ class Order(models.Model):
     # customer info
 
     STATUS_CHOICES = [
-        ('1', 'Order is confirmed by cook'),
-        ('2', 'Preparing order'),
-        ('3', 'Order is ready'),
-        ('4', 'Courier took order'),
-        ('5', 'Courier is on the way to you'),
-        ('6', 'Order is here!'),
+        ('1', 'Order was placed!'),
+        ('2', 'Cook rejected your order!'),
+        ('3', 'Cook is preparing your order'),
+        ('4', 'Courier is on the way to order'),
+        ('5', 'Courier took order'),
+        ('6', 'Courier is on the way to you'),
+        ('7', 'Order arrived!'),
     ]
 
     # about customer

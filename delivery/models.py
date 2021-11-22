@@ -74,7 +74,7 @@ class DeliveryArea(models.Model):
 
 class DeliveryPrice(models.Model):
     area = models.ForeignKey(DeliveryArea, db_index=True, related_name='exact_places', on_delete=models.CASCADE)
-    courier = models.ForeignKey(Courier, db_index=True, related_name='delivery_areas', on_delete=models.CASCADE)
+    courier = models.ForeignKey(Courier, db_index=True, related_name='delivery_areas', on_delete=models.CASCADE, blank=True, null=True)
 
     delivery_price = models.DecimalField(max_digits=5, decimal_places=2)
 
