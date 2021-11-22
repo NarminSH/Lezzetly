@@ -595,7 +595,7 @@ def accept_order(request, pk):
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
-        order.courier_status = "courier accept order and wait confirmation from cook"
+        order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
