@@ -133,17 +133,20 @@ class CourierSerializer(serializers.ModelSerializer):
 
 
 
-# class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
-#     # courier = CourierSerializer(many=True, read_only=True)
+# class CourierDeliverySerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = DeliveryPrice
-#         fields = (
-#             'id',
-#             'courier',
-#             'delivery_price',
-#             'area',
-#         )
+
+class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
+    # courier = CourierSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DeliveryPrice
+        fields = (
+            'id',
+            'courier',
+            'delivery_price',
+            'area',
+        )
 
 
 
