@@ -378,7 +378,7 @@ def complete_order(request, pk):
     if currentCookUsername != cookInToken:
         return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
     elif currentCookUsername == cookInToken:
-        if order.is_active:
+        if order.is_active == False:
             return JsonResponse({'message': 'This order already not active!'}, status=status.HTTP_200_OK)
         elif not order.courier:
             return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
