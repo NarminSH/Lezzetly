@@ -438,8 +438,6 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
     queryset = DeliveryPrice.objects.all()
     serializer_class = DeliveryAreaCouriersSerializer
 
-    
-
     def get(self, *args, **kwargs):
         tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
         claimsOrMessage = checkToken(tokenStr)
@@ -463,7 +461,10 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
             return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
             # return JsonResponse(data=serializer.data, safe=False)
             # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json') 
-        return JsonResponse({"Warning": "Could not find couriers"})   
+        return JsonResponse({"Warning": "Could not find couriers"})  
+        item = DeliveryPrice.objects.filter(courier=kwargs.get('pk'))
+        if not item:
+            return JsonResponse ({'Warning': 'You have not any delivery area!'}, status=status.HTTP_200_OK, safe=False)
         
 
         # serializer = DeliveryAreaCouriersSerializer(
