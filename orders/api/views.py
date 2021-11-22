@@ -301,7 +301,7 @@ def add_courier_to_order(request, pk):
         # ******************** interesting not delete **********************
         # if likedCourier is None:
         #     return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
-
+        
         if likedCourier.is_available != True:
             return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
 
@@ -503,128 +503,98 @@ def reject_order(request, pk):
         order.save()
         print("sonra order.courier", order.courier)
         return JsonResponse({'message': f"Order with {order.id} id is rejected by Courier({currentCourier}), resaon: {order.reject_reason}"}, status=status.HTTP_200_OK)
-    # if not order.courier:
-    #     return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
-    # else:
-    #     print("couriers id", order.courier.id)
-    #     print("order.courier", order.courier)
-    #     courierId = order.courier.id
-    #     print(courierId)
-    #     likedCourier = Courier.objects.get(pk=courierId)
-    #     print("**************************")
-    #     print("Evvelce complete-de Curyerin statusu", likedCourier.is_available)
-    #     print("Evvelce complete-de Orderin statusu", order.complete)
-    #     print("**************************")
-    #     likedCourier.is_available = True
-    #     order.complete = True
-    #     likedCourier.save()
-    #     order.save()
-    #     print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
-    #     print("Sonra complete-de Orderin statusu", order.complete)
-    #     print("**************************")
-    #     return JsonResponse({'message': 'Order is completed!'}, status=status.HTTP_202_ACCEPTED)
-    #     # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
+
+test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
+# @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
+@api_view(['PATCH'])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
+@authentication_classes([])
+@permission_classes([])
+# @permission_classes([IsAuthenticated])
+def accept_order(request, pk):
+    logger.info("just check logger")
+    tokenStr = request.META.get('HTTP_AUTHORIZATION')
+    claimsOrMessage = checkToken(tokenStr)
+    if 'warning' in claimsOrMessage:
+        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
+    if claimsOrMessage['Usertype'] == "3":
+        return JsonResponse({'warning': 'Client can not reject order!'}, status=status.HTTP_200_OK)
 
-
-    # if order_serializer.is_valid(raise_exception=True):
-    #     order_serializer.save()
-    # order_serializer.save()
-    # return JsonResponse(order_serializer.data)
-
-# class OrdersAPIView(ListCreateAPIView):
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-#     queryset = Order.objects.all()
-#     serializer_class = OrderListSerializer
-#     lookup_url_kwarg = 'pk'
-
-#     def get_serializer_class(self):
-#         if self.request.method == 'POST':
-#             return OrderSerializer
-#         return super(OrdersAPIView, self).get_serializer_class()
-
-
-# class OrderAPIView(RetrieveUpdateDestroyAPIView):
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-
-#     permission_classes = (IsAuthenticatedOrReadOnly,)
-#     queryset = Order.objects.all()
-
-#     def get_serializer_class(self):
-#         if self.request.method == "GET":
-#             return OrderListSerializer     # for swagger file
-#         return OrderSerializer
-
-    # def get(self, *args, **kwargs):
-    #     order = Order.objects.filter(pk=kwargs.get('pk')).first()
-    #     if not order:
-    #         raise Http404
-    #     serializer = OrderListSerializer(
-    #         order, context={'request': self.request})
-    #     return JsonResponse(data=serializer.data, safe=False)
-
-    # def put(self, *args, **kwargs):
-    #     order = Order.objects.filter(pk=kwargs.get('pk')).first()
-    #     if not order:
-    #         raise Http404
-    #     serializer = OrderSerializer(data=self.request.data,
-    #                                    instance=order, context={'request': self.request})
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return JsonResponse(data=serializer.data, safe=False)
-
-    # def delete(self, *args, **kwargs):
-    #     order = Order.objects.filter(pk=kwargs.get('pk')).first()
-    #     if not order:
-    #         raise Http404
-    #     serializer = OrderSerializer(order)
-    #     order.delete()
-    #     return JsonResponse(serializer.data, safe=False)
-
-    # def patch(self, *args, **kwargs):
-    #     order = Order.objects.filter(pk=kwargs.get('pk')).first()
-    #     serializer = OrderSerializer(data=self.request.data, instance=order, 
-    #                                 context={'request': self.request}, partial=True) # set partial=True to update a data partially
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return JsonResponse( data=serializer.data, safe=False)
-    #     return JsonResponse( data="Wrong parameters")
-
-
-
-# class OrderItemAPIView(RetrieveUpdateDestroyAPIView):
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-
-#     serializer_class = OrderSerializer
-#     queryset = Order.objects.all()
-#     lookup_url_kwarg = 'pk'
-
-#     def get_serializer_class(self):
-#         if self.request.method == 'GET':
-#             return OrderListSerializer
-#         return super(OrderItemAPIView, self).get_serializer_class()
-
-
-# class OrdersCompleteAPIView(GenericAPIView):
-#     authentication_classes = []
-#     permission_classes = [AllowAny]
-#     serializer_class = OrderSerializer
-
-#     def get(self, *args, **kwargs):
-#         order = Order.objects.filter(complete=True).first()
-#         if not order:
-#             raise Http404
-#         serializer = OrderSerializer(
-#             order, context={'request': self.request})
-#         return JsonResponse(data=serializer.data, safe=False)
-
-
-
-
-
+    try: 
+        order = Order.objects.get(pk=pk)
+        print("order", order)
+    except Order.DoesNotExist: 
+        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+    request_data = JSONParser().parse(request)
+    print(claimsOrMessage['Usertype'])
+    if claimsOrMessage['Usertype'] == "1":
+        # print("order reject by cook firts step")
+        order_items = order.items.all()
+        currentCookUsername = None
+        cookInToken = claimsOrMessage['Username']
+        # print("order reject by cook second step")
+        for i in order_items:
+            currentCookUsername = i.meal.cook.username
+        # if isinstance(request.user, Cook) == False:
+        #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+        # print("order reject by cook 2.5 step")
+        if currentCookUsername != cookInToken:
+            print("order reject by cook 2.6 step")
+            return JsonResponse({'message': 'You have not permission accept this order!'}, status=status.HTTP_200_OK)
+        # elif currentCookUsername == cookInToken and order.status == "":
+        #     return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+        elif currentCookUsername == cookInToken and order.is_active:
+            return JsonResponse({'message': 'You already accept this order!'}, status=status.HTTP_200_OK)
+        # elif order.courier and not order.is_active:
+        else:
+            # print("order reject by cook third step")
+            # print("**************")
+            # print("rejectde request_data", request_data)
+            # print("is rejected", request_data['is_rejected'])
+            # print("is rejected=True", request_data['is_rejected']==True)
+            # print("**************")
+            if order.courier_status != "courier accept order" or order.courier_status != "cook wait courier":
+                return JsonResponse({'message': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
+            else:
+                zero_meal = False
+                for i in order.items.all():
+                    if i.meal.stock_quantity == 0:
+                        zero_meal = True
+                    difference = i.meal.stock_quantity - i.quantity
+                    print("////// stock difference: ", difference)
+                if difference > 0:
+                    i.meal.stock_quantity = difference
+                    i.meal.save()
+                else:
+                    print("girdi else stok dif sohbeti")
+                    i.meal.stock_quantity = 0
+                    zero_meal = True
+                    i.meal.save()
+                order.courier_status = "cook wait courier"
+                if zero_meal:
+                    order.status = "cook is preparing your order"
+                else:
+                    order.status = "courier is on the way to cook"
+                order.is_active = True
+                order.save()
+                return JsonResponse({'message': f"Order with {order.id} id is accepted by cook, Order already Active!"}, status=status.HTTP_200_OK)
+    elif claimsOrMessage['Usertype'] == "2":
+        courierUsernameInToken = claimsOrMessage['Username']
+        try:
+            currentCourier = Courier.objects.get(username=courierUsernameInToken)
+            # print("currentCourier", currentCourier)
+        except Courier.DoesNotExist: 
+            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        # print("order.courier.username", order.courier.username)
+        if order.courier.username != courierUsernameInToken:
+            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        order.courier_status = "courier accept order"
+        order.save()
+        return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
 class ActiveOrdersAPIView(ListCreateAPIView):
     authentication_classes = []
