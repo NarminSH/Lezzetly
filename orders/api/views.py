@@ -559,7 +559,7 @@ def accept_order(request, pk):
             # print("**************")
             if order.reject_reason is not None:
                 return JsonResponse({'message': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
-            elif order.courier_status != "courier accept order" and order.courier_status != "cook wait courier":
+            elif order.courier_status != "courier accept order" and order.courier_status != "courier accept order and wait confirmation of cook":
                 return JsonResponse({'message': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
@@ -591,11 +591,11 @@ def accept_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             # print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permission reject order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
-        order.courier_status = "courier accept order and wait confirmation from cook"
+        order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
