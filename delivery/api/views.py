@@ -449,7 +449,7 @@ class DeliveryAreaCouriersAPIView(RetrieveAPIView): #show all couriers for speci
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         try: 
             print("entered try sections")
-            couriers = DeliveryPrice.objects.filter(area=kwargs.get('area_id')).first()
+            couriers = DeliveryPrice.objects.filter(area=kwargs.get('area_id'))
             # couriers = Courier.objects.filter()
             print(couriers, "couriers")
         except DeliveryPrice.DoesNotExist: 
