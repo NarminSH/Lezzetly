@@ -322,6 +322,7 @@ def add_courier_to_order(request, pk):
             print("Evvelce Curyerin statusu", likedCourier.is_available) 
             order.courier = likedCourier
             order.courier_status = "cook sent request to courier"
+            order.reject_reason = None
             # order.delivery_information = choosen_delivery
 
             # meal-in stokunu burda azaldiriq
@@ -434,6 +435,7 @@ def reject_order(request, pk):
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     if claimsOrMessage['Usertype'] == "1":
+        print("order reject by cook firts stem")
         order_items = order.items.all()
         currentCookUsername = None
         cookInToken = claimsOrMessage['Username']
