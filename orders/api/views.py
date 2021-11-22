@@ -326,14 +326,14 @@ def add_courier_to_order(request, pk):
 
             # meal-in stokunu burda azaldiriq
 
-            # likedCourier.is_available = False
+            likedCourier.is_available = False
             
             # false etme courierin accept hissesinde olmalidi
             # order.courier.is_available = False
-            # likedCourier.save()
+            likedCourier.save()
             order.save()
 
-            # print("Sonra Curyerin statusu", likedCourier.is_available)
+            print("Sonra Curyerin statusu", likedCourier.is_available)
             
             # curier_serializer = CourierSerializer(likedCourier, )
             # order_serializer = OrderFullSerializer(order, data=request_data, partial=True)
