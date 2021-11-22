@@ -615,20 +615,16 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         
         print("In general active oreders api")
         if claimsOrMessage['Usertype'] == '1':
-            print("kwargs.get('pk'): ", kwargs.get('pk'))
-            # adminer de baxdim yaranan orderde complete false yox bos gorunur
-            # orders = Order.objects.filter(cook=kwargs.get('pk'))
-            # print("orders without false:", orders)
-            orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=True)
-            print("orders with false:", orders)
-            
-            request_cook = Cook.objects.get(id = kwargs.get('pk')).username
+            try:
+                request_cook = Cook.objects.get(id = kwargs.get('pk')).username
+            except Client.DoesNotExist:
+                return JsonResponse({"Warning": "Cook does not exist"})
             token_cook = claimsOrMessage['Username']
             print("request_cook:", request_cook)
             print("token_cook:", token_cook)
             if request_cook == token_cook:
+                orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=True)
                 if not orders:
-                    print("Bura girmedi")
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
@@ -636,10 +632,13 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"}, status=status.HTTP_200_OK)
 
         elif claimsOrMessage['Usertype'] == '2':
-            orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=True)
-            request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            try:
+                request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            except Client.DoesNotExist:
+                return JsonResponse({"Warning": "Courier does not exist"})
             token_courier = claimsOrMessage['Username']
             if request_courier == token_courier:
+                orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=True)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
@@ -651,7 +650,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             try:
                 request_client = Client.objects.get(id = kwargs.get('pk')).username
             except Client.DoesNotExist:
-                request_client = None
+                return JsonResponse({"Warning": "Client does not exist"})
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
                 orders = Order.objects.filter(client=kwargs.get('pk'), is_active=True)
