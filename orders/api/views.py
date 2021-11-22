@@ -462,7 +462,11 @@ def reject_order(request, pk):
                 return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK) 
             else:
                 if order.courier:
+                    print("rejectde courier-in olmasini yoxlayiriq")
+                    print("courier.is_available: ", order.courier.is_available)
                     order.courier.is_available = True
+                    order.courier.save()
+                    print("courier.is_available true edenden sonra: ", order.courier.is_available)
                     order.courier_status = "cook rejected order"
                 order.status = "cook rejected order"
                 order.reject_reason = request_data['reject_reason']
