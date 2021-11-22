@@ -122,7 +122,7 @@ def order_create(request):
             if orderItem_serializer.is_valid():
                 orderItem_serializer.save(order = curren_order)
         # f"Hello, {name}"
-        return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully, is_active={curren_order.is_active}"}, status=status.HTTP_201_CREATED)
+        return JsonResponse({'message': f"New order with {current_order_id} id is created succesfully!"}, status=status.HTTP_201_CREATED)
         # return JsonResponse(order_serializer.data, status=status.HTTP_201_CREATED)
 
 # class OrderAPIView(generics.ListAPIView):
