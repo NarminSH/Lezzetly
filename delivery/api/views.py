@@ -423,7 +423,7 @@ class DeliveryAreaCouriersAPIView(APIView):
         if claimsOrMessage['Usertype'] != '1':
             return JsonResponse({'Warning': 'You have not permission to get information about couriers!'}, status=status.HTTP_200_OK)    
 
-        queryset = DeliveryPrice.objects.filter(area=kwargs.get('id')).first()
+        queryset = DeliveryPrice.objects.filter(id=kwargs.get('id')).first()
         serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
 
