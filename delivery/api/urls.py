@@ -15,5 +15,5 @@ urlpatterns = [
     path('couriers/<int:pk>/deliveryareas/', CourierAreasAPIView.as_view(), name='courierareas'),
     path('couriers/<int:pk>/deliveryareas/<int:id>', CourierAreaAPIView.as_view(), name='courierarea'),
     path('couriers/deliveryareas/', CouriersDeliveryAreasAPIView.as_view(), name='allcouriersareas'),
-    path('couriers/deliveryareas/<int:pk>', DeliveryAreaCouriersAPIView.as_view(), name='deliveryarea'),
+    path('couriers/deliveryareas/<str:area>', DeliveryAreaCouriersAPIView.as_view(), name='deliveryarea'),
 ]
