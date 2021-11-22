@@ -585,6 +585,7 @@ def accept_order(request, pk):
                 order.save()
                 return JsonResponse({'message': f"Order with {order.id} id is accepted by cook, Order already Active!"}, status=status.HTTP_200_OK)
     elif claimsOrMessage['Usertype'] == "2":
+        print("courier-e aid hisseye girdu")
         courierUsernameInToken = claimsOrMessage['Username']
         try:
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
