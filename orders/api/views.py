@@ -591,7 +591,7 @@ def accept_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             # print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'message': 'You have not permission reject order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)

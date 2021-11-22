@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import fields
 from django.http import request
 from rest_framework import serializers
 from delivery.models import Courier, DeliveryArea, DeliveryPrice
@@ -133,11 +134,25 @@ class CourierSerializer(serializers.ModelSerializer):
 
 
 
-# class CourierDeliverySerializer(serializers.ModelSerializer):
-
+class CourierDeliverySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Courier
+        fields = (
+            'id',
+            'username',
+            'firstname',
+            'phone',
+            'email',
+            'transport',    
+            'delivery_areas',
+            'work_experience',
+            'rating',
+            'is_available',
+            'location',
+        )
 
 class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
-    # courier = CourierSerializer(many=True, read_only=True)
+    courier = CourierDeliverySerializer(many=True, read_only=True)
 
     class Meta:
         model = DeliveryPrice
