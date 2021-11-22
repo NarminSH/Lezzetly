@@ -618,7 +618,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         if claimsOrMessage['Usertype'] == '1':
             try:
                 request_cook = Cook.objects.get(id = kwargs.get('pk')).username
-            except Client.DoesNotExist:
+            except Cook.DoesNotExist:
                 return JsonResponse({"Warning": "Cook does not exist"})
             token_cook = claimsOrMessage['Username']
             print("request_cook:", request_cook)
@@ -635,7 +635,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         elif claimsOrMessage['Usertype'] == '2':
             try:
                 request_courier = Courier.objects.get(id = kwargs.get('pk')).username
-            except Client.DoesNotExist:
+            except Courier.DoesNotExist:
                 return JsonResponse({"Warning": "Courier does not exist"})
             token_courier = claimsOrMessage['Username']
             if request_courier == token_courier:
@@ -681,8 +681,11 @@ class UserOrders(ListAPIView):
         
         
         if claimsOrMessage['Usertype'] == '1':
+            try:
+                request_cook = Cook.objects.get(id = kwargs.get('pk')).username
+            except Cook.DoesNotExist:
+                return JsonResponse({"Warning": "Cook does not exist"})
             orders = Order.objects.filter(cook=kwargs.get('pk'))
-            request_cook = Cook.objects.get(id = kwargs.get('pk')).username
             token_cook = claimsOrMessage['Username']
             if request_cook == token_cook:
                 if not orders:
@@ -693,10 +696,13 @@ class UserOrders(ListAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"})
 
         elif claimsOrMessage['Usertype'] == '2':
-            orders = Order.objects.filter(courier=kwargs.get('pk'))
-            request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            try:
+                request_courier = Courier.objects.get(id = kwargs.get('pk')).username
+            except Courier.DoesNotExist:
+                return JsonResponse({"Warning": "Courier does not exist"})
             token_courier = claimsOrMessage['Username']
             if request_courier == token_courier:
+                orders = Order.objects.filter(courier=kwargs.get('pk'))
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
@@ -705,10 +711,13 @@ class UserOrders(ListAPIView):
             return JsonResponse ({"Warning": "You can not look at others' profile"})
 
         else:
-            orders = Order.objects.filter(client=kwargs.get('pk'))
-            request_client = Client.objects.get(id = kwargs.get('pk')).username
+            try:
+                request_client = Client.objects.get(id = kwargs.get('pk')).username
+            except Client.DoesNotExist:
+                return JsonResponse({"Warning": "Client does not exist"})
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
+                orders = Order.objects.filter(client=kwargs.get('pk'))
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
