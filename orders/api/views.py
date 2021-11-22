@@ -639,6 +639,8 @@ def pick_order(request, pk):
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permission pick up order with this token!'}, status=status.HTTP_200_OK)
+        if order.is_active == False:
+            return JsonResponse({'message': 'You can not pick up not active order!'}, status=status.HTTP_200_OK)
         order.status = "courier on the way to client"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is picked by ({currentCourier})"}, status=status.HTTP_200_OK)
@@ -683,6 +685,8 @@ def deliver_order(request, pk):
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'message': 'You have not permission deliver order with this token!'}, status=status.HTTP_200_OK)
+        if order.is_active == False:
+            return JsonResponse({'message': 'You can not deliver not active order!'}, status=status.HTTP_200_OK)
         order.status = "order delivered"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is delivered to client by ({currentCourier})"}, status=status.HTTP_200_OK)
