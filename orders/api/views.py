@@ -445,6 +445,7 @@ def reject_order(request, pk):
             currentCookUsername = i.meal.cook.username
         # if isinstance(request.user, Cook) == False:
         #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+        print("order reject by cook 2.5 step")
         if currentCookUsername != cookInToken:
             return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
         elif currentCookUsername == cookInToken and order.complete:
