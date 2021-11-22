@@ -322,6 +322,7 @@ def add_courier_to_order(request, pk):
             print("Evvelce Curyerin statusu", likedCourier.is_available) 
             order.courier = likedCourier
             order.courier_status = "cook sent request to courier"
+            order.reject_reason = None
             # order.delivery_information = choosen_delivery
 
             # meal-in stokunu burda azaldiriq
@@ -433,22 +434,28 @@ def reject_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
+    print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
+        print("order reject by cook firts step")
         order_items = order.items.all()
         currentCookUsername = None
         cookInToken = claimsOrMessage['Username']
+        print("order reject by cook second step")
         for i in order_items:
             currentCookUsername = i.meal.cook.username
         # if isinstance(request.user, Cook) == False:
         #     return JsonResponse({'message': 'Only cook can reject order!'}, status=status.HTTP_200_OK)
+        print("order reject by cook 2.5 step")
         if currentCookUsername != cookInToken:
+            print("order reject by cook 2.6 step")
             return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
-        elif currentCookUsername == cookInToken and order.complete:
-            return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
-        elif order.courier and order.is_active:
+        # elif currentCookUsername == cookInToken and order.status == "":
+        #     return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+        elif currentCookUsername == cookInToken and order.is_active:
             return JsonResponse({'message': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
         # elif order.courier and not order.is_active:
         else:
+            print("order reject by cook third step")
             # print("**************")
             # print("rejectde request_data", request_data)
             # print("is rejected", request_data['is_rejected'])
