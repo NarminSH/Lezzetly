@@ -3,7 +3,7 @@ from django.http.response import JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 import jwt
-from rest_framework import filters
+from rest_framework import filters, serializers
 from django_filters import rest_framework as djangofilters
 from rest_framework import generics
 from rest_framework import permissions
@@ -449,7 +449,7 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
         # serializer = DeliveryAreaPriceListSerializer(queryset, many=True)
         try: 
             print("entered try sections")
-            couriers = DeliveryPrice.objects.filter(area=kwargs.get('pk'))
+            couriers = DeliveryPrice.objects.filter(area=kwargs.get('id')).first()
             # couriers = Courier.objects.filter()
             print(couriers, "couriers")
         except DeliveryPrice.DoesNotExist: 
@@ -458,6 +458,7 @@ class DeliveryAreaCouriersAPIView(APIView): #show all couriers for specific area
         if couriers :
             serializer = DeliveryAreaCouriersSerializer(
                     couriers, many=True, context={'request': self.request})
+            print(serializer, "serializer" )
             return JsonResponse({'Message': f"{couriers} couriers are here"}, data=serializer.data, safe=False, status=status.HTTP_200_OK)
             # return JsonResponse(data=serializer.data, safe=False)
             # return JsonResponse({"couriers": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json') 
