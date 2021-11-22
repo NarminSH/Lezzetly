@@ -144,7 +144,6 @@ class CourierDeliverySerializer(serializers.ModelSerializer):
             'phone',
             'email',
             'transport',    
-            'delivery_areas',
             'work_experience',
             'rating',
             'is_available',
@@ -152,7 +151,7 @@ class CourierDeliverySerializer(serializers.ModelSerializer):
         )
 
 class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
-    courier = CourierDeliverySerializer( read_only=True)
+    courier = CourierDeliverySerializer(read_only=True)
 
     class Meta:
         model = DeliveryPrice
@@ -160,7 +159,7 @@ class DeliveryAreaCouriersSerializer(serializers.ModelSerializer):
             'id',
             'courier',
             'delivery_price',
-            'area',
+            # 'area',
         )
 
 
