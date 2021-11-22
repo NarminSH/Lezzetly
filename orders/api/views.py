@@ -559,7 +559,7 @@ def accept_order(request, pk):
             # print("**************")
             if order.reject_reason is not None:
                 return JsonResponse({'message': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
-            elif order.courier_status != "courier accept order" or order.courier_status != "cook wait courier":
+            elif order.courier_status != "courier accept order" and order.courier_status != "cook wait courier":
                 return JsonResponse({'message': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
