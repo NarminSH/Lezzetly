@@ -781,7 +781,7 @@ class UserOrders(ListAPIView):
                 request_cook = Cook.objects.get(id = kwargs.get('pk')).username
             except Cook.DoesNotExist:
                 return JsonResponse({"Warning": "Cook does not exist"})
-            orders = Order.objects.filter(cook=kwargs.get('pk'))
+            orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=False)
             token_cook = claimsOrMessage['Username']
             if request_cook == token_cook:
                 if not orders:
