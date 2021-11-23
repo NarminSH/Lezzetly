@@ -81,6 +81,7 @@ class DeliveryAreaPriceForCookSerializer(DynamicFieldsModelSerializer):
 class DeliveryAreaPriceListSerializer(DeliveryAreaPriceForCookSerializer):
     area = DeliveryAreaSerializer()
 
+
 class DeliveryAreaOrderForAddCourierSerializer(serializers.ModelSerializer):   #this one is to hide courier id
     # area = DeliveryAreaSerializer()
     id = serializers.IntegerField()
@@ -141,8 +142,6 @@ class CourierDeliverySerializer(serializers.ModelSerializer):
             'id',
             'username',
             'firstname',
-            'phone',
-            'email',
             'transport',    
             'work_experience',
             'rating',

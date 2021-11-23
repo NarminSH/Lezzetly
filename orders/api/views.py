@@ -710,7 +710,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
         if 'warning' in claimsOrMessage:
             return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
         
-        print("In general active oreders api")
+        print("In general active orders api")
         if claimsOrMessage['Usertype'] == '1':
             try:
                 request_cook = Cook.objects.get(id = kwargs.get('pk')).username
