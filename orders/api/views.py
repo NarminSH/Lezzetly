@@ -817,6 +817,6 @@ class UserOrders(ListAPIView):
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleForClientSerializer(
-                    orders, many=True, context={'request': self.request}, exclude=['client'])
+                    orders, many=True, context={'request': self.request}, exclude=['client', 'courier'])
                 return JsonResponse(data=serializer.data, safe=False)
             return JsonResponse ({"Warning": "You can not look at others' profile"})
