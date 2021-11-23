@@ -798,7 +798,7 @@ class UserOrders(ListAPIView):
                 return JsonResponse({"Warning": "Courier does not exist"})
             token_courier = claimsOrMessage['Username']
             if request_courier == token_courier:
-                orders = Order.objects.filter(courier=kwargs.get('pk'))
+                orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=False)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleSerializer(
@@ -813,7 +813,7 @@ class UserOrders(ListAPIView):
                 return JsonResponse({"Warning": "Client does not exist"})
             token_client = claimsOrMessage['Username']
             if request_client == token_client:
-                orders = Order.objects.filter(client=kwargs.get('pk'))
+                orders = Order.objects.filter(client=kwargs.get('pk'), is_active=False)
                 if not orders:
                     return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleForClientSerializer(
