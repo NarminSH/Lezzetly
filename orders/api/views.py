@@ -785,7 +785,7 @@ class UserOrders(ListAPIView):
             token_cook = claimsOrMessage['Username']
             if request_cook == token_cook:
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)
@@ -800,7 +800,7 @@ class UserOrders(ListAPIView):
             if request_courier == token_courier:
                 orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=False)
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
                 return JsonResponse(data=serializer.data, safe=False)
@@ -815,7 +815,7 @@ class UserOrders(ListAPIView):
             if request_client == token_client:
                 orders = Order.objects.filter(client=kwargs.get('pk'), is_active=False)
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleForClientSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client'])
                 return JsonResponse(data=serializer.data, safe=False)
