@@ -427,6 +427,8 @@ class DeliveryAreaCouriersAPIView(RetrieveAPIView): #show all couriers for speci
             return JsonResponse({'Warning': "You don't have permission to get this information"}, status=status.HTTP_200_OK)    
         
         queryset = DeliveryPrice.objects.filter(area=kwargs.get('area_id'))
+        for courier in queryset:
+            print(courier.courier.is_available)
         print(queryset, "couriers")
         
         
