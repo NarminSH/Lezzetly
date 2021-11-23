@@ -59,7 +59,7 @@ def order_create(request):
     print("order_item_data: ", order_item_data)
     
     if not order_item_data:
-        return JsonResponse({'message': "You can not create order without meal!"}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': "You can not create order without meal!"}, status=status.HTTP_200_OK)
     else:
         print("order_data", order_data)
         order_serializer = OrderFullSerializer(data=order_data)
@@ -91,7 +91,7 @@ def order_create(request):
             if is_same_cook:
                 order_serializer.save(cook = cook1, client = client1)
             else:
-                return JsonResponse({'message': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
+                return JsonResponse({'warning': 'You have to choose meals from same cook!'}, status=status.HTTP_200_OK)            
 
         # get current order id for assigning to orderItem
         current_order_id = order_serializer.data['id']
@@ -220,7 +220,7 @@ def order_detail(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND) 
     if request.method == 'GET': 
         order_serializer = OrderFullSerializer(order) 
         return JsonResponse(order_serializer.data)
@@ -264,28 +264,28 @@ def add_courier_to_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist:
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_404_NOT_FOUND)
     cookInOrder = order.cook.username
     # requestUserId = request.user.id
     request_data = JSONParser().parse(request)
     # if isinstance(request.user, Cook) == False: #!
     #     return JsonResponse({'message': 'Only cook can add courier to order!'}, status=status.HTTP_200_OK)
     if cookFromToken != cookInOrder:
-        return JsonResponse({'message': 'You have not permission add courier to this order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'You have not permission add courier to this order!'}, status=status.HTTP_200_OK)
     else:
         if order.status == "cook rejected order":
-            return JsonResponse({'message': 'This order already rejected by cook, You can not add couries to this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This order already rejected by cook, You can not add couries to this order!'}, status=status.HTTP_200_OK)
         elif order.status == "order completed":
-            return JsonResponse({'message': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This order already completed, You can not add couries to this order!'}, status=status.HTTP_200_OK)
         elif order.courier != None:
-            return JsonResponse({'message': 'This order already has courier!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This order already has courier!'}, status=status.HTTP_200_OK)
 
         # print("******//// order.items:", order.items.all())  
         courierId = request_data['courier']
         try:
             likedCourier = Courier.objects.get(pk=courierId)
         except Courier.DoesNotExist:
-            return JsonResponse({'message': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'warning': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # ******************** interesting not delete **********************
         delivery_id = request_data['delivery_information']
@@ -293,17 +293,17 @@ def add_courier_to_order(request, pk):
         choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
         
         if choosen_delivery not in likedCourier.delivery_areas.all():
-            return JsonResponse({"message": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
+            return JsonResponse({"warning": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
         # print("likedCourier.transport__isnull == True: ", likedCourier.transport)
         # ******************** interesting not delete **********************
         # if likedCourier is None:
         #     return JsonResponse({"message": "Choosen courier does not exist!"}, status=status.HTTP_200_OK)
         
         if likedCourier.is_available != True:
-            return JsonResponse({'message': 'This courier is not available now!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This courier is not available now!'}, status=status.HTTP_200_OK)
 
         elif likedCourier.transport == None or likedCourier.work_experience == None or likedCourier.delivery_areas == None:
-            return JsonResponse({'message': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
+            return JsonResponse({'warning': 'This courier has not got enough information, please choose other courier!'}, status=status.HTTP_200_OK)    
         # stock-dan cixma courierin accept hissesinde olmalidi
         else:
             # for i in order.items.all():
@@ -362,7 +362,7 @@ def complete_order(request, pk):
     try: 
         order = Order.objects.get(pk=pk) 
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     
     request_data = JSONParser().parse(request)
     order_items = order.items.all()
@@ -376,14 +376,14 @@ def complete_order(request, pk):
     # if isinstance(request.user, Cook) == False:
     #     return JsonResponse({'message': 'Only cook can complete order!'}, status=status.HTTP_200_OK)
     if currentCookUsername != cookInToken:
-        return JsonResponse({'message': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'You have not permission complete this order!'}, status=status.HTTP_200_OK)
     elif currentCookUsername == cookInToken:
         if order.is_active == False:
-            return JsonResponse({'message': 'This order already not active!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This order already not active!'}, status=status.HTTP_200_OK)
         elif not order.courier:
-            return JsonResponse({'message': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'This order has not courier yet, you can not complete this order!'}, status=status.HTTP_200_OK)
         elif order.status == "order completed":
-            return JsonResponse({'message': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You can not complete this order. This order already completed!'}, status=status.HTTP_200_OK)
         else:
             # print("couriers id", order.courier.id)
             # print("order.courier", order.courier)
@@ -402,7 +402,7 @@ def complete_order(request, pk):
             # print("Sonra complete-de Curyerin statusu", likedCourier.is_available)
             # print("Sonra complete-de Orderin statusu", order.complete)
             # print("**************************")
-            return JsonResponse({'message': 'Order is completed, order is not active!'}, status=status.HTTP_202_ACCEPTED)
+            return JsonResponse({'warning': 'Order is completed, order is not active!'}, status=status.HTTP_202_ACCEPTED)
             # order_serializer = OrderUpdateSerializer(order, data=request_data, partial=True)
 
 
@@ -430,7 +430,7 @@ def reject_order(request, pk):
         order = Order.objects.get(pk=pk)
         print("order", order)
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
@@ -446,11 +446,11 @@ def reject_order(request, pk):
         print("order reject by cook 2.5 step")
         if currentCookUsername != cookInToken:
             print("order reject by cook 2.6 step")
-            return JsonResponse({'message': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission reject this order!'}, status=status.HTTP_200_OK)
         # elif currentCookUsername == cookInToken and order.status == "":
         #     return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
         elif currentCookUsername == cookInToken and order.is_active:
-            return JsonResponse({'message': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
         # elif order.courier and not order.is_active:
         else:
             print("order reject by cook third step")
@@ -460,11 +460,11 @@ def reject_order(request, pk):
             # print("is rejected=True", request_data['is_rejected']==True)
             # print("**************")
             if order.status == "cook rejected order":
-                return JsonResponse({'message': 'This order already rejected!'}, status=status.HTTP_200_OK)
+                return JsonResponse({'warning': 'This order already rejected!'}, status=status.HTTP_200_OK)
             elif order.is_active:
-                return JsonResponse({'message': 'You can not reject active order!'}, status=status.HTTP_200_OK)
+                return JsonResponse({'warning': 'You can not reject active order!'}, status=status.HTTP_200_OK)
             elif not request_data['reject_reason']:
-                return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK) 
+                return JsonResponse({'warning': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK) 
             else:
                 if order.courier:
                     print("rejectde courier-in olmasini yoxlayiriq")
@@ -483,13 +483,13 @@ def reject_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
         print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'message': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
         print("request_data['reject_reason']", request_data['reject_reason'])
         if not request_data['reject_reason']:
-            return JsonResponse({'message': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
         print("order.courier", order.courier)
         order.courier.is_available = True
         order.courier.save()
@@ -526,7 +526,7 @@ def accept_order(request, pk):
         order = Order.objects.get(pk=pk)
         print("order", order)
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
@@ -542,11 +542,11 @@ def accept_order(request, pk):
         # print("order reject by cook 2.5 step")
         if currentCookUsername != cookInToken:
             # print("order reject by cook 2.6 step")
-            return JsonResponse({'message': 'You have not permission accept this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission accept this order!'}, status=status.HTTP_200_OK)
         # elif currentCookUsername == cookInToken and order.status == "":
         #     return JsonResponse({'message': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
         elif currentCookUsername == cookInToken and order.is_active:
-            return JsonResponse({'message': 'You already accept this order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You already accept this order!'}, status=status.HTTP_200_OK)
         # elif order.courier and not order.is_active:
         else:
             # print("order reject by cook third step")
@@ -556,9 +556,9 @@ def accept_order(request, pk):
             # print("is rejected=True", request_data['is_rejected']==True)
             # print("**************")
             if order.reject_reason is not None:
-                return JsonResponse({'message': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
+                return JsonResponse({'warning': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
             elif order.courier_status != "courier accept order" and order.courier_status != "courier accept order and wait confirmation of cook":
-                return JsonResponse({'message': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
+                return JsonResponse({'warning': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
                 for i in order.items.all():
@@ -583,7 +583,7 @@ def accept_order(request, pk):
 
                 order.is_active = True
                 order.save()
-                return JsonResponse({'message': f"Order with {order.id} id is accepted by cook, Order already Active!"}, status=status.HTTP_200_OK)
+                return JsonResponse({'warning': f"Order with {order.id} id is accepted by cook, Order already Active!"}, status=status.HTTP_200_OK)
     elif claimsOrMessage['Usertype'] == "2":
         print("courier-e aid hisseye girdu")
         courierUsernameInToken = claimsOrMessage['Username']
@@ -591,13 +591,15 @@ def accept_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             # print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
+        if not order.courier.username:
+            return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'message': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
-        return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
 
 test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
@@ -624,7 +626,7 @@ def pick_order(request, pk):
         order = Order.objects.get(pk=pk)
         print("order", order)
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     # print(claimsOrMessage['Usertype'])
     
@@ -635,15 +637,15 @@ def pick_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             # print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission pick order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'message': 'You have not permission pick up order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission pick up order with this token!'}, status=status.HTTP_200_OK)
         if order.is_active == False:
-            return JsonResponse({'message': 'You can not pick up not active order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You can not pick up not active order!'}, status=status.HTTP_200_OK)
         order.status = "courier on the way to client"
         order.save()
-        return JsonResponse({'message': f"Order with {order.id} id is picked by ({currentCourier})"}, status=status.HTTP_200_OK)
+        return JsonResponse({'message': f"Order with {order.id} id is picked by {currentCourier}"}, status=status.HTTP_200_OK)
 
 
 test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
@@ -670,7 +672,7 @@ def deliver_order(request, pk):
         order = Order.objects.get(pk=pk)
         print("order", order)
     except Order.DoesNotExist: 
-        return JsonResponse({'message': 'The order does not exist'}, status=status.HTTP_200_OK)
+        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     request_data = JSONParser().parse(request)
     # print(claimsOrMessage['Usertype'])
     
@@ -681,12 +683,12 @@ def deliver_order(request, pk):
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
             # print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
-            return JsonResponse({'message': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission deliver order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'message': 'You have not permission deliver order with this token!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You have not permission deliver order with this token!'}, status=status.HTTP_200_OK)
         if order.is_active == False:
-            return JsonResponse({'message': 'You can not deliver not active order!'}, status=status.HTTP_200_OK)
+            return JsonResponse({'warning': 'You can not deliver not active order!'}, status=status.HTTP_200_OK)
         order.status = "order delivered"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is delivered to client by ({currentCourier})"}, status=status.HTTP_200_OK)
