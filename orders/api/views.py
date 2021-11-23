@@ -567,7 +567,7 @@ def accept_order(request, pk):
                     difference = i.meal.stock_quantity - i.quantity
                     
                     print("////// stock difference: ", difference)
-                    if difference > 0:
+                    if difference > 0 or difference == 0:
                         i.meal.stock_quantity = difference
                         i.meal.save()
                     else:
@@ -579,11 +579,11 @@ def accept_order(request, pk):
                 if zero_meal:
                     order.status = "cook is preparing your order"
                 else:
-                    order.status = "courier is on the way to cook"
+                    order.status = "courier is on the way to order"
 
                 order.is_active = True
                 order.save()
-                return JsonResponse({'warning': f"Order with {order.id} id is accepted by cook, Order already Active!"}, status=status.HTTP_200_OK)
+                return JsonResponse({'message': f"Order with {order.id} id is accepted by cook, order is active now!"}, status=status.HTTP_200_OK)
     elif claimsOrMessage['Usertype'] == "2":
         print("courier-e aid hisseye girdu")
         courierUsernameInToken = claimsOrMessage['Username']
@@ -599,7 +599,7 @@ def accept_order(request, pk):
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
-        return JsonResponse({'warning': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
+        return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
 
 test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
@@ -785,7 +785,7 @@ class UserOrders(ListAPIView):
             token_cook = claimsOrMessage['Username']
             if request_cook == token_cook:
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have not active orders"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False)
@@ -800,7 +800,7 @@ class UserOrders(ListAPIView):
             if request_courier == token_courier:
                 orders = Order.objects.filter(courier=kwargs.get('pk'), is_active=False)
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have not active orders"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['courier'])
                 return JsonResponse(data=serializer.data, safe=False)
@@ -815,7 +815,7 @@ class UserOrders(ListAPIView):
             if request_client == token_client:
                 orders = Order.objects.filter(client=kwargs.get('pk'), is_active=False)
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have completed order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have not active orders"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderSimpleForClientSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['client', 'courier'])
                 return JsonResponse(data=serializer.data, safe=False)
