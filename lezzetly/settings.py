@@ -30,8 +30,8 @@ os.environ['SECRET_KEY'] = 'supersecretkey'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False if os.environ.get('DEBUG') else True
+# DEBUG = True
+DEBUG = False if os.environ.get('DEBUG') else True
 
 ALLOWED_HOSTS = ['*']
 
