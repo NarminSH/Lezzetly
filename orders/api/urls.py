@@ -13,7 +13,7 @@ urlpatterns = [
     # path('orders/<int:pk>', views.OrderAPIView.as_view(), name='order-list'),
     # path("orders/<str:pk>/", views.order_detail),
     path("orders/<int:pk>/add-courier", views.add_courier_to_order),
-    path("complete-order/<str:pk>/", views.complete_order),
+    path("orders/<int:pk>/complete", views.complete_order),
     path("orders/<int:pk>/reject", views.reject_order),
     path("orders/<int:pk>/accept", views.accept_order),
     path("orders/<int:pk>/pick-up", views.pick_order),
