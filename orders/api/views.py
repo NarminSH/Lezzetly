@@ -565,32 +565,31 @@ def accept_order(request, pk):
                 zero_meal = False
                 preparing_times = []
                 for i in order.items.all():
-                    if i.meal.stock_quantity == 0:
-                        zero_meal = True
-                        preparing_times.append(type(int(i.meal.preparing_time)))
 
                     difference = i.meal.stock_quantity - i.quantity
                     
                     print("////// stock difference: ", difference)
                     print("////// preparing_times: ", preparing_times)
-                    print("////// preparing_times[0] type: ", preparing_times[0])
-                    print("////// preparing_times[1] type: ", preparing_times[1])
-                    preparing_times = sorted(preparing_times, reverse=True)
-                    print("###### preparing times: ", preparing_times)
-
-                    def timeout():
-                        order.status = "order is ready, waiting for the courier"    
-                        print("status after seconds: ", order.status)
+              
                      
                     if difference > 0 or difference == 0:
                         i.meal.stock_quantity = difference
                         i.meal.save()
-                    else:
+                    elif difference == 0 or difference < 0:
                         print("girdi else stok dif sohbeti")
                         i.meal.stock_quantity = 0
+                        preparing_times.append(type(int(i.meal.preparing_time)))
                         zero_meal = True
                         i.meal.save()
-                order.courier_status = "cook accept courier"
+                print("////// preparing_times[0] type: ", preparing_times[0])
+                print("////// preparing_times[1] type: ", preparing_times[1])
+                preparing_times = sorted(preparing_times, reverse=True)
+                print("###### preparing times: ", preparing_times)
+
+                def timeout():
+                    order.status = "order is ready, waiting for the courier"    
+                    print("status after seconds: ", order.status)
+                # order.courier_status = "cook accept courier"
                 
                 if zero_meal:
                     order.status = f"cook is preparing your order, preparing time: {preparing_times[0]} minute"
