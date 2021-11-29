@@ -342,7 +342,9 @@ def courier_detail(request, pk):
 
 class DeliveryAreasAPIView(ListCreateAPIView):
     authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
+    # authentication_classes = []
+    # permission_classes = [AllowAny]
     queryset = DeliveryArea.objects.all()
     serializer_class = DeliveryAreaSerializer 
 
