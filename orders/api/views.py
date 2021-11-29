@@ -615,9 +615,13 @@ def accept_order(request, pk):
         except Courier.DoesNotExist: 
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
-        if not order.courier.username:
+        try:
+            username = order.courier.username
+        except Courier.DoesNotExist: 
             return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
-        if order.courier.username != courierUsernameInToken:
+        # if not order.courier.username:
+        #     return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
+        if username != courierUsernameInToken:
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         if order.status == "order completed":
             return JsonResponse({"warning": "You can't accept completed order!"}, status=status.HTTP_200_OK)
