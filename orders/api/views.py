@@ -19,6 +19,8 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from utility.check_token import checkToken
 import logging
+from threading import Timer
+
 
 logger = logging.getLogger(__name__)
 
@@ -561,12 +563,22 @@ def accept_order(request, pk):
                 return JsonResponse({'warning': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
+                preparing_times = [None]
                 for i in order.items.all():
                     if i.meal.stock_quantity == 0:
                         zero_meal = True
+                        preparing_times.append(type(int(i.meal.preparing_time)))
+
                     difference = i.meal.stock_quantity - i.quantity
                     
                     print("////// stock difference: ", difference)
+                    preparing_times = sorted(preparing_times, reverse=True)
+                    print("###### preparing times: ", preparing_times)
+
+                    def timeout():
+                        order.status = "order is ready, waiting for the courier"    
+                        print("status after seconds: ", order.status)
+                     
                     if difference > 0 or difference == 0:
                         i.meal.stock_quantity = difference
                         i.meal.save()
@@ -576,10 +588,13 @@ def accept_order(request, pk):
                         zero_meal = True
                         i.meal.save()
                 order.courier_status = "cook accept courier"
+                
                 if zero_meal:
-                    order.status = "cook is preparing your order"
+                    order.status = f"cook is preparing your order, preparing time: {preparing_times[0]}"
+                    t = Timer(preparing_times[0]*60, timeout)
+                    t.start()
                 else:
-                    order.status = "courier is on the way to order"
+                    order.status = "order is ready, waiting for the courier"
 
                 order.is_active = True
                 order.save()
