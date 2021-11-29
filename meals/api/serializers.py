@@ -119,17 +119,18 @@ class MealSerializer(DynamicFieldsModelSerializer):
         fields = (
             'id',
             'title',
+            'is_active',
             'price',
             'image',
             'stock_quantity',
             'quantity',
-            'is_active',
-            'created_at',
-            'updated_at',
+            'preparing_time',
             'cook',
             'category',
             'ingredients',
             'mealoption',
+            'created_at',
+            'updated_at',
         )
 
 
