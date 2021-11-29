@@ -346,6 +346,20 @@ class DeliveryAreasAPIView(ListCreateAPIView):
     queryset = DeliveryArea.objects.all()
     serializer_class = DeliveryAreaSerializer 
 
+    def get(self, *args, **kwargs):
+        tokenStr = self.request.META.get('HTTP_AUTHORIZATION')
+        claimsOrMessage = checkToken(tokenStr)
+        if 'warning' in claimsOrMessage:
+            return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK)
+        
+        if claimsOrMessage['Usertype'] != '2':
+            return JsonResponse({'Warning': "Only courier can see delivery areas"}, status=status.HTTP_200_OK)    
+        
+        queryset = DeliveryArea.objects.all()
+
+        serializer = DeliveryAreaSerializer(queryset,  many=True)
+        return JsonResponse({"Delivery Areas": serializer.data}, status=status.HTTP_200_OK, content_type = 'application/json')
+
 
 class CourierAreaAPIView(RetrieveUpdateDestroyAPIView): #this view is to change certain datas of particular courier
     # authentication_classes = []
