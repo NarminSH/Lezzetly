@@ -581,8 +581,8 @@ def accept_order(request, pk):
                         preparing_times.append(int(i.meal.preparing_time))
                         zero_meal = True
                         i.meal.save()
-                print("////// preparing_times[0] type: ", type(preparing_times[0]), preparing_times[0])
-                print("////// preparing_times[1] type: ", type(preparing_times[1]), preparing_times[1])
+                # print("////// preparing_times[0] type: ", type(preparing_times[0]), preparing_times[0])
+                # print("////// preparing_times[1] type: ", type(preparing_times[1]), preparing_times[1])
                 print("###### preparing times: ", preparing_times)
                 preparing_times = sorted(preparing_times, reverse=True)
                 print("###### preparing times: ", preparing_times)
