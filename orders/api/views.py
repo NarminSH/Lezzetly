@@ -572,6 +572,9 @@ def accept_order(request, pk):
                     difference = i.meal.stock_quantity - i.quantity
                     
                     print("////// stock difference: ", difference)
+                    print("////// preparing_times: ", preparing_times)
+                    print("////// preparing_times[0] type: ", preparing_times[0])
+                    print("////// preparing_times[1] type: ", preparing_times[1])
                     preparing_times = sorted(preparing_times, reverse=True)
                     print("###### preparing times: ", preparing_times)
 
