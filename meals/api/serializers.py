@@ -70,12 +70,13 @@ class MealCreatSerializer(serializers.ModelSerializer):
             'image',
             'stock_quantity',
             'is_active',
-            'created_at',
-            'updated_at',
-            # 'cook',
             'category',
             'ingredients',
             'mealoption',
+            'preparing_time',
+            'created_at',
+            'updated_at',
+            # 'cook',
         )
 
 
