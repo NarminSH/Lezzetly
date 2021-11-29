@@ -372,7 +372,7 @@ def complete_order(request, pk):
     except Order.DoesNotExist: 
         return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
     
-    request_data = JSONParser().parse(request)
+    # request_data = JSONParser().parse(request)
     order_items = order.items.all()
     
     currentCookUsername = None
@@ -535,7 +535,7 @@ def accept_order(request, pk):
         print("order", order)
     except Order.DoesNotExist: 
         return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
-    request_data = JSONParser().parse(request)
+    # request_data = JSONParser().parse(request)
     print(claimsOrMessage['Usertype'])
     if claimsOrMessage['Usertype'] == "1":
         # print("order reject by cook firts step")
