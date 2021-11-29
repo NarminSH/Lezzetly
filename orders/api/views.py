@@ -722,7 +722,7 @@ class ActiveOrdersAPIView(ListCreateAPIView):
             if request_cook == token_cook:
                 orders = Order.objects.filter(cook=kwargs.get('pk'), is_active=True)
                 if not orders:
-                    return JsonResponse ({'Warning': "You don't have ongoing order"}, status=status.HTTP_200_OK, safe=False)
+                    return JsonResponse ({'Warning': "You don't have active order"}, status=status.HTTP_200_OK, safe=False)
                 serializer = OrderFullSerializer(
                     orders, many=True, context={'request': self.request}, exclude=['cook'])
                 return JsonResponse(data=serializer.data, safe=False, status=status.HTTP_200_OK)
