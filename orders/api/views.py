@@ -283,16 +283,19 @@ def add_courier_to_order(request, pk):
             return JsonResponse({'warning': 'This order already has courier!'}, status=status.HTTP_200_OK)
 
         # print("******//// order.items:", order.items.all())  
-        courierId = request_data['courier']
-        try:
-            likedCourier = Courier.objects.get(pk=courierId)
-        except Courier.DoesNotExist:
-            return JsonResponse({'warning': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
 
         # ******************** interesting not delete **********************
         delivery_id = request_data['delivery_information']
         
         choosen_delivery = DeliveryPrice.objects.filter(id=delivery_id).first()
+
+        # courierId = request_data['courier']
+        try:
+            likedCourier = choosen_delivery.courier
+            print("likedCourier:", likedCourier)
+        except Exception as e:
+            return JsonResponse({'warning': f'Courier with this id {courierId} does not exist'}, status=status.HTTP_404_NOT_FOUND)
         
         if choosen_delivery not in likedCourier.delivery_areas.all():
             return JsonResponse({"warning": "This courier does not work in choosen delivery area!"}, status=status.HTTP_200_OK)
