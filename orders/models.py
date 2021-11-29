@@ -47,6 +47,9 @@ class Order(models.Model):
     # test comment from fuad ////s
     # def order_total(self):
     
+    class Meta:
+        ordering = ('-created_at',)
+
     @property
     def order_total(self):
         # check
