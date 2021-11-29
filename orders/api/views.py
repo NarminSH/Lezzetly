@@ -588,12 +588,12 @@ def accept_order(request, pk):
                 print("###### preparing times: ", preparing_times)
 
                 def timeout():
-                    order.status = "order is ready, waiting for the courier"    
+                    order.status = "order is ready, waiting for courier"    
                     print("status after seconds: ", order.status)
                 # order.courier_status = "cook accept courier"
                 
                 if zero_meal:
-                    order.status = f"cook is preparing your order, preparing time: {preparing_times[0]} minute"
+                    order.status = f"cook preparing order, preparing time: {preparing_times[0]} minute"
                     t = Timer(preparing_times[0]*60, timeout)
                     t.start()
                 else:
