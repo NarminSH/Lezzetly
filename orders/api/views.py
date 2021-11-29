@@ -561,6 +561,8 @@ def accept_order(request, pk):
                 return JsonResponse({'warning': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
             elif order.courier_status != "courier accept order" and order.courier_status != "courier accept order and wait confirmation of cook":
                 return JsonResponse({'warning': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
+            elif order.is_active == True:
+                return JsonResponse({"warning": "You already accept this order!"}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
                 preparing_times = []
@@ -591,7 +593,7 @@ def accept_order(request, pk):
                     order.status = "order is ready, waiting for courier"
                     order.save()
                     print("status after seconds: ", order.status)
-                # order.courier_status = "cook accept courier"
+                
                 
                 if zero_meal:
                     order.status = f"cook preparing order, preparing time: {preparing_times[0]} minute"
@@ -600,6 +602,7 @@ def accept_order(request, pk):
                 else:
                     order.status = "order is ready, waiting for the courier"
 
+                order.courier_status = "cook accept courier"
                 order.is_active = True
                 order.save()
                 return JsonResponse({'message': f"Order with {order.id} id is accepted by cook, order is active now!"}, status=status.HTTP_200_OK)
@@ -616,55 +619,57 @@ def accept_order(request, pk):
             return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
+        if order.is_active == False:
+            return JsonResponse({"warning": "You can't accept not active order!"}, status=status.HTTP_200_OK)
         order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
 
 
-test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
-# user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
-@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
-# @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
-@api_view(['PATCH'])
+# test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
+# # user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
+# @swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
+# # @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
+# @api_view(['PATCH'])
+# # @authentication_classes([])
+# # @permission_classes([AllowAny])
 # @authentication_classes([])
-# @permission_classes([AllowAny])
-@authentication_classes([])
-@permission_classes([])
-# @permission_classes([IsAuthenticated])
-def pick_order(request, pk):
-    logger.info("just check logger")
-    tokenStr = request.META.get('HTTP_AUTHORIZATION')
-    claimsOrMessage = checkToken(tokenStr)
-    if 'warning' in claimsOrMessage:
-        return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
+# @permission_classes([])
+# # @permission_classes([IsAuthenticated])
+# def pick_order(request, pk):
+#     logger.info("just check logger")
+#     tokenStr = request.META.get('HTTP_AUTHORIZATION')
+#     claimsOrMessage = checkToken(tokenStr)
+#     if 'warning' in claimsOrMessage:
+#         return JsonResponse(claimsOrMessage, status=status.HTTP_200_OK) 
     
-    if claimsOrMessage['Usertype'] != "2":
-        return JsonResponse({'warning': 'Only Courier can pick order!'}, status=status.HTTP_200_OK)
+#     if claimsOrMessage['Usertype'] != "2":
+#         return JsonResponse({'warning': 'Only Courier can pick order!'}, status=status.HTTP_200_OK)
 
-    try: 
-        order = Order.objects.get(pk=pk)
-        print("order", order)
-    except Order.DoesNotExist: 
-        return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
-    request_data = JSONParser().parse(request)
-    # print(claimsOrMessage['Usertype'])
+#     try: 
+#         order = Order.objects.get(pk=pk)
+#         print("order", order)
+#     except Order.DoesNotExist: 
+#         return JsonResponse({'warning': 'The order does not exist'}, status=status.HTTP_200_OK)
+#     request_data = JSONParser().parse(request)
+#     # print(claimsOrMessage['Usertype'])
     
-    if claimsOrMessage['Usertype'] == "2":
-        print("courier-e aid hisseye girdu")
-        courierUsernameInToken = claimsOrMessage['Username']
-        try:
-            currentCourier = Courier.objects.get(username=courierUsernameInToken)
-            # print("currentCourier", currentCourier)
-        except Courier.DoesNotExist: 
-            return JsonResponse({'warning': 'You have not permission pick order with this token!'}, status=status.HTTP_200_OK)
-        # print("order.courier.username", order.courier.username)
-        if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'warning': 'You have not permission pick up order with this token!'}, status=status.HTTP_200_OK)
-        if order.is_active == False:
-            return JsonResponse({'warning': 'You can not pick up not active order!'}, status=status.HTTP_200_OK)
-        order.status = "courier on the way to client"
-        order.save()
-        return JsonResponse({'message': f"Order with {order.id} id is picked by {currentCourier}"}, status=status.HTTP_200_OK)
+#     if claimsOrMessage['Usertype'] == "2":
+#         print("courier-e aid hisseye girdu")
+#         courierUsernameInToken = claimsOrMessage['Username']
+#         try:
+#             currentCourier = Courier.objects.get(username=courierUsernameInToken)
+#             # print("currentCourier", currentCourier)
+#         except Courier.DoesNotExist: 
+#             return JsonResponse({'warning': 'You have not permission pick order with this token!'}, status=status.HTTP_200_OK)
+#         # print("order.courier.username", order.courier.username)
+#         if order.courier.username != courierUsernameInToken:
+#             return JsonResponse({'warning': 'You have not permission pick up order with this token!'}, status=status.HTTP_200_OK)
+#         if order.is_active == False:
+#             return JsonResponse({'warning': 'You can not pick up not active order!'}, status=status.HTTP_200_OK)
+#         order.status = "courier on the way to client"
+#         order.save()
+#         return JsonResponse({'message': f"Order with {order.id} id is picked by {currentCourier}"}, status=status.HTTP_200_OK)
 
 
 test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
