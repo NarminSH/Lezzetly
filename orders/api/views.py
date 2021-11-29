@@ -416,9 +416,9 @@ def complete_order(request, pk):
 
 test_param_order_adc = openapi.Parameter('order', openapi.IN_QUERY, description="id in parametr is important and login as cook", type=openapi.TYPE_BOOLEAN)
 # user_response_order = openapi.Response('Asagidaki Melumatlar qayidir', OrderFullSerializer)
-@swagger_auto_schema(method='patch', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
+@swagger_auto_schema(method='get', manual_parameters=[test_param_order_adc],request_body=RejectOrderSerializer, responses={200: "Order is rejected!"})
 # @swagger_auto_schema(method = 'patch',request_body=AddCourierSerializer)
-@api_view(['PATCH'])
+@api_view(['GET'])
 # @authentication_classes([])
 # @permission_classes([AllowAny])
 @authentication_classes([])
