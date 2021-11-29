@@ -590,7 +590,7 @@ def accept_order(request, pk):
                 order.courier_status = "cook accept courier"
                 
                 if zero_meal:
-                    order.status = f"cook is preparing your order, preparing time: {preparing_times[0]}"
+                    order.status = f"cook is preparing your order, preparing time: {preparing_times[0]} minute"
                     t = Timer(preparing_times[0]*60, timeout)
                     t.start()
                 else:
