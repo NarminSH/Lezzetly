@@ -578,11 +578,12 @@ def accept_order(request, pk):
                     elif difference == 0 or difference < 0:
                         print("girdi else stok dif sohbeti")
                         i.meal.stock_quantity = 0
-                        preparing_times.append(type(int(i.meal.preparing_time)))
+                        preparing_times.append(int(i.meal.preparing_time))
                         zero_meal = True
                         i.meal.save()
-                print("////// preparing_times[0] type: ", preparing_times[0])
-                print("////// preparing_times[1] type: ", preparing_times[1])
+                print("////// preparing_times[0] type: ", type(preparing_times[0]), preparing_times[0])
+                print("////// preparing_times[1] type: ", type(preparing_times[1]), preparing_times[1])
+                print("###### preparing times: ", preparing_times)
                 preparing_times = sorted(preparing_times, reverse=True)
                 print("###### preparing times: ", preparing_times)
 
