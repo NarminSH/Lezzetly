@@ -563,7 +563,7 @@ def accept_order(request, pk):
                 return JsonResponse({'warning': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             else:
                 zero_meal = False
-                preparing_times = [None]
+                preparing_times = []
                 for i in order.items.all():
                     if i.meal.stock_quantity == 0:
                         zero_meal = True
