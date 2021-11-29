@@ -617,8 +617,9 @@ def accept_order(request, pk):
         # print("order.courier.username", order.courier.username)
         try:
             username = order.courier.username
-        except Courier.DoesNotExist: 
-            return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            username = None 
+            # return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         # if not order.courier.username:
         #     return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         if username != courierUsernameInToken:
