@@ -619,8 +619,10 @@ def accept_order(request, pk):
             return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
-        if order.is_active == False:
-            return JsonResponse({"warning": "You can't accept not active order!"}, status=status.HTTP_200_OK)
+        if order.status == "order completed":
+            return JsonResponse({"warning": "You can't accept completed order!"}, status=status.HTTP_200_OK)
+        if order.courier_status != "cook sent request to courier":
+            return JsonResponse({"warning": "You have not active offer to this order!"}, status=status.HTTP_200_OK)
         order.courier_status = "courier accept order and wait confirmation of cook"
         order.save()
         return JsonResponse({'message': f"Order with {order.id} id is accepted by courier ({currentCourier})"}, status=status.HTTP_200_OK)
