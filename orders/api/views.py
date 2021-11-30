@@ -493,18 +493,19 @@ def reject_order(request, pk):
         courierUsernameInToken = claimsOrMessage['Username']
         try:
             currentCourier = Courier.objects.get(username=courierUsernameInToken)
+            if order.courier.username != courierUsernameInToken:
+               return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+            elif order.courier.username == courierUsernameInToken and order.status == "order completed":
+                return JsonResponse({'warning': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+            elif order.courier.username == courierUsernameInToken and order.status == "cook rejected order":
+                return JsonResponse({'warning': 'This order alredy rejected by cook!'}, status=status.HTTP_200_OK)
+            elif order.courier.username == courierUsernameInToken and order.courier_status == "courier reject order":
+                return JsonResponse({'warning': 'You already reject this order!'}, status=status.HTTP_200_OK)
             print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
             return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
         # print("order.courier.username", order.courier.username)
-        if order.courier.username != courierUsernameInToken:
-            return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
-        elif order.courier.username == courierUsernameInToken and order.status == "order completed":
-            return JsonResponse({'warning': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
-        elif order.courier.username == courierUsernameInToken and order.status == "cook rejected order":
-            return JsonResponse({'warning': 'This order alredy rejected by cook!'}, status=status.HTTP_200_OK)
-        elif order.courier.username == courierUsernameInToken and order.courier_status == "courier reject order":
-            return JsonResponse({'warning': 'You already reject this order!'}, status=status.HTTP_200_OK)
+        
         print("request_data['reject_reason']", request_data['reject_reason'])
         if not request_data['reject_reason']:
             return JsonResponse({'warning': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
