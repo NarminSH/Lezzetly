@@ -460,6 +460,10 @@ def reject_order(request, pk):
         elif currentCookUsername == cookInToken and order.is_active:
             return JsonResponse({'warning': 'You can not reject order after accept!'}, status=status.HTTP_200_OK)
         # elif order.courier and not order.is_active:
+        elif currentCookUsername == cookInToken and order.status == "order completed":
+            return JsonResponse({'warning': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+        elif currentCookUsername == cookInToken and order.status == "cook rejected order":
+            return JsonResponse({'warning': 'This order alredy rejected!'}, status=status.HTTP_200_OK)
         else:
             print("order reject by cook third step")
             # print("**************")
@@ -495,6 +499,12 @@ def reject_order(request, pk):
         print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
+        elif order.courier.username == courierUsernameInToken and order.status == "order completed":
+            return JsonResponse({'warning': 'You can not reject completed order!'}, status=status.HTTP_200_OK)
+        elif order.courier.username == courierUsernameInToken and order.status == "cook rejected order":
+            return JsonResponse({'warning': 'This order alredy rejected by cook!'}, status=status.HTTP_200_OK)
+        elif order.courier.username == courierUsernameInToken and order.courier_status == "courier reject order":
+            return JsonResponse({'warning': 'You already reject this order!'}, status=status.HTTP_200_OK)
         print("request_data['reject_reason']", request_data['reject_reason'])
         if not request_data['reject_reason']:
             return JsonResponse({'warning': 'You can not reject without reject reason information!'}, status=status.HTTP_200_OK)
@@ -627,6 +637,7 @@ def accept_order(request, pk):
             username = order.courier.username
         except Exception as e:
             username = None 
+            
             # return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
         # if not order.courier.username:
         #     return JsonResponse({'warning': 'This order have not courier!'}, status=status.HTTP_200_OK)
@@ -634,6 +645,8 @@ def accept_order(request, pk):
             return JsonResponse({'warning': 'You have not permission accept order with this token!'}, status=status.HTTP_200_OK)
         if order.status == "order completed":
             return JsonResponse({"warning": "You can't accept completed order!"}, status=status.HTTP_200_OK)
+        if order.status == "cook rejected order":
+                return JsonResponse({'warning': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
         if order.courier_status != "cook sent request to courier":
             return JsonResponse({"warning": "You have not active offer to this order!"}, status=status.HTTP_200_OK)
         order.courier_status = "courier accept order and wait confirmation of cook"
