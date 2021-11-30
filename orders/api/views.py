@@ -563,9 +563,9 @@ def accept_order(request, pk):
             # print("is rejected", request_data['is_rejected'])
             # print("is rejected=True", request_data['is_rejected']==True)
             # print("**************")
-            if order.reject_reason is not None:
-                return JsonResponse({'warning': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
-            elif order.courier_status != "courier accept order" and order.courier_status != "courier accept order and wait confirmation of cook":
+            # if order.reject_reason is not None:
+            #     return JsonResponse({'warning': 'You can not accept rejected order!'}, status=status.HTTP_200_OK)
+            if order.courier_status != "courier accept order" and order.courier_status != "courier accept order and wait confirmation of cook":
                 return JsonResponse({'warning': 'This order have not courier or courier not accept order yet!'}, status=status.HTTP_200_OK)
             elif order.is_active == True:
                 return JsonResponse({"warning": "You already accept this order!"}, status=status.HTTP_200_OK)
