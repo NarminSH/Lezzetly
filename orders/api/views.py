@@ -496,7 +496,7 @@ def reject_order(request, pk):
             print("currentCourier", currentCourier)
         except Courier.DoesNotExist: 
             return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
-        print("order.courier.username", order.courier.username)
+        # print("order.courier.username", order.courier.username)
         if order.courier.username != courierUsernameInToken:
             return JsonResponse({'warning': 'You have not permissio reject order with this token!'}, status=status.HTTP_200_OK)
         elif order.courier.username == courierUsernameInToken and order.status == "order completed":
