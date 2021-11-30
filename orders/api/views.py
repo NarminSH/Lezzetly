@@ -596,7 +596,7 @@ def accept_order(request, pk):
                 print("###### preparing times: ", preparing_times)
 
                 def timeout():
-                    order.status = "order is ready, waiting for courier"
+                    order.status = "order is ready, waiting for the courier"
                     order.save()
                     print("status after seconds: ", order.status)
                 
